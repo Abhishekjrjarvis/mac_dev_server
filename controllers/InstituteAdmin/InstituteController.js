@@ -9437,16 +9437,16 @@ exports.new_checklist_section_query = async (req, res) => {
     // const all_ifs = await DepartmentStudentForm.find({
     //   department: { $in: institute?.depart },
     // })
-    const all_app = await NewApplication.find({
-      $and: [
-        { _id: { $in: ads_admin?.newApplication } },
-        { applicationStatus: "Ongoing" },
-        { applicationTypeStatus: "Normal Application" },
-      ],
-    });
-    const all_ifs = await InstituteApplicationForm.find({
-      application: { $in: all_app },
-    })
+      const all_app = await NewApplication.find({
+        $and: [
+          { _id: { $in: ads_admin?.newApplication } },
+          { applicationStatus: "Ongoing" },
+          { applicationTypeStatus: "Normal Application" },
+        ],
+      });
+      const all_ifs = await InstituteApplicationForm.find({
+        application: { $in: all_app },
+      })
       .select("form_section")
       .populate({
         path: "form_section",

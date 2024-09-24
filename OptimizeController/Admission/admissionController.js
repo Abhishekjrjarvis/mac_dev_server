@@ -142,6 +142,7 @@ const StudentPreviousData = require("../../models/StudentPreviousData");
 const moment = require("moment");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const FeesCategory = require("../../models/Finance/FeesCategory");
+const { classes_shuffle_func } = require("../../Designation/functions");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -3565,6 +3566,8 @@ exports.retrieveClassAllotQuery = async (req, res) => {
               await ele.save();
             }
           }
+          await classes_shuffle_func(classes, student);
+
           await Promise.all([
             apply.save(),
             student.save(),
@@ -16752,6 +16755,91 @@ exports.render_one_subject_student_query = async (req, res) => {
   }
 };
 
+exports.render_one_subject_all_dse_student_query = async (req, res) => {
+  try {
+    const { sid, aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_subject = await SubjectMaster.findById({ _id: sid });
+    const apply = await NewApplication.findById({ _id: aid });
+    // const nums = [aid]
+    // const all_user = await User.find({ applyApplication: { $in: nums } })
+    let numss = [];
+    for (let ele of apply?.confirmedApplication) {
+      numss.push(ele?.student);
+    }
+    for (let ele of apply?.allottedApplication) {
+      numss.push(ele?.student);
+    }
+    let subject_num = [...numss, ...apply?.reviewApplication];
+    const all_student = await Student.find({ _id: { $in: subject_num } })
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      })
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "major_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName",
+      });
+    var n = [];
+    for (let val of all_student) {
+      // for (let ele of val?.student_optional_subject) {
+      //   if (`${ele?._id}` === `${one_subject?._id}`) n.push(val);
+      // }
+      for (let val of all_student) {
+        for (let ele of val?.major_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
+          }
+        }
+      }
+      // for (let val of all_student) {
+      //   for (let ele of val?.nested_subject) {
+      //     if (`${ele?._id}` === `${one_subject?._id}`) {
+      //       n.push(val);
+      //     }
+      //   }
+      // }
+    }
+    const unique = [...new Set(n.map((item) => item._id))];
+    const all = await Student.find({ _id: { $in: unique } })
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    const all_students = await nested_document_limit(page, limit, all);
+    res.status(200).send({
+      message: "Explore All Students Master Query",
+      access: true,
+      student: all_students?.length > 0 ? all_students : [],
+      student_count: unique?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.spce_student_name_sequencing = async (list) => {
   try {
     var i = 0;
@@ -18024,9 +18112,15 @@ exports.all_documents_export_query = async (req, res) => {
     var numss = {};
     for (let ele of all_student) {
       if (ele?.collect_docs?.length > 0) {
-        for (let val of ele?.collect_docs) {
-          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        for (let val = 1; val <= ele?.collect_docs?.length; val++) {
+          if (ele?.collect_docs[val]?.not_filled == "Yes") {
+            numss[`Document_${val}`] =
+              ele?.collect_docs[val]?.not_filled == "Yes"
+                ? ele?.collect_docs[val]?.docs?.document_name
+                : "";
+          }
         }
+        // console.log(numss);
         excel_list.push({
           RegistrationID: ele?.studentGRNO ?? "#NA",
           Name: `${ele?.studentFirstName} ${

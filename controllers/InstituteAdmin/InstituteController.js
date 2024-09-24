@@ -83,6 +83,7 @@ const {
   universal_random_password_student_code,
 } = require("../../Generator/RandomPass");
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
+const { classes_shuffle_func } = require("../../Designation/functions");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -5313,6 +5314,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    await classes_shuffle_func(classes, student);
     await invokeFirebaseNotification(
       "Student Approval",
       notify,
@@ -6118,6 +6120,7 @@ exports.retrieveUnApproveStudentRequestQuery = async (req, res) => {
       aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      await classes_shuffle_func(classes, student);
       await invokeFirebaseNotification(
         "Student Approval",
         notify,
@@ -9434,16 +9437,16 @@ exports.new_checklist_section_query = async (req, res) => {
     // const all_ifs = await DepartmentStudentForm.find({
     //   department: { $in: institute?.depart },
     // })
-    const all_app = await NewApplication.find({
-      $and: [
-        { _id: { $in: ads_admin?.newApplication } },
-        { applicationStatus: "Ongoing" },
-        { applicationTypeStatus: "Normal Application" },
-      ],
-    });
-    const all_ifs = await InstituteApplicationForm.find({
-      application: { $in: all_app },
-    })
+      const all_app = await NewApplication.find({
+        $and: [
+          { _id: { $in: ads_admin?.newApplication } },
+          { applicationStatus: "Ongoing" },
+          { applicationTypeStatus: "Normal Application" },
+        ],
+      });
+      const all_ifs = await InstituteApplicationForm.find({
+        application: { $in: all_app },
+      })
       .select("form_section")
       .populate({
         path: "form_section",
@@ -9483,11 +9486,11 @@ exports.new_checklist_section_query = async (req, res) => {
         //   form_common_key: "student_sponser",
         // },
         {
-          form_checklist_name: "PRN / Enrollment No.",
-          form_checklist_key: "student_prn_enroll_number",
+          form_checklist_name: "ABC ID",
+          form_checklist_key: "student_abc_id",
           form_checklist_visibility: true,
-          form_checklist_placeholder: "Enter PRN / Enrollment No.",
-          form_checklist_lable: "PRN / Enrollment No.",
+          form_checklist_placeholder: "Enter ABC ID",
+          form_checklist_lable: "ABC ID",
           form_checklist_typo: "TEXT",
           form_checklist_required: false,
         },

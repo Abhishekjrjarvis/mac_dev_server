@@ -125,6 +125,14 @@ exports.renderOneMentorQuery = async (req, res) => {
           path: "user",
           select: "userPhoneNumber userEmail",
         },
+      })
+      .populate({
+        path: "department",
+        select: "institute dName",
+        populate: {
+          path: "institute",
+          select: "insName name insProfilePhoto",
+        },
       });
 
     res
@@ -1269,12 +1277,10 @@ exports.renderEditOneMeetingQuery = async (req, res) => {
   try {
     const { meid } = req?.params;
     if (!meid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     await Meeting.findByIdAndUpdate(meid, req?.body);
 

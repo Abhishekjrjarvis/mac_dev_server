@@ -112,6 +112,15 @@ module.exports.form_params = [
         form_checklist_lable: "Name as per LC / TC",
         form_checklist_typo: "TEXT",
       },
+      {
+        form_checklist_name: "ABC ID",
+        form_checklist_key: "student_abc_id",
+        form_checklist_visibility: true,
+        form_checklist_placeholder: "Enter ABC ID",
+        form_checklist_lable: "ABC ID",
+        form_checklist_typo: "TEXT",
+        form_checklist_required: false,
+      },
     ],
   },
   {

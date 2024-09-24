@@ -461,6 +461,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    CASHIER_ACCESS: {
+      role: "CASHIER_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["Collect Fees"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

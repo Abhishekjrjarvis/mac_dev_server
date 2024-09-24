@@ -267,7 +267,7 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
       var all_mods = await AdmissionModerator.find({
         _id: { $in: ads_admin?.moderator_role },
       })
-        .sort({ created_at: -1})
+        .sort({ created_at: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
@@ -388,7 +388,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     if (app_array?.length > 0) {
-      one_moderator.access_application = [...app_array]
+      one_moderator.access_application = [...app_array];
       // for (var ref of app_array) {
       //   if (one_moderator?.access_application?.includes(`${ref}`)) {
       //   } else {
@@ -686,8 +686,15 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
 exports.addInstituteModeratorQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { mod_role, sid, lmid, social_media_password_query, academic_department, staff_array, rev_array } =
-      req.body;
+    const {
+      mod_role,
+      sid,
+      lmid,
+      social_media_password_query,
+      academic_department,
+      staff_array,
+      rev_array,
+    } = req.body;
     if (!id && !mod_role && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -708,7 +715,10 @@ exports.addInstituteModeratorQuery = async (req, res) => {
         ...all_role[`${mod_role}`]?.permission?.bound,
       ];
     }
-    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+    if (
+      `${mod_role}` === "SOCIAL_MEDIA_ACCESS" ||
+      "SOCIAL_MEDIA_ASSISTANT_ACCESS"
+    ) {
       if (social_media_password_query) {
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(
@@ -724,12 +734,14 @@ exports.addInstituteModeratorQuery = async (req, res) => {
       new_mod.academic_department = academic_department;
     }
     new_mod.institute = institute?._id;
-    if (`${mod_role}` === "LEAVE_RECOMMENDATION_ACCESS" || `${mod_role}` === "LEAVE_REVIEW_ACCESS" || `${mod_role}` === "LEAVE_SANCTION_ACCESS") {
-      
-    }
-    else {
+    if (
+      `${mod_role}` === "LEAVE_RECOMMENDATION_ACCESS" ||
+      `${mod_role}` === "LEAVE_REVIEW_ACCESS" ||
+      `${mod_role}` === "LEAVE_SANCTION_ACCESS"
+    ) {
+    } else {
       institute.moderator_role.push(new_mod?._id);
-      institute.moderator_role_count += 1; 
+      institute.moderator_role_count += 1;
     }
     staff.instituteModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
@@ -746,7 +758,10 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Institute Moderator Designation";
-    if (`${mod_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+    if (
+      `${mod_role}` === "SOCIAL_MEDIA_ACCESS" ||
+      "SOCIAL_MEDIA_ASSISTANT_ACCESS"
+    ) {
       notify.social = true;
     }
     user.uNotify.push(notify._id);
@@ -754,48 +769,48 @@ exports.addInstituteModeratorQuery = async (req, res) => {
     notify.notifyPid = "1";
     notify.notifyByInsPhoto = institute._id;
     if (`${mod_role}` === "LEAVE_RECOMMENDATION_ACCESS") {
-      var lms = await LMS.findById({ _id: lmid})
-      var all_staff = await Staff.find({ _id: { $in: staff_array}})
-      for(var ele of all_staff){
-        ele.recommend_authority = new_mod?._id
-        new_mod.recommend_staff.push(ele?._id)
-        new_mod.recommend_staff_count += 1
-        await ele.save()
+      var lms = await LMS.findById({ _id: lmid });
+      var all_staff = await Staff.find({ _id: { $in: staff_array } });
+      for (var ele of all_staff) {
+        ele.recommend_authority = new_mod?._id;
+        new_mod.recommend_staff.push(ele?._id);
+        new_mod.recommend_staff_count += 1;
+        await ele.save();
       }
       lms.leave_moderator_role.push(new_mod?._id);
       lms.leave_moderator_role_count += 1;
-      new_mod.lms = lms?._id
-      await lms.save()
-    } 
+      new_mod.lms = lms?._id;
+      await lms.save();
+    }
     if (`${mod_role}` === "LEAVE_REVIEW_ACCESS") {
-      var lms = await LMS.findById({ _id: lmid})
-      var all_staff = await Staff.find({ _id: { $in: staff_array}})
-      for(var ele of all_staff){
-        ele.review_authority = new_mod?._id
-        new_mod.review_staff.push(ele?._id)
-        new_mod.review_staff_count += 1
-        await ele.save()
+      var lms = await LMS.findById({ _id: lmid });
+      var all_staff = await Staff.find({ _id: { $in: staff_array } });
+      for (var ele of all_staff) {
+        ele.review_authority = new_mod?._id;
+        new_mod.review_staff.push(ele?._id);
+        new_mod.review_staff_count += 1;
+        await ele.save();
       }
       lms.leave_moderator_role.push(new_mod?._id);
       lms.leave_moderator_role_count += 1;
-      new_mod.lms = lms?._id
-      await lms.save()
+      new_mod.lms = lms?._id;
+      await lms.save();
     }
     if (`${mod_role}` === "LEAVE_SANCTION_ACCESS") {
-      var lms = await LMS.findById({ _id: lmid})
-      var all_mods = await FinanceModerator.find({ _id: { $in: rev_array}})
-      for(var ele of all_mods){
-        new_mod.review_authority_list.push(ele?._id)
-        var all_staff = await Staff.find({ _id: { $in: ele?.review_staff}})
-        for(var stu of all_staff){
-          stu.sanction_authority = new_mod?._id
-          await stu.save()
+      var lms = await LMS.findById({ _id: lmid });
+      var all_mods = await FinanceModerator.find({ _id: { $in: rev_array } });
+      for (var ele of all_mods) {
+        new_mod.review_authority_list.push(ele?._id);
+        var all_staff = await Staff.find({ _id: { $in: ele?.review_staff } });
+        for (var stu of all_staff) {
+          stu.sanction_authority = new_mod?._id;
+          await stu.save();
         }
       }
       lms.leave_moderator_role.push(new_mod?._id);
       lms.leave_moderator_role_count += 1;
-      new_mod.lms = lms?._id
-      await lms.save()
+      new_mod.lms = lms?._id;
+      await lms.save();
     }
     await Promise.all([
       staff.save(),
@@ -932,7 +947,10 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         one_staff.staffDesignationCount -= 1;
       }
       await one_staff.save();
-      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+      if (
+        `${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" ||
+        "SOCIAL_MEDIA_ASSISTANT_ACCESS"
+      ) {
         var one_user = await User.findById({
           _id: `${one_staff?.user}`,
         });
@@ -957,7 +975,10 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = one_moderator?.institute?._id;
-      if (`${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" || "SOCIAL_MEDIA_ASSISTANT_ACCESS") {
+      if (
+        `${one_moderator?.access_role}` === "SOCIAL_MEDIA_ACCESS" ||
+        "SOCIAL_MEDIA_ASSISTANT_ACCESS"
+      ) {
         const valid_ins = await InstituteAdmin.findById({
           _id: one_moderator?.institute?._id,
         });
@@ -994,12 +1015,14 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         ? academic_department
         : null;
     }
-    if(`${one_moderator?.access_role}` === "INSTITUTE_ADMIN"){
-      if(one_moderator?.institute?._id){
-        const ins = await InstituteAdmin.findById({ _id: one_moderator?.institute?._id })
-        one_moderator.staff_institute_admin = ins?._id
-        ins.moderator_list.push(one_moderator?._id)
-        await ins.save()
+    if (`${one_moderator?.access_role}` === "INSTITUTE_ADMIN") {
+      if (one_moderator?.institute?._id) {
+        const ins = await InstituteAdmin.findById({
+          _id: one_moderator?.institute?._id,
+        });
+        one_moderator.staff_institute_admin = ins?._id;
+        ins.moderator_list.push(one_moderator?._id);
+        await ins.save();
       }
     }
     await one_moderator.save();
@@ -1013,7 +1036,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
 exports.destroyInstituteModeratorQuery = async (req, res) => {
   try {
     const { id, mid } = req.params;
-    const { flow, lmid } = req?.query
+    const { flow, lmid } = req?.query;
     if (!id && !mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1034,9 +1057,8 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
       if (lms.leave_moderator_role > 0) {
         lms.leave_moderator_role -= 1;
       }
-      await lms.save()
-    }
-    else {
+      await lms.save();
+    } else {
       institute.moderator_role.pull(mid);
       if (institute.moderator_role_count > 0) {
         institute.moderator_role_count -= 1;
@@ -1344,7 +1366,6 @@ exports.destroyHostelAppModeratorQuery = async (req, res) => {
   }
 };
 
-
 exports.renderInstituteAllAppReviewModeratorArray = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1358,37 +1379,35 @@ exports.renderInstituteAllAppReviewModeratorArray = async (req, res) => {
         access: false,
       });
 
-    const lms = await LMS.findById({ _id: id }).select(
-      "leave_moderator_role"
-    );
-        var all_mods = await FinanceModerator.find({
-          $and: [{lms: lms?._id }, { access_role: role}]
-        })
-          .sort("-1")
-          .limit(limit)
-          .skip(skip)
-          .populate({
-            path: "access_staff",
-            select:
-              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-          })
-          .populate({
-            path: "academic_department",
-          });
-      if (all_mods?.length > 0) {
-        // const allEncrypt = await encryptionPayload(all_mods);
-        res.status(200).send({
-          message: "All Leave & Transfer Role Admin / Moderator List 😀",
-          all_mods,
-          access: true,
-        });
-      } else {
-        res.status(200).send({
-          message: "No Leave & Transfer Role Admin / Moderator List 😀",
-          all_mods: [],
-          access: false,
-        });
-      }
+    const lms = await LMS.findById({ _id: id }).select("leave_moderator_role");
+    var all_mods = await FinanceModerator.find({
+      $and: [{ lms: lms?._id }, { access_role: role }],
+    })
+      .sort("-1")
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "access_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "academic_department",
+      });
+    if (all_mods?.length > 0) {
+      // const allEncrypt = await encryptionPayload(all_mods);
+      res.status(200).send({
+        message: "All Leave & Transfer Role Admin / Moderator List 😀",
+        all_mods,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Leave & Transfer Role Admin / Moderator List 😀",
+        all_mods: [],
+        access: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

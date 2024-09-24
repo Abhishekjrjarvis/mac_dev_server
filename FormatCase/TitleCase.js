@@ -24,18 +24,18 @@ exports.all_title_case_query = async (stu_args) => {
     stu_args.studentMTongue = stu_args?.studentMTongue
       ? title_case(stu_args?.studentMTongue)
       : stu_args?.studentMTongue;
-    stu_args.studentReligion = stu_args?.studentReligion
-      ? title_case(stu_args?.studentReligion)
-      : stu_args?.studentReligion;
-    stu_args.studentNationality = stu_args?.studentNationality
-      ? title_case(stu_args?.studentNationality)
-      : stu_args?.studentNationality;
+    // stu_args.studentReligion = stu_args?.studentReligion
+    //   ? title_case(stu_args?.studentReligion)
+    //   : stu_args?.studentReligion;
+    // stu_args.studentNationality = stu_args?.studentNationality
+    //   ? title_case(stu_args?.studentNationality)
+    //   : stu_args?.studentNationality;
     stu_args.studentCast = stu_args?.studentCast
       ? title_case(stu_args?.studentCast)
       : stu_args?.studentCast;
-    stu_args.studentCastCategory = stu_args?.studentCastCategory
-      ? title_case(stu_args?.studentCastCategory)
-      : stu_args?.studentCastCategory;
+    // stu_args.studentCastCategory = stu_args?.studentCastCategory
+    //   ? title_case(stu_args?.studentCastCategory)
+    //   : stu_args?.studentCastCategory;
     stu_args.studentMotherName = stu_args?.studentMotherName
       ? title_case(stu_args?.studentMotherName)
       : stu_args?.studentMotherName;

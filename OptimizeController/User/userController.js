@@ -2056,7 +2056,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "institute",
             select:
-              "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
+              "-_id insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
           })
           .populate({
             path: "user",

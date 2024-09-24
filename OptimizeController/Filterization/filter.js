@@ -18557,7 +18557,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees fee_payment_mode")
+          .select("fee_heads other_fees fee_payment_mode fee_payment_amount")
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -18569,6 +18569,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           })
           .lean()
           .exec();
+        console.log(all_receipts?.length);
       }
     } else {
       var all_receipts = await FeeReceipt.find({
@@ -18594,7 +18595,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees fee_payment_mode")
+        .select("fee_heads other_fees fee_payment_mode fee_payment_amount")
         .populate({
           path: "other_fees",
           select: "bank_account fees_heads",
@@ -18617,7 +18618,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         if (`${val?.other_fees?.bank_account?._id}` === `${bank}`) return val;
       });
     }
-    console.log(all_receipts?.length);
+    // console.log(all_receipts?.length);
     let heads_queue = [];
     for (let i of all_receipts) {
       for (let j of i?.other_fees?.fees_heads) {
@@ -18640,6 +18641,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
       nest_obj.push(obj);
       obj = {};
     }
+    var total = 0;
     console.log("MM", all_receipts?.length);
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
@@ -19026,6 +19028,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
                   //   l.push(`${val?.original_paid}`);
                   // }
                   // t+= val?.original_paid
+                } else {
+                  console.log(ele?._id);
                 }
               }
             }
@@ -19050,6 +19054,13 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
       // day_range_to: to,
       // ins_info: institute,
       // });
+      for (let ele of all_receipts) {
+        if (ele?.fee_heads?.[0]?.is_society == true) {
+          console.log(ele?._id);
+        } else {
+          total += ele?.fee_payment_amount;
+        }
+      }
       return {
         message: "Explore Other Fees Day Book Heads Query",
         access: true,
@@ -19059,11 +19070,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
-        range: `${all_receipts[0]?.invoice_count?.substring(
-          14
-        )} To ${all_receipts[
-          all_receipts?.length - 1
-        ]?.invoice_count?.substring(14)}`,
+        range: "",
+        total: total,
       };
     } else {
       return {
@@ -19132,6 +19140,7 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
     //   combines.push({
     //     results: cls?.results,
     //     range: cls?.range,
+    //     total: cls?.total ?? 0,
     //   });
     // }
     // const valid_bank = await BankAccount.findById({ _id: bank }).select(

@@ -2056,7 +2056,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "institute",
             select:
-              "-_id insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
+              "insName name photoId insProfilePhoto library studentFormSetting student_section_form_show_query transportDepart",
           })
           .populate({
             path: "user",
@@ -2112,7 +2112,9 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 },
               },
             },
-          });
+          })
+          .lean()
+          .exec();
         if (student?.studentClass) {
           var classes = await Class.findById({
             _id: `${student?.studentClass?._id}`,
@@ -2277,6 +2279,23 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   bind_student
       // );
       await calc_profile_percentage(student);
+      if (isApk) {
+        // const ins = await InstituteAdmin.findById({
+        //   _id: student?.institute?._id,
+        // });
+        // let obj = {
+        //   studentFormSetting: ins?.studentFormSetting,
+        //   insName: ins?.insName,
+        //   name: ins?.name,
+        //   transportDepart: ins?.transportDepart,
+        //   library: ins?.library,
+        //   student_section_form_show_query: ins?.student_section_form_show_query,
+        //   photoId: ins?.photoId,
+        //   insProfilePhoto: ins?.insProfilePhoto,
+        //   _id: "",
+        // };
+        student.institute._id = "";
+      }
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,

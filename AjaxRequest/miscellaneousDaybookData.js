@@ -89,7 +89,7 @@ const render_other_fees_daybook_heads_wise = async (
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },
@@ -128,7 +128,7 @@ const render_other_fees_daybook_heads_wise = async (
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },

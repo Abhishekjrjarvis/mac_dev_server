@@ -17151,7 +17151,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17207,7 +17207,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17263,7 +17263,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17309,7 +17309,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },
@@ -17906,7 +17906,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -17962,7 +17962,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -18018,7 +18018,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -18065,7 +18065,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18431,7 +18431,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18485,7 +18485,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18536,7 +18536,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18569,7 +18569,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           })
           .lean()
           .exec();
-        console.log(all_receipts?.length);
+        console.log(all_receipts?.length, "iueqioueoiqueu");
       }
     } else {
       var all_receipts = await FeeReceipt.find({
@@ -18577,7 +18577,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },

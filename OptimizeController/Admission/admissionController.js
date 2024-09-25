@@ -254,7 +254,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode moderator_role cash_authority_list",
+          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode cash_authority_list",
       });
     // const cached = await connect_redis_miss(
     //   `Admission-Detail-${aid}`,

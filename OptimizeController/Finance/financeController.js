@@ -291,7 +291,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access moderator_role cash_authority_list",
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access cash_authority_list",
       })
       .populate({
         path: "financeHead",
@@ -312,7 +312,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
         finance.enable_protection = false;
       }
     }
-    await cash_mods(finance?.financeHead?._id, finance?.institute);
+    // await cash_mods(finance?.financeHead?._id, finance?.institute);
     const finance_bind = {
       message: "Finance Master Query",
       finance: finance,

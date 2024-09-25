@@ -98,6 +98,24 @@ exports.render_institute_current_role = async (institute, mid) => {
   }
 };
 
+exports.cash_mods = async (sid, ins) => {
+  try {
+    const all_mods = await FinanceModerator.find({
+      $and: [
+        { _id: { $in: ins?.moderator_role } },
+        { access_role: "CASHIER_ACCESS" },
+      ],
+    }).select("access_role access_staff");
+    for (let ele of all_mods) {
+      if (`${ele?.access_staff}` === `${sid}`) {
+        ins.cash_authority_list.push(sid);
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.addAdmissionAppModerator = async (req, res) => {
   try {
     const { aid } = req.params;

@@ -59,7 +59,10 @@ const {
   installment_checker_query,
   generate_random_code_structure,
 } = require("../../helper/functions");
-const { render_finance_current_role } = require("../Moderator/roleController");
+const {
+  render_finance_current_role,
+  cash_mods,
+} = require("../Moderator/roleController");
 const {
   retro_student_heads_sequencing_query,
   retro_receipt_heads_sequencing_query,
@@ -288,7 +291,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access",
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access moderator_role cash_authority_list",
       })
       .populate({
         path: "financeHead",
@@ -309,6 +312,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
         finance.enable_protection = false;
       }
     }
+    await cash_mods(finance?.financeHead?._id, finance?.institute);
     const finance_bind = {
       message: "Finance Master Query",
       finance: finance,

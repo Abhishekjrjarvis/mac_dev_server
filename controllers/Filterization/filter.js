@@ -2166,6 +2166,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           var remain_list = await RemainingList.findOne({
             $and: [
               { fee_structure: ref?.fee_structure },
+              { student: ref?.student?._id },
               // { appId: ref?.application?._id },
             ],
           })
@@ -2196,7 +2197,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             for (var val of ref?.fee_heads) {
               if (bank_acc?.bank_account_type === "Society") {
                 if (
-                  `${val?.appId}` === `${ref?.application?._id}` &&
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
                   val?.master &&
                   val?.is_society == true
                 ) {
@@ -2244,6 +2245,11 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             // console.log(remain_list?.fee_structure?.batch_master?.batchName);
             // console.log(
             //   remain_list?.fee_structure?.category_master?.category_name
+            // );
+            // console.log(
+            //   `${val?.appId}` === `${remain_list?.appId?._id}`,
+            //   val?.appId,
+            //   remain_list?.appId?._id
             // );
             head_list.push({
               ReceiptNumber: ref?.invoice_count ?? "0",
@@ -2330,6 +2336,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         }
       }
 
+      // console.log(head_list);
       await fee_heads_receipt_json_to_excel_query(
         head_list,
         institute?.insName,
@@ -5526,11 +5533,21 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
     var l_month;
 
     var sorted_array = [];
+    var valid_timeline_stats = "BY_ADMISSION";
+    if (bank) {
+      var bank_acc = await BankAccount.findById({ _id: bank }).select(
+        "bank_account_type hostel"
+      );
+      if (bank_acc?.hostel) {
+        valid_timeline_stats = "BY_HOSTEL_MANAGER";
+      }
+    }
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const finance = await Finance.findById({ _id: fid }).populate({
       path: "financeHead",
       select: "user",
     });
+    // console.log(valid_timeline_stats);
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     });
@@ -5601,7 +5618,7 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
             },
           },
           {
-            receipt_generated_from: "BY_ADMISSION",
+            receipt_generated_from: `${valid_timeline_stats}`,
           },
           {
             refund_status: "No Refund",
@@ -5657,21 +5674,22 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
         .lean()
         .exec();
       if (bank) {
-        const bank_acc = await BankAccount.findById({ _id: bank }).select(
-          "bank_account_type"
-        );
         if (bank_acc?.bank_account_type === "Society") {
         } else {
-          all_receipts = all_receipts?.filter((val) => {
-            if (
-              `${val?.application?.applicationDepartment?.bank_account?._id}` ===
-              `${bank}`
-            )
-              return val;
-          });
+          if (bank_acc?.hostel) {
+          } else {
+            all_receipts = all_receipts?.filter((val) => {
+              if (
+                `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+                `${bank}`
+              )
+                return val;
+            });
+          }
         }
       }
     }
+    // console.log(all_receipts?.length);
     if (all_receipts?.length > 0) {
       res.status(200).send({
         message: "Explore Fee Receipt Heads Structure Query",

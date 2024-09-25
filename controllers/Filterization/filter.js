@@ -2208,7 +2208,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                 }
               } else {
                 if (
-                  `${val?.appId}` === `${ref?.application?._id}` &&
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
                   val?.master &&
                   val?.is_society == false
                 ) {
@@ -2226,7 +2226,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               remain_list?.applicable_card?.applicable_fee >
             0
           ) {
-            if (`${val?.appId}` === `${ref?.application?._id}`) {
+            if (`${val?.appId}` === `${remain_list?.appId?._id}`) {
               head_array.push({
                 HeadsName: "Excess Fees",
                 PaidHeadFees:

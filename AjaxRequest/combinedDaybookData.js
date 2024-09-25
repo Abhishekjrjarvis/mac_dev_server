@@ -5,6 +5,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const Hostel = require("../models/Hostel/hostel");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
+const Staff = require("../models/Staff");
 
 // const dataObj = {
 //   message: "Combined Daybook",
@@ -372,7 +373,7 @@ const FeeReceipt = require("../models/RazorPay/feeReceipt");
 //   level: "info",
 // };
 
-const normal_daybook = async (from, to, bank, payment_type, fid) => {
+const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
   try {
     var g_year;
     var l_year;
@@ -446,123 +447,182 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
       }
     }
     const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
-    if (payment_type) {
-      if (payment_type == "Total") {
-        var all_receipts_set = await FeeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              fee_transaction_date: {
-                $gte: g_date,
-                $lt: l_date,
+    if (staff) {
+      var one_staff = await Staff.findById({ _id: `${staff}` }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+      );
+      if (payment_type) {
+        if (payment_type == "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
               },
-            },
-            {
-              receipt_generated_from: "BY_ADMISSION",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              visible_status: "Not Hide",
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select(
-            "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-          )
-          .populate({
-            path: "application",
-            select: "applicationDepartment",
-            populate: {
-              path: "applicationDepartment",
-              select: "bank_account",
-              populate: {
-                path: "bank_account",
-                select:
-                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              {
+                receipt_generated_from: "BY_ADMISSION",
               },
-            },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
           })
-          .lean()
-          .exec();
-        var all_receipts = all_receipts_set?.filter((val) => {
-          if (
-            `${val?.fee_payment_mode}` === "By Cash" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-            `${val?.fee_payment_mode}` === "Cheque" ||
-            `${val?.fee_payment_mode}` === "Net Banking" ||
-            `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-            `${val?.fee_payment_mode}` === "UPI Transfer" ||
-            `${val?.fee_payment_mode}` === "Demand Draft"
-          ) {
-            return val;
-          }
-        });
-      } else if (payment_type == "Cash / Bank") {
-        var all_receipts_set = await FeeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              fee_transaction_date: {
-                $gte: g_date,
-                $lt: l_date,
-              },
-            },
-            {
-              receipt_generated_from: "BY_ADMISSION",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              visible_status: "Not Hide",
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select(
-            "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-          )
-          .populate({
-            path: "application",
-            select: "applicationDepartment",
-            populate: {
-              path: "applicationDepartment",
-              select: "bank_account",
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
               populate: {
-                path: "bank_account",
-                select:
-                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
               },
-            },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else if (payment_type == "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
           })
-          .lean()
-          .exec();
-        var all_receipts = all_receipts_set?.filter((val) => {
-          if (
-            `${val?.fee_payment_mode}` === "By Cash" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-            `${val?.fee_payment_mode}` === "Cheque" ||
-            `${val?.fee_payment_mode}` === "Net Banking" ||
-            `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-            `${val?.fee_payment_mode}` === "UPI Transfer" ||
-            `${val?.fee_payment_mode}` === "Demand Draft"
-          ) {
-            return val;
-          }
-        });
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+        }
       } else {
         var all_receipts = await FeeReceipt.find({
           $and: [
@@ -581,18 +641,16 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
               refund_status: "No Refund",
             },
             {
-              fee_payment_mode: payment_type,
+              visible_status: "Not Hide",
             },
             {
-              visible_status: "Not Hide",
+              cashier_collect_by: `${staff}`,
             },
             // { student: { $in: sorted_array } },
           ],
         })
           .sort({ invoice_count: "1" })
-          .select(
-            "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-          )
+          .select("fee_heads application fee_payment_mode")
           .populate({
             path: "application",
             select: "applicationDepartment",
@@ -610,45 +668,210 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
           .exec();
       }
     } else {
-      var all_receipts = await FeeReceipt.find({
-        $and: [
-          { finance: fid },
-          // { fee_flow: "FEE_HEADS" },
-          {
-            fee_transaction_date: {
-              $gte: g_date,
-              $lt: l_date,
+      if (payment_type) {
+        if (payment_type == "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else if (payment_type == "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+          var all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_ADMISSION",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+            )
+            .populate({
+              path: "application",
+              select: "applicationDepartment",
+              populate: {
+                path: "applicationDepartment",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+        }
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
             },
-          },
-          {
-            receipt_generated_from: "BY_ADMISSION",
-          },
-          {
-            refund_status: "No Refund",
-          },
-          {
-            visible_status: "Not Hide",
-          },
-          // { student: { $in: sorted_array } },
-        ],
-      })
-        .sort({ invoice_count: "1" })
-        .select("fee_heads application fee_payment_mode")
-        .populate({
-          path: "application",
-          select: "applicationDepartment",
-          populate: {
-            path: "applicationDepartment",
-            select: "bank_account",
-            populate: {
-              path: "bank_account",
-              select:
-                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            {
+              receipt_generated_from: "BY_ADMISSION",
             },
-          },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            // { student: { $in: sorted_array } },
+          ],
         })
-        .lean()
-        .exec();
+          .sort({ invoice_count: "1" })
+          .select("fee_heads application fee_payment_mode")
+          .populate({
+            path: "application",
+            select: "applicationDepartment",
+            populate: {
+              path: "applicationDepartment",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            },
+          })
+          .lean()
+          .exec();
+      }
     }
     // console.log(all_receipts)
     if (bank_acc?.bank_account_type === "Society") {
@@ -1119,6 +1342,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
+        one_staff: staff ? one_staff : {},
       };
     } else {
       return {
@@ -1131,6 +1355,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
         day_range_to: to,
         ins_info: institute,
         range: "",
+        one_staff: {},
       };
     }
   } catch (e) {
@@ -1138,7 +1363,15 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
   }
 };
 
-const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
+const hostel_daybook = async (
+  from,
+  to,
+  bank,
+  payment_type,
+  hid,
+  fid,
+  staff
+) => {
   try {
     var g_year;
     var l_year;
@@ -1205,124 +1438,184 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
         }
       }
       const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
-      if (payment_type) {
-        if (payment_type == "Total") {
-          var all_receipts_set = await FeeReceipt.find({
-            $and: [
-              { finance: fid },
-              // { fee_flow: "FEE_HEADS" },
-              {
-                fee_transaction_date: {
-                  $gte: g_date,
-                  $lt: l_date,
+      if (staff) {
+        var one_staff = await Staff.findById({ _id: `${staff}` }).select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+        );
+        if (payment_type) {
+          if (payment_type == "Total") {
+            var all_receipts_set = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
                 },
-              },
-              {
-                receipt_generated_from: "BY_HOSTEL_MANAGER",
-              },
-              {
-                refund_status: "No Refund",
-              },
-              {
-                visible_status: "Not Hide",
-              },
-              // { student: { $in: sorted_array } },
-            ],
-          })
-            .sort({ invoice_count: "1" })
-            .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-            )
-            .populate({
-              path: "application",
-              select: "hostelAdmin",
-              populate: {
-                path: "hostelAdmin",
-                select: "bank_account",
-                populate: {
-                  path: "bank_account",
-                  select:
-                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
                 },
-              },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                {
+                  cashier_collect_by: `${staff}`,
+                },
+                // { student: { $in: sorted_array } },
+              ],
             })
-            .lean()
-            .exec();
-          var all_receipts = all_receipts_set?.filter((val) => {
-            if (
-              `${val?.fee_payment_mode}` === "By Cash" ||
-              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-              `${val?.fee_payment_mode}` === "Cheque" ||
-              `${val?.fee_payment_mode}` === "Net Banking" ||
-              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-              `${val?.fee_payment_mode}` === "UPI Transfer" ||
-              `${val?.fee_payment_mode}` === "Demand Draft"
-            ) {
-              return val;
-            }
-          });
-        } else if (payment_type == "Cash / Bank") {
-          var all_receipts_set = await FeeReceipt.find({
-            $and: [
-              { finance: fid },
-              // { fee_flow: "FEE_HEADS" },
-              {
-                fee_transaction_date: {
-                  $gte: g_date,
-                  $lt: l_date,
-                },
-              },
-              {
-                receipt_generated_from: "BY_HOSTEL_MANAGER",
-              },
-              {
-                refund_status: "No Refund",
-              },
-              {
-                visible_status: "Not Hide",
-              },
-              // { student: { $in: sorted_array } },
-            ],
-          })
-            .sort({ invoice_count: "1" })
-            .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-            )
-            .populate({
-              path: "application",
-              select: "hostelAdmin",
-              populate: {
-                path: "hostelAdmin",
-                select: "bank_account",
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
                 populate: {
-                  path: "bank_account",
-                  select:
-                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
                 },
-              },
+              })
+              .lean()
+              .exec();
+            var all_receipts = all_receipts_set?.filter((val) => {
+              if (
+                `${val?.fee_payment_mode}` === "By Cash" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+                `${val?.fee_payment_mode}` === "Cheque" ||
+                `${val?.fee_payment_mode}` === "Net Banking" ||
+                `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+                `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+                `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+                `${val?.fee_payment_mode}` === "UPI Transfer" ||
+                `${val?.fee_payment_mode}` === "Demand Draft"
+              ) {
+                return val;
+              }
+            });
+          } else if (payment_type == "Cash / Bank") {
+            var all_receipts_set = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
+                },
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
+                },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                {
+                  cashier_collect_by: `${staff}`,
+                },
+                // { student: { $in: sorted_array } },
+              ],
             })
-            .lean()
-            .exec();
-          var all_receipts = all_receipts_set?.filter((val) => {
-            if (
-              `${val?.fee_payment_mode}` === "By Cash" ||
-              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-              `${val?.fee_payment_mode}` === "Cheque" ||
-              `${val?.fee_payment_mode}` === "Net Banking" ||
-              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-              `${val?.fee_payment_mode}` === "UPI Transfer" ||
-              `${val?.fee_payment_mode}` === "Demand Draft"
-            ) {
-              return val;
-            }
-          });
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
+                populate: {
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
+                },
+              })
+              .lean()
+              .exec();
+            var all_receipts = all_receipts_set?.filter((val) => {
+              if (
+                `${val?.fee_payment_mode}` === "By Cash" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+                `${val?.fee_payment_mode}` === "Cheque" ||
+                `${val?.fee_payment_mode}` === "Net Banking" ||
+                `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+                `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+                `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+                `${val?.fee_payment_mode}` === "UPI Transfer" ||
+                `${val?.fee_payment_mode}` === "Demand Draft"
+              ) {
+                return val;
+              }
+            });
+          } else {
+            var all_receipts = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
+                },
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
+                },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  fee_payment_mode: payment_type,
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                {
+                  cashier_collect_by: `${staff}`,
+                },
+                // { student: { $in: sorted_array } },
+              ],
+            })
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
+                populate: {
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
+                },
+              })
+              .lean()
+              .exec();
+          }
         } else {
+          console.log("ENTER", g_date, l_date);
           var all_receipts = await FeeReceipt.find({
             $and: [
               { finance: fid },
@@ -1340,18 +1633,16 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
                 refund_status: "No Refund",
               },
               {
-                fee_payment_mode: payment_type,
+                visible_status: "Not Hide",
               },
               {
-                visible_status: "Not Hide",
+                cashier_collect_by: `${staff}`,
               },
               // { student: { $in: sorted_array } },
             ],
           })
             .sort({ invoice_count: "1" })
-            .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
-            )
+            .select("fee_heads application fee_payment_mode")
             .populate({
               path: "application",
               select: "hostelAdmin",
@@ -1369,46 +1660,211 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
             .exec();
         }
       } else {
-        console.log("ENTER", g_date, l_date);
-        var all_receipts = await FeeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              fee_transaction_date: {
-                $gte: g_date,
-                $lt: l_date,
+        if (payment_type) {
+          if (payment_type == "Total") {
+            var all_receipts_set = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
+                },
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
+                },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                // { student: { $in: sorted_array } },
+              ],
+            })
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
+                populate: {
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
+                },
+              })
+              .lean()
+              .exec();
+            var all_receipts = all_receipts_set?.filter((val) => {
+              if (
+                `${val?.fee_payment_mode}` === "By Cash" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+                `${val?.fee_payment_mode}` === "Cheque" ||
+                `${val?.fee_payment_mode}` === "Net Banking" ||
+                `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+                `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+                `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+                `${val?.fee_payment_mode}` === "UPI Transfer" ||
+                `${val?.fee_payment_mode}` === "Demand Draft"
+              ) {
+                return val;
+              }
+            });
+          } else if (payment_type == "Cash / Bank") {
+            var all_receipts_set = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
+                },
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
+                },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                // { student: { $in: sorted_array } },
+              ],
+            })
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
+                populate: {
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
+                },
+              })
+              .lean()
+              .exec();
+            var all_receipts = all_receipts_set?.filter((val) => {
+              if (
+                `${val?.fee_payment_mode}` === "By Cash" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+                `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+                `${val?.fee_payment_mode}` === "Cheque" ||
+                `${val?.fee_payment_mode}` === "Net Banking" ||
+                `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+                `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+                `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+                `${val?.fee_payment_mode}` === "UPI Transfer" ||
+                `${val?.fee_payment_mode}` === "Demand Draft"
+              ) {
+                return val;
+              }
+            });
+          } else {
+            var all_receipts = await FeeReceipt.find({
+              $and: [
+                { finance: fid },
+                // { fee_flow: "FEE_HEADS" },
+                {
+                  fee_transaction_date: {
+                    $gte: g_date,
+                    $lt: l_date,
+                  },
+                },
+                {
+                  receipt_generated_from: "BY_HOSTEL_MANAGER",
+                },
+                {
+                  refund_status: "No Refund",
+                },
+                {
+                  fee_payment_mode: payment_type,
+                },
+                {
+                  visible_status: "Not Hide",
+                },
+                // { student: { $in: sorted_array } },
+              ],
+            })
+              .sort({ invoice_count: "1" })
+              .select(
+                "fee_heads application fee_payment_mode invoice_count fee_payment_amount"
+              )
+              .populate({
+                path: "application",
+                select: "hostelAdmin",
+                populate: {
+                  path: "hostelAdmin",
+                  select: "bank_account",
+                  populate: {
+                    path: "bank_account",
+                    select:
+                      "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                  },
+                },
+              })
+              .lean()
+              .exec();
+          }
+        } else {
+          console.log("ENTER", g_date, l_date);
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
               },
-            },
-            {
-              receipt_generated_from: "BY_HOSTEL_MANAGER",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              visible_status: "Not Hide",
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select("fee_heads application fee_payment_mode")
-          .populate({
-            path: "application",
-            select: "hostelAdmin",
-            populate: {
-              path: "hostelAdmin",
-              select: "bank_account",
-              populate: {
-                path: "bank_account",
-                select:
-                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              {
+                receipt_generated_from: "BY_HOSTEL_MANAGER",
               },
-            },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
           })
-          .lean()
-          .exec();
+            .sort({ invoice_count: "1" })
+            .select("fee_heads application fee_payment_mode")
+            .populate({
+              path: "application",
+              select: "hostelAdmin",
+              populate: {
+                path: "hostelAdmin",
+                select: "bank_account",
+                populate: {
+                  path: "bank_account",
+                  select:
+                    "finance_bank_account_number finance_bank_name finance_bank_account_name",
+                },
+              },
+            })
+            .lean()
+            .exec();
+        }
       }
       // console.log(all_receipts)
       all_receipts = all_receipts?.filter((val) => {
@@ -1658,6 +2114,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
           day_range_from: from,
           day_range_to: to,
           ins_info: institute,
+          one_staff: staff ? one_staff : {},
         };
       } else {
         return {
@@ -1670,6 +2127,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
           day_range_to: null,
           ins_info: {},
           range: "",
+          one_staff: {},
         };
       }
     } else {
@@ -1683,6 +2141,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
         day_range_to: to,
         ins_info: "",
         range: "",
+        one_staff: {},
       };
     }
   } catch (e) {
@@ -1690,7 +2149,14 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
   }
 };
 
-const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
+const miscellanous_daybook = async (
+  from,
+  to,
+  bank,
+  payment_type,
+  fid,
+  staff
+) => {
   try {
     var g_year;
     var l_year;
@@ -1755,122 +2221,178 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
     }
     const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
 
-    if (payment_type) {
-      if (payment_type === "Total") {
-        var all_receipts_set = await FeeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              fee_transaction_date: {
-                $gte: g_date,
-                $lt: l_date,
+    if (staff) {
+      var one_staff = await Staff.findById({ _id: `${staff}` }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+      );
+      if (payment_type) {
+        if (payment_type === "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
               },
-            },
-            {
-              receipt_generated_from: "BY_FINANCE_MANAGER",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              visible_status: "Not Hide",
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select(
-            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
-          )
-
-          .populate({
-            path: "other_fees",
-            select: "bank_account fees_heads",
-            populate: {
-              path: "bank_account",
-              select:
-                "finance_bank_account_number finance_bank_name finance_bank_account_name",
-            },
-          })
-          .lean()
-          .exec();
-
-        // console.log(all_receipts_set?.[0]);
-
-        all_receipts = all_receipts_set?.filter((val) => {
-          if (
-            `${val?.fee_payment_mode}` === "By Cash" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-            `${val?.fee_payment_mode}` === "Cheque" ||
-            `${val?.fee_payment_mode}` === "Net Banking" ||
-            `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-            `${val?.fee_payment_mode}` === "UPI Transfer" ||
-            `${val?.fee_payment_mode}` === "Demand Draft"
-          ) {
-            return val;
-          }
-        });
-        // console.log(all_receipts?.length);
-      } else if (payment_type === "Cash / Bank") {
-        var all_receipts_set = await FeeReceipt.find({
-          $and: [
-            { finance: fid },
-            // { fee_flow: "FEE_HEADS" },
-            {
-              fee_transaction_date: {
-                $gte: g_date,
-                $lt: l_date,
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
               },
-            },
-            {
-              receipt_generated_from: "BY_FINANCE_MANAGER",
-            },
-            {
-              refund_status: "No Refund",
-            },
-            {
-              visible_status: "Not Hide",
-            },
-            // { student: { $in: sorted_array } },
-          ],
-        })
-          .sort({ invoice_count: "1" })
-          .select(
-            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
-          )
-
-          .populate({
-            path: "other_fees",
-            select: "bank_account fees_heads",
-            populate: {
-              path: "bank_account",
-              select:
-                "finance_bank_account_number finance_bank_name finance_bank_account_name",
-            },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
           })
-          .lean()
-          .exec();
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
 
-        all_receipts = all_receipts_set?.filter((val) => {
-          if (
-            `${val?.fee_payment_mode}` === "By Cash" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
-            `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
-            `${val?.fee_payment_mode}` === "Cheque" ||
-            `${val?.fee_payment_mode}` === "Net Banking" ||
-            `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
-            `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
-            `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
-            `${val?.fee_payment_mode}` === "UPI Transfer" ||
-            `${val?.fee_payment_mode}` === "Demand Draft"
-          ) {
-            return val;
-          }
-        });
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+
+          // console.log(all_receipts_set?.[0]);
+
+          all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+          // console.log(all_receipts?.length);
+        } else if (payment_type === "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
+
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+
+          all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              {
+                cashier_collect_by: `${staff}`,
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
+
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+        }
       } else {
         var all_receipts = await FeeReceipt.find({
           $and: [
@@ -1889,7 +2411,207 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
               refund_status: "No Refund",
             },
             {
-              fee_payment_mode: payment_type,
+              visible_status: "Not Hide",
+            },
+            {
+              cashier_collect_by: `${staff}`,
+            },
+            // { student: { $in: sorted_array } },
+          ],
+        })
+          .sort({ invoice_count: "1" })
+          .select(
+            "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+          )
+
+          .populate({
+            path: "other_fees",
+            select: "bank_account fees_heads",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          })
+          .lean()
+          .exec();
+      }
+    } else {
+      if (payment_type) {
+        if (payment_type === "Total") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
+
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+
+          // console.log(all_receipts_set?.[0]);
+
+          all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+          // console.log(all_receipts?.length);
+        } else if (payment_type === "Cash / Bank") {
+          var all_receipts_set = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
+
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+
+          all_receipts = all_receipts_set?.filter((val) => {
+            if (
+              `${val?.fee_payment_mode}` === "By Cash" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway / Online" ||
+              `${val?.fee_payment_mode}` === "Payment Gateway - PG" ||
+              `${val?.fee_payment_mode}` === "Cheque" ||
+              `${val?.fee_payment_mode}` === "Net Banking" ||
+              `${val?.fee_payment_mode}` === "RTGS/NEFT/IMPS" ||
+              `${val?.fee_payment_mode}` === "NEFT/RTGS/IMPS" ||
+              `${val?.fee_payment_mode}` === "IMPS/NEFT/RTGS" ||
+              `${val?.fee_payment_mode}` === "UPI Transfer" ||
+              `${val?.fee_payment_mode}` === "Demand Draft"
+            ) {
+              return val;
+            }
+          });
+        } else {
+          var all_receipts = await FeeReceipt.find({
+            $and: [
+              { finance: fid },
+              // { fee_flow: "FEE_HEADS" },
+              {
+                fee_transaction_date: {
+                  $gte: g_date,
+                  $lt: l_date,
+                },
+              },
+              {
+                receipt_generated_from: "BY_FINANCE_MANAGER",
+              },
+              {
+                refund_status: "No Refund",
+              },
+              {
+                fee_payment_mode: payment_type,
+              },
+              {
+                visible_status: "Not Hide",
+              },
+              // { student: { $in: sorted_array } },
+            ],
+          })
+            .sort({ invoice_count: "1" })
+            .select(
+              "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
+            )
+
+            .populate({
+              path: "other_fees",
+              select: "bank_account fees_heads",
+              populate: {
+                path: "bank_account",
+                select:
+                  "finance_bank_account_number finance_bank_name finance_bank_account_name",
+              },
+            })
+            .lean()
+            .exec();
+        }
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            {
+              receipt_generated_from: "BY_FINANCE_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
             },
             {
               visible_status: "Not Hide",
@@ -1914,45 +2636,6 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           .lean()
           .exec();
       }
-    } else {
-      var all_receipts = await FeeReceipt.find({
-        $and: [
-          { finance: fid },
-          // { fee_flow: "FEE_HEADS" },
-          {
-            fee_transaction_date: {
-              $gte: g_date,
-              $lt: l_date,
-            },
-          },
-          {
-            receipt_generated_from: "BY_FINANCE_MANAGER",
-          },
-          {
-            refund_status: "No Refund",
-          },
-          {
-            visible_status: "Not Hide",
-          },
-          // { student: { $in: sorted_array } },
-        ],
-      })
-        .sort({ invoice_count: "1" })
-        .select(
-          "fee_heads other_fees fee_payment_mode invoice_count fee_payment_amount"
-        )
-
-        .populate({
-          path: "other_fees",
-          select: "bank_account fees_heads",
-          populate: {
-            path: "bank_account",
-            select:
-              "finance_bank_account_number finance_bank_name finance_bank_account_name",
-          },
-        })
-        .lean()
-        .exec();
     }
     // console.log(all_receipts?.length);
 
@@ -2410,6 +3093,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         )} To ${all_receipts[
           all_receipts?.length - 1
         ]?.invoice_count?.substring(14)}`,
+        one_staff: staff ? one_staff : {},
       };
     } else {
       return {
@@ -2422,6 +3106,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         day_range_to: null,
         ins_info: {},
         range: "",
+        one_staff: {},
       };
     }
   } catch (e) {
@@ -2434,7 +3119,8 @@ const render_combined_daybook_heads_wise = async (
   from = "",
   to = "",
   bank = "",
-  payment_type = ""
+  payment_type = "",
+  staff = ""
 ) => {
   try {
     const banks = await BankAccount.find({ finance: fid });
@@ -2446,16 +3132,24 @@ const render_combined_daybook_heads_wise = async (
         hostel = ele?.hostel;
       }
     }
-    let data_1 = await normal_daybook(from, to, bank, payment_type, fid);
+    let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
     let data_2 = await hostel_daybook(
       from,
       to,
       bank,
       payment_type,
       hostel,
-      fid
+      fid,
+      staff
     );
-    let data_3 = await miscellanous_daybook(from, to, bank, payment_type, fid);
+    let data_3 = await miscellanous_daybook(
+      from,
+      to,
+      bank,
+      payment_type,
+      fid,
+      staff
+    );
     let combine = [data_1, data_2, data_3];
     let combines = [];
     for (let cls of combine) {
@@ -2467,6 +3161,11 @@ const render_combined_daybook_heads_wise = async (
     const valid_bank = await BankAccount.findById({ _id: bank }).select(
       "-day_book"
     );
+    if (staff) {
+      var staff_obj = await Staff.findById({ _id: `${staff}` }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+      );
+    }
     return {
       message: "Combined Daybook",
       access: true,
@@ -2475,6 +3174,7 @@ const render_combined_daybook_heads_wise = async (
       day_range_to: to,
       ins_info: data_1?.ins_info,
       account_info: valid_bank ?? "",
+      staff: staff ? staff_obj : "",
     };
   } catch (e) {
     console.log(e);
@@ -2486,7 +3186,8 @@ const combinedDaybookData = async (
   from = "",
   to = "",
   bank = "",
-  payment_type = ""
+  payment_type = "",
+  staff = ""
 ) => {
   // const ft = dataObj;
   const ft = await render_combined_daybook_heads_wise(
@@ -2494,7 +3195,8 @@ const combinedDaybookData = async (
     from,
     to,
     bank,
-    payment_type
+    payment_type,
+    staff
   );
   return { ft };
 };

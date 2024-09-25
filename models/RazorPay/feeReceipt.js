@@ -205,6 +205,14 @@ const feeReceiptSchema = new mongoose.Schema({
   active: {
     type: String,
   },
+  cashier_collect_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  // bank_wise_txn_value: {
+  normal: { type: Number, default: 0 },
+  society: { type: Number, default: 0 },
+  // },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

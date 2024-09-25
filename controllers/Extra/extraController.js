@@ -3588,38 +3588,102 @@ exports.renderStudentAllCertificateQuery = async (req, res) => {
 exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
   try {
     const { id } = req?.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const { status } = req?.query;
-    if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
 
-    var ins = await InstituteAdmin.findById({ _id: id });
-    var all_cert = await CertificateQuery.find({
-      $and: [{ institute: ins?._id }, { certificate_status: `${status}` }],
-    })
-      .sort({ created_at: "-1" })
-      .limit(limit)
-      .skip(skip)
-      .populate({
-        path: "institute",
-        select: "insName name certificate_issued_count",
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
-      })
-      .populate({
-        path: "fee_receipt",
-        select: "fee_payment_amount fee_payment_mode invoice_count",
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
       });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    let all_cert = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      const student = await Student.find({
+        $or: [
+          {
+            studentFirstName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentMiddleName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentLastName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentGRNO: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+        ],
+      }).select("_id");
+
+      let ids = [];
+      if (student?.length > 0) {
+        for (let dt of student) {
+          ids.push(dt?._id);
+        }
+      }
+
+      all_cert = await CertificateQuery.find({
+        $and: [
+          { institute: { $eq: `${id}` } },
+          { certificate_status: `Requested` },
+          { student: { $in: ids } },
+        ],
+      })
+        .populate({
+          path: "institute",
+          select: "insName name certificate_issued_count",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "fee_payment_amount fee_payment_mode invoice_count",
+        });
+    } else {
+      all_cert = await CertificateQuery.find({
+        $and: [
+          { institute: { $eq: `${id}` } },
+          { certificate_status: `Requested` },
+        ],
+      })
+        .sort({ created_at: "-1" })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "institute",
+          select: "insName name certificate_issued_count",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "fee_payment_amount fee_payment_mode invoice_count",
+        });
+    }
+
     res.status(200).send({
-      message: `Explore All ${status} Certificate Query`,
+      message: `Explore All Requested Certificate Query`,
       access: true,
       all_cert: all_cert,
     });
@@ -5303,6 +5367,110 @@ const auto_society_receipt_generate_query = async (list) => {
     res.status(200).send({
       message: "Miscellaneous Fee receipt amount changes.",
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+// for certificate authority -> changes
+
+exports.student_bonafide_detail_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const student = await Student.findById(sid)
+      .select(
+        "studentFirstName studentGRNO studentMiddleName  studentLastName studentProfilePhoto studentDOB student_bonafide"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "institute",
+        select:
+          "insName insAddress insPhoneNumber insEmail insEditableText_one insEditableText_two insProfilePhoto affliatedLogo authority_signature autority_stamp_profile insAffiliated is_dublicate_bonafide certificate_bonafide_count authority",
+      });
+
+    res.status(200).send({
+      message: "Data updated successfully.",
+      access: true,
+      student: student,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.student_bonafide_update_detail_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const {
+      student_bonafide,
+      isLogs,
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
+      certificate_bonafide_count,
+      instituteId,
+    } = req.body;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await Student.findByIdAndUpdate(sid, { student_bonafide });
+
+    if (isLogs) {
+      const institute = await InstituteAdmin.findById(instituteId);
+      institute.certificate_bonafide_count = certificate_bonafide_count;
+      await institute.save();
+      const student = await Student.findById(sid);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: "",
+          other_data: [student_bonafide],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+        res.status(200).send({
+          message: "Data updated successfully.",
+          access: true,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "Data updated successfully.",
+        access: true,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

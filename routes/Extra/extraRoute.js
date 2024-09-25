@@ -547,4 +547,15 @@ router.patch(
   catchAsync(Extra.certificate_bonafide_dublicate_query)
 );
 
+// for certificate authority -> changes
+router.get(
+  "/new/bonafide/student/:sid/query",
+  catchAsync(Extra.student_bonafide_detail_query)
+);
+
+router.patch(
+  "/new/bonafide/student/:sid/update/query",
+  catchAsync(Extra.student_bonafide_update_detail_query)
+);
+
 module.exports = router;

@@ -533,6 +533,46 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         certificate_attachment: certificate_attachment,
         certificate_type: certificate_type,
         certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+        other_data: [
+          {
+            studentCertificateNo,
+            leaving_date,
+            bookNo,
+            studentUidaiNumber,
+            studentPreviousSchool,
+            studentLeavingBehaviour,
+            studentLeavingStudy,
+            studentLeavingReason,
+            studentRemark,
+            instituteJoinDate,
+            instituteLeavingDate,
+            leaving_degree,
+            leaving_since_date,
+            leaving_course_duration,
+            elective_subject_one,
+            elective_subject_second,
+            leaving_project_work,
+            leaving_guide_name,
+            lcRegNo,
+            lcCaste,
+            lcBirth,
+            lcDOB,
+            lcAdmissionDate,
+            lcInstituteDate,
+            leaving_student_name,
+            leaving_nationality,
+            leaving_religion,
+            leaving_previous_school,
+            leaving_certificate_attach,
+            is_dublicate,
+
+            certificate_type,
+            certificate_attachment,
+            student_name,
+            staffId,
+            certificate_original_leaving_count,
+          },
+        ],
       });
       if (staffId) {
         c_logs.issue_by_staff = staffId;
@@ -3688,36 +3728,114 @@ exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
 exports.renderMarkCertificateQueryStatus = async (req, res) => {
   try {
     const { cid } = req?.params;
-    var { status, attach } = req?.query;
-    var { is_bonafide, certificate_bonafide_count } = req?.body;
+    const {
+      attach,
+      status,
+      is_bonafide,
+      certificate_bonafide_count,
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
+      student_bonafide,
+      // for leaving type and other also
+      other_data,
+      certificate_original_leaving_count,
+      is_dublicate,
+    } = req?.body;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    var valid_cert = await CertificateQuery.findById({ _id: cid });
-    var ins = await InstituteAdmin.findById({
-      _id: `${valid_cert?.institute}`,
-    });
     if (is_bonafide) {
-      ins.certificate_bonafide_count = certificate_bonafide_count;
-      await ins.save();
-    }
-
-    if (`${status}` === "Issued") {
+      const valid_cert = await CertificateQuery.findById(cid);
       valid_cert.certificate_status = `${status}`;
       valid_cert.certificate_issued_date = new Date();
       valid_cert.certificate_attach = `${attach}`;
-      ins.certificate_issued_count += 1;
-    } else if (`${status}` === "Rejected") {
-      valid_cert.certificate_status = `${status}`;
+      await valid_cert.save();
+
+      const institute = await InstituteAdmin.findById({
+        _id: `${valid_cert?.institute}`,
+      });
+      institute.certificate_issued_count += 1;
+      institute.certificate_bonafide_count = certificate_bonafide_count;
+      await institute.save();
+
+      res
+        .status(200)
+        .send({ message: `Explore New ${status} Query`, access: true });
+
+      const student = await Student.findById(valid_cert.student);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: "",
+          other_data: [student_bonafide],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+      }
     } else {
+      const valid_cert = await CertificateQuery.findById({ _id: cid });
+      valid_cert.certificate_status = `${status}`;
+      valid_cert.certificate_issued_date = new Date();
+      valid_cert.certificate_attach = `${attach}`;
+      await valid_cert.save();
+
+      const institute = await InstituteAdmin.findById({
+        _id: `${valid_cert?.institute}`,
+      });
+      institute.certificate_issued_count += 1;
+      if (
+        !is_dublicate &&
+        certificate_original_leaving_count &&
+        certificate_attachment
+      ) {
+        institute.certificate_original_leaving_count =
+          certificate_original_leaving_count;
+      }
+      await institute.save();
+
+      res
+        .status(200)
+        .send({ message: `Explore New ${status} Query`, access: true });
+      const student = await Student.findById(valid_cert.student);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+          other_data: [other_data],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+      }
     }
-    await valid_cert.save();
-    res
-      .status(200)
-      .send({ message: `Explore New ${status} Query`, access: true });
   } catch (e) {
     console.log(e);
   }
@@ -4388,6 +4506,46 @@ exports.notExistStudentCertificateQuery = async (req, res) => {
         certificate_attachment: certificate_attachment,
         certificate_type: certificate_type,
         certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+        other_data: [
+          {
+            studentCertificateNo,
+            leaving_date,
+            bookNo,
+            studentUidaiNumber,
+            studentPreviousSchool,
+            studentLeavingBehaviour,
+            studentLeavingStudy,
+            studentLeavingReason,
+            studentRemark,
+            instituteJoinDate,
+            instituteLeavingDate,
+            leaving_degree,
+            leaving_since_date,
+            leaving_course_duration,
+            elective_subject_one,
+            elective_subject_second,
+            leaving_project_work,
+            leaving_guide_name,
+            lcRegNo,
+            lcCaste,
+            lcBirth,
+            lcDOB,
+            lcAdmissionDate,
+            lcInstituteDate,
+            leaving_student_name,
+            leaving_nationality,
+            leaving_religion,
+            leaving_previous_school,
+            leaving_certificate_attach,
+            is_dublicate,
+
+            certificate_type,
+            certificate_attachment,
+            student_name,
+            staffId,
+            certificate_original_leaving_count,
+          },
+        ],
       });
       if (staffId) {
         c_logs.issue_by_staff = staffId;

@@ -145,7 +145,7 @@ router.patch(
 );
 
 router.patch(
-  "/by/certificate/query",
+  "/by/certificate/:id/query",
   catchAsync(Filter.renderCertificateFilterQuery)
 );
 

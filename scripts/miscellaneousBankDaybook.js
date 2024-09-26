@@ -8,7 +8,14 @@ const miscellaneousDaybookData = require("../AjaxRequest/miscellaneousDaybookDat
 const BankAccount = require("../models/Finance/BankAccount");
 const Finance = require("../models/Finance");
 const unlinkFile = util.promisify(fs.unlink);
-const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow) => {
+const miscellaneousBankDaybook = async (
+  fid,
+  from,
+  to,
+  bank,
+  payment_type,
+  flow
+) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
@@ -134,6 +141,24 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow)
     });
 
   doc.moveDown(1);
+
+  if (account_other?.one_staff?.staffFirstName) {
+    doc
+      .fontSize(11)
+      .font("Times-Bold")
+      .fillColor("#121212")
+      .text(
+        `Cashier :${account_other?.one_staff?.staffFirstName ?? ""} ${
+          account_other?.one_staff?.staffMiddleName ?? ""
+        } ${account_other?.one_staff?.staffLastName ?? ""}`,
+        {
+          align: "left",
+        }
+      );
+
+    doc.moveDown(1);
+  }
+
   //   let total = {
   //     head_name: "TOTAL",
   //     applicable_fee: paymentReceiptInfo?.applicableFee,
@@ -198,7 +223,7 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow)
   // Handle stream close event
   stream.on("finish", async () => {
     console.log("created");
-    const finance = await Finance.findById({ _id: fid })
+    const finance = await Finance.findById({ _id: fid });
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
       path: `uploads/${name}-miscellaneous-bank-daybook.pdf`,
@@ -213,7 +238,7 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow)
       to: to,
       payment_type: payment_type,
       bank: bank,
-      types: "Normal Other Fees"
+      types: "Normal Other Fees",
     });
     finance.day_book.push({
       excel_file: results?.Key,
@@ -222,12 +247,11 @@ const miscellaneousBankDaybook = async (fid, from, to, bank, payment_type, flow)
       to: to,
       payment_type: payment_type,
       bank: bank,
-      flow: flow ?? ""
+      flow: flow ?? "",
     });
     await unlinkFile(file.path);
-    await Promise.all([ bank_acc.save(), finance.save() ])
+    await Promise.all([bank_acc.save(), finance.save()]);
   });
-  return `${name}-miscellaneous-bank-daybook.pdf`
-
+  return `${name}-miscellaneous-bank-daybook.pdf`;
 };
 module.exports = miscellaneousBankDaybook;

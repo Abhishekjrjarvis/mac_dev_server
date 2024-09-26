@@ -132,6 +132,24 @@ const bankDaybook = async (fid, from, to, bank, payment_type, flow) => {
     });
 
   doc.moveDown(1);
+
+  if (account_other?.one_staff?.staffFirstName) {
+    doc
+      .fontSize(11)
+      .font("Times-Bold")
+      .fillColor("#121212")
+      .text(
+        `Cashier :${account_other?.one_staff?.staffFirstName ?? ""} ${
+          account_other?.one_staff?.staffMiddleName ?? ""
+        } ${account_other?.one_staff?.staffLastName ?? ""}`,
+        {
+          align: "left",
+        }
+      );
+
+    doc.moveDown(1);
+  }
+
   //   let total = {
   //     head_name: "TOTAL",
   //     applicable_fee: paymentReceiptInfo?.applicableFee,

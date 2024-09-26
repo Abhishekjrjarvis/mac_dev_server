@@ -4967,18 +4967,33 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
 
 exports.renderCertificateFilterQuery = async (req, res) => {
   try {
-    const { id } = req.query;
-    const { flow } = req?.body;
+    const { id } = req.params;
+    // const { flow } = req?.body;
+    const flow = "Request";
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
+    const { from, to, certificate_type } = req.body;
     var excel_list = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "Request") {
+      const gte_Date = new Date(from);
+      const lte_Date = new Date(to);
+      lte_Date.setDate(lte_Date.getDate() + 1);
+
       var all_cert = await CertificateQuery.find({
-        $and: [{ institute: ins?._id }, { certificate_status: "Requested" }],
+        $and: [
+          { institute: ins?._id },
+          { certificate_status: "Requested" },
+          {
+            certificate_type: certificate_type,
+          },
+          {
+            created_at: { $gte: gte_Date, $lte: lte_Date },
+          },
+        ],
       }).populate({
         path: "student",
       });

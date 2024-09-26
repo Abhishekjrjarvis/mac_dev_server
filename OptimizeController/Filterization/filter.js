@@ -79,6 +79,7 @@ const admissionIntakeReport = require("../../scripts/admissionIntakeReport");
 const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook");
 const hostelBankDaybook = require("../../scripts/hostelBankDaybook");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
+const Staff = require("../../models/Staff");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -11138,7 +11139,7 @@ exports.renderTallyPriceQuery = async (req, res) => {
 exports.render_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.query;
+    const { from, to, bank, payment_type, staff } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -11148,7 +11149,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await bankDaybook(fid, from, to, bank, payment_type);
+    await bankDaybook(fid, from, to, bank, payment_type, "", staff);
     var g_year;
     var l_year;
     var g_month;
@@ -14368,7 +14369,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
 exports.render_other_fees_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.body;
+    const { from, to, bank, payment_type, staff } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -14378,7 +14379,7 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await miscellaneousBankDaybook(fid, from, to, bank, payment_type);
+    await miscellaneousBankDaybook(fid, from, to, bank, payment_type, "", staff);
     var g_year;
     var l_year;
     var g_month;
@@ -14818,7 +14819,7 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
 exports.render_hostel_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, hid } = req.query;
+    const { from, to, bank, payment_type, hid, staff } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -14828,7 +14829,7 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await hostelBankDaybook(fid, hid, from, to, bank, payment_type);
+    await hostelBankDaybook(fid, hid, from, to, bank, payment_type, "", staff);
     var g_year;
     var l_year;
     var g_month;
@@ -19094,7 +19095,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
 exports.render_combined_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, flow, hid } = req.body;
+    const { from, to, bank, payment_type, flow, hid, staff } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19106,7 +19107,8 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
       to,
       bank,
       payment_type,
-      flow
+      flow,
+      staff
     );
     res.status(200).send({
       message: "Explore New Combined DayBook",
@@ -19508,6 +19510,43 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       institute?._id,
       "Admission Fee Reg."
     );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_cashier_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "cash_authority_list"
+    );
+
+    const all_staff = await Staff.find({
+      _id: { $in: ins?.cash_authority_list },
+    }).select(
+      "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    );
+
+    if (all_staff?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Staff / Cashier Data set",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Staff / Cashier Data set",
+        access: false,
+        all_staff: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

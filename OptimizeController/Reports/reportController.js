@@ -7,10 +7,10 @@ const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook
 exports.render_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, flow, hid } = req.query;
+    const { from, to, bank, payment_type, flow, hid, staff } = req.query;
     var key;
     if (flow === "ADMISSION") {
-      key = await bankDaybook(fid, from, to, bank, payment_type, flow);
+      key = await bankDaybook(fid, from, to, bank, payment_type, flow, staff);
     } else if (flow === "MISCELLENOUS") {
       key = await miscellaneousBankDaybook(
         fid,
@@ -18,7 +18,8 @@ exports.render_daybook_heads_wise = async (req, res) => {
         to,
         bank,
         payment_type,
-        flow
+        flow,
+        staff
       );
     } else if (flow === "HOSTEL") {
       key = await hostelBankDaybook(
@@ -28,7 +29,8 @@ exports.render_daybook_heads_wise = async (req, res) => {
         to,
         bank,
         payment_type,
-        flow
+        flow,
+        staff
       );
     } else {
       key = "";

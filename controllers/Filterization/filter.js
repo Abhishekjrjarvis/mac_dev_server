@@ -2158,6 +2158,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         return obj;
       };
       for (var ref of all_receipts) {
+        let normal = 0;
+        let society = 0;
         var op = await OrderPayment.findOne({ fee_receipt: ref?._id }).select(
           "paytm_query"
         );
@@ -2206,6 +2208,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                     HeadsName: head?.master_name,
                     PaidHeadFees: val?.original_paid,
                   });
+                  society += val?.original_paid;
                 }
               } else {
                 if (
@@ -2218,6 +2221,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                     HeadsName: head?.master_name,
                     PaidHeadFees: val?.original_paid,
                   });
+                  normal += val?.original_paid;
                 }
               }
             }
@@ -2252,9 +2256,14 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             //   remain_list?.appId?._id
             // );
             head_list.push({
-              ReceiptNumber: ref?.invoice_count ?? "0",
+              ReceiptNumber:
+                bank_acc?.bank_account_type === "Society"
+                  ? ref?.society_invoice_count
+                  : ref?.invoice_count ?? "0",
               ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
               TransactionAmount: ref?.fee_payment_amount ?? "0",
+              BankTxnValue:
+                bank_acc?.bank_account_type === "Society" ? society : normal,
               TransactionDate:
                 moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
               TransactionMode: ref?.fee_payment_mode ?? "#NA",

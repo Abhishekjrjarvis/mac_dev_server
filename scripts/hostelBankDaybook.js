@@ -15,7 +15,8 @@ const hostelBankDaybook = async (
   to,
   bank,
   payment_type,
-  flow
+  flow,
+  staff
 ) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
@@ -28,7 +29,8 @@ const hostelBankDaybook = async (
     from,
     to,
     bank,
-    payment_type
+    payment_type,
+    staff
   );
 
   const instituteData = result?.ft?.ins_info;

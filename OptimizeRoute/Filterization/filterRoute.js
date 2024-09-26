@@ -342,4 +342,9 @@ router.patch(
   catchAsync(Filter.renderNormalAdmissionFeesStudentQuery)
 );
 
+router.get(
+  "/:id/all/cashier/query",
+  catchAsync(Filter.render_all_cashier_query)
+);
+
 module.exports = router;

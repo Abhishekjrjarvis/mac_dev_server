@@ -8,13 +8,28 @@ const combinedDaybookData = require("../AjaxRequest/combinedDaybookData");
 const BankAccount = require("../models/Finance/BankAccount");
 const Finance = require("../models/Finance");
 const unlinkFile = util.promisify(fs.unlink);
-const combinedBankDaybook = async (fid, from, to, bank, payment_type, flow) => {
+const combinedBankDaybook = async (
+  fid,
+  from,
+  to,
+  bank,
+  payment_type,
+  flow,
+  staff
+) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
-  const result = await combinedDaybookData(fid, from, to, bank, payment_type);
+  const result = await combinedDaybookData(
+    fid,
+    from,
+    to,
+    bank,
+    payment_type,
+    staff
+  );
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.combines;
   const account_other = result?.ft;

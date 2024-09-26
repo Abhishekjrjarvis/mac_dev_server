@@ -14,7 +14,8 @@ const miscellaneousBankDaybook = async (
   to,
   bank,
   payment_type,
-  flow
+  flow,
+  staff
 ) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
@@ -26,7 +27,8 @@ const miscellaneousBankDaybook = async (
     from,
     to,
     bank,
-    payment_type
+    payment_type,
+    staff
   );
 
   // console.log(result);

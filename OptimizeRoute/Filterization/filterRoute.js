@@ -337,4 +337,14 @@ router.patch(
   catchAsync(Filter.renderApplicationDSEAllottedListQuery)
 );
 
+router.patch(
+  "/:aid/admission/fees/applicable/query",
+  catchAsync(Filter.renderNormalAdmissionFeesStudentQuery)
+);
+
+router.get(
+  "/:id/all/cashier/query",
+  catchAsync(Filter.render_all_cashier_query)
+);
+
 module.exports = router;

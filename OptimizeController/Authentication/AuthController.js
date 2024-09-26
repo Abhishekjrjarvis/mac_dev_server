@@ -92,6 +92,7 @@ const {
 const {
   form_no_query,
 } = require("../../Functions/AdmissionCustomFunctions.js/Reusable");
+const { classes_shuffle_func } = require("../../Designation/functions");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2795,6 +2796,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const student = new Student({ ...req.body });
+    student.studentFirstName = req?.body?.studentFirstName;
+    student.studentMiddleName = req?.body?.studentMiddleName;
+    student.studentLastName = req?.body?.studentLastName;
     if (req.body?.studentFatherName) {
       student.studentMiddleName = req.body?.studentFatherName;
     }
@@ -2897,6 +2901,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     aStatus.student = student._id;
     student.fee_structure =
       is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
+    await classes_shuffle_func(classes, student);
+
     await student.save();
     await invokeFirebaseNotification(
       "Student Approval",
@@ -3823,6 +3829,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           query?.is_remain === "No"
             ? query?.fee_struct
             : query?.batch_set[0]?.fee_struct;
+        await classes_shuffle_func(classes, student);
+
         await student.save();
         await invokeFirebaseNotification(
           "Student Approval",

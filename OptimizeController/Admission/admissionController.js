@@ -2798,6 +2798,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_receipt.receipt_status = receipt_status
         ? receipt_status
         : "Already Generated";
+      if (staffId) {
+        new_receipt.cashier_collect_by = staffId;
+      }
       order.payment_module_type = "Admission Fees";
       order.payment_to_end_user_id = institute?._id;
       order.payment_by_end_user_id = user._id;
@@ -3121,6 +3124,9 @@ exports.cancelAdmissionApplication = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
+    }
     if (
       price &&
       mode === "Offline" &&
@@ -4186,7 +4192,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       pay_remain,
       nsid,
       staffId,
-      staff_id,
     } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
@@ -4225,8 +4230,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.receipt_status = receipt_status
       ? receipt_status
       : "Already Generated";
-    if (staff_id) {
-      new_receipt.cashier_collect_by = staff_id;
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
     }
     const notify = new StudentNotification({});
     var all_status = await Status.find({
@@ -13486,6 +13491,9 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
+    }
     if (
       price &&
       mode === "Offline" &&

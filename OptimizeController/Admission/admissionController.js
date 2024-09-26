@@ -4186,6 +4186,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       pay_remain,
       nsid,
       staffId,
+      staff_id,
     } = req.body;
     const { receipt_status } = req.query;
     if (!sid && !aid && !appId && !amount && !mode && !type)
@@ -4224,6 +4225,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.receipt_status = receipt_status
       ? receipt_status
       : "Already Generated";
+    if (staff_id) {
+      new_receipt.cashier_collect_by = staff_id;
+    }
     const notify = new StudentNotification({});
     var all_status = await Status.find({
       $and: [
@@ -7741,7 +7745,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
 exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
-    const { amount, mode, type, rid } = req.body;
+    const { amount, mode, type, rid, staff_id } = req.body;
     if (!sid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -7779,6 +7783,9 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    if (staff_id) {
+      new_receipt.cashier_collect_by = staff_id;
+    }
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid,
@@ -8959,7 +8966,7 @@ exports.renderAllRefundedArray = async (req, res) => {
 exports.renderRemainingSetOffQuery = async (req, res) => {
   try {
     const { rcid, sid } = req.params;
-    const { amount, mode, type, nsid } = req.body;
+    const { amount, mode, type, nsid, staff_id } = req.body;
     if (!sid && !rcid && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -9028,6 +9035,9 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         new_receipt.finance = finance?._id;
         new_receipt.set_off_status = "Set Off";
         new_receipt.fee_transaction_date = new Date();
+        if (staff_id) {
+          new_receipt.cashier_collect_by = staff_id;
+        }
         const notify = new StudentNotification({});
         if (valid_remain_card?.paid_fee >= price) {
           valid_remain_card.paid_fee -= price;

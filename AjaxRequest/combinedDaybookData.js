@@ -3174,7 +3174,7 @@ const render_combined_daybook_heads_wise = async (
       day_range_to: to,
       ins_info: data_1?.ins_info,
       account_info: valid_bank ?? "",
-      staff: staff ? staff_obj : "",
+      one_staff: staff ? staff_obj : "",
     };
   } catch (e) {
     console.log(e);

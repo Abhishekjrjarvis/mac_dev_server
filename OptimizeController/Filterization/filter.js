@@ -12730,8 +12730,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         populate: {
           path: "student",
           populate: {
-            path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName",
+            path: "student_optional_subject major_subject nested_subject studentClass",
+            select: "subjectName className classTitle",
           },
         },
       });
@@ -13295,11 +13295,13 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         var numss = {};
         for (var ref of valid_apply?.allottedApplication) {
           if (ref?.student?.studentFirstName != "") {
-            for (let ele of ref?.student?.student_dynamic_field) {
-              // numss.push(
-              //   [ele?.key]: ele?.value,
-              // );
-              numss[ele?.key] = ele?.value;
+            if (ref?.student?.student_dynamic_field?.length > 0) {
+              for (let ele of ref?.student?.student_dynamic_field) {
+                // numss.push(
+                //   [ele?.key]: ele?.value,
+                // );
+                numss[ele?.key] = ele?.value;
+              }
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
@@ -13317,6 +13319,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+              Class: `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}`,
+              ROLLNO: ref?.student?.studentROLLNO,
               Religion: ref?.student?.studentReligion ?? "#NA",
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
@@ -14379,7 +14383,15 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await miscellaneousBankDaybook(fid, from, to, bank, payment_type, "", staff);
+    await miscellaneousBankDaybook(
+      fid,
+      from,
+      to,
+      bank,
+      payment_type,
+      "",
+      staff
+    );
     var g_year;
     var l_year;
     var g_month;

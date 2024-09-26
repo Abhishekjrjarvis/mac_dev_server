@@ -7906,6 +7906,7 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
       roll_no,
       mode,
       fee_payment_amount,
+      staff_id,
     } = req?.body;
     if (!fid)
       return res.status(200).send({
@@ -7933,6 +7934,9 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
     new_receipt.finance = finance?._id;
     new_receipt.receipt_status = "Already Generated";
+    if (staff_id) {
+      new_receipt.cashier_collect_by = staff_id;
+    }
     order.payment_module_type = "Other Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_module_id = o_f._id;
@@ -8039,7 +8043,7 @@ exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
 exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
-    const { students, ofid, mode, fee_payment_amount } = req?.body;
+    const { students, ofid, mode, fee_payment_amount, staff_id } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -8079,6 +8083,9 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
         new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
         new_receipt.finance = finance?._id;
         new_receipt.receipt_status = "Already Generated";
+        if (staff_id) {
+          new_receipt.cashier_collect_by = staff_id;
+        }
         order.payment_module_type = "Other Fees";
         order.payment_to_end_user_id = institute?._id;
         order.payment_by_end_user_id = user._id;

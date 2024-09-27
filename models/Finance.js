@@ -787,6 +787,14 @@ const financeSchema = new mongoose.Schema(
     is_dublicate_receipt: {
       type: String,
     },
+    student_message: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentMessage",
+    },
+    message_bool: {
+      type: String,
+      default: "Off",
+    },
   },
   { timestamps: true }
 );

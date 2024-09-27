@@ -1240,7 +1240,7 @@ const studentSchema = new mongoose.Schema({
       ref: "FeeReceipt",
     },
   ],
-   guide: [
+  guide: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Guide",
@@ -1249,6 +1249,16 @@ const studentSchema = new mongoose.Schema({
   guide_count: {
     type: Number,
     default: 0,
+  },
+  student_bonafide: {
+    reason: String,
+    message: String,
+    attachment: String,
+    is_letterhead: String,
+    grnumber: String,
+    certificate_number: String,
+    print_content: String,
+    update_date: Date,
   },
 });
 const Student = mongoose.model("Student", studentSchema);

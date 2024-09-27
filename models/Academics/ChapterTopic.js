@@ -35,26 +35,26 @@ const chapterTopicSchema = new mongoose.Schema({
     type: String,
   },
   course_outcome: {
-    type: String
+    type: String,
   },
   learning_outcome: {
-    type: String
+    type: String,
   },
   timing: {
     hours: {
-      type: String
+      type: String,
     },
     minutes: {
-      type: String
-    }
+      type: String,
+    },
   },
   planning_date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   execution_date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   topic_last_date_format: {
     type: Date,
@@ -63,6 +63,9 @@ const chapterTopicSchema = new mongoose.Schema({
     type: String,
   },
   topic_time_in_minutes: {
+    type: String,
+  },
+  teaching_method: {
     type: String,
   },
 });

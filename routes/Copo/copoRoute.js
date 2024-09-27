@@ -212,4 +212,8 @@ router
   .route("/continuous/evaluation/final/:ceid/mark/query")
   .get(catchAsync(copoController.continuous_evaluation_final_marks_query));
 
+router
+  .route("/subject/:sid/co/list/query")
+  .get(catchAsync(copoController.get_subject_co_list_query));
+
 module.exports = router;

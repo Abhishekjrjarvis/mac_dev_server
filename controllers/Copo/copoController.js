@@ -2601,22 +2601,24 @@ exports.cls_theory_subject_list_query = async (req, res) => {
     }
 
     const cls = await Class.findById(cid);
-
-    const subjects = await Subject.find({
-      $and: [
-        {
-          _id: { $in: cls?.subject },
-        },
-        {
-          subject_category: { $in: ["Full Class", "Theory"] },
-        },
-      ],
-    })
-      .populate({
-        path: "selected_batch_query",
-        select: "batchName",
+    let subjects = [];
+    if (cls?.subject?.length > 0) {
+      subjects = await Subject.find({
+        $and: [
+          {
+            _id: { $in: cls.subject },
+          },
+          {
+            subject_category: { $in: ["Full Class", "Theory"] },
+          },
+        ],
       })
-      .select("subjectName subject_category");
+        .populate({
+          path: "selected_batch_query",
+          select: "batchName",
+        })
+        .select("subjectName subject_category");
+    }
 
     res.status(200).send({
       message: "Continuous evaluation class subject list.",
@@ -3245,6 +3247,36 @@ exports.continuous_evaluation_final_marks_query = async (req, res) => {
       students: students,
     });
   } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.get_subject_co_list_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid);
+    let attainment = [];
+    if (subject?.subjectMasterName) {
+      attainment = await Attainment.find({
+        subject_master: { $eq: `${subject?.subjectMasterName}` },
+        attainment_type: { $eq: `CO` },
+      }).select("attainment_name attainment_type attainment_code");
+    }
+
+    res.status(200).send({
+      message: "All list of copo in subjects",
+      attainment: attainment,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
     console.log(e);
   }
 };

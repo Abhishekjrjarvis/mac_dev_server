@@ -161,4 +161,9 @@ router.patch(
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayQueryBank)
 );
 
+router.patch(
+  "/by/certificate/logs/export/:id/query",
+  catchAsync(Filter.certificate_logs_export_query)
+);
+
 module.exports = router;

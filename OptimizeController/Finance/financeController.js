@@ -86,6 +86,7 @@ const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 const {
   json_to_excel_other_fees_subject_application_query,
 } = require("../../Custom/JSONToExcel");
+const StudentMessage = require("../../models/Content/StudentMessage");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -8683,7 +8684,7 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
               ? cls?.studentMiddleName ?? cls?.studentFatherName
               : ""
           } ${cls?.studentLastName}`,
-          RegistrationID: cls?.student_prn_enroll_number ?? cls?.studentGRNO,
+          RegistrationID: cls?.studentGRNO ?? cls?.student_prn_enroll_number,
           Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
           TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
           BankUTR:
@@ -8912,6 +8913,36 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
         access: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_miscellenous_fee_message = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    const { type, m_title, m_doc, message, message_bool } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Thier is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const new_message = new StudentMessage({
+      message: `${message}`,
+      message_type: `${type}`,
+      from_name: "Finance Manager",
+      message_title: m_title,
+      message_document: m_doc,
+      institute: finance?.institute,
+      message_mode: "MISCELLENOUS_FEE",
+    });
+    finance.student_message = new_message?._id;
+    if (message_bool) {
+      finance.message_bool = message_bool;
+    }
+    await Promise.all([new_message.save(), finance.save()]);
   } catch (e) {
     console.log(e);
   }

@@ -4,6 +4,7 @@ const Extra = require("../../controllers/Extra/extraController");
 const catchAsync = require("../../Utilities/catchAsync");
 const { isLoggedIn } = require("../../middleware");
 const multer = require("multer");
+const { download_zip_file } = require("../../Archive/zip_file");
 const upload = multer({ dest: "uploads/" });
 
 router.patch("/age/:uid", isLoggedIn, catchAsync(Extra.validateUserAge));
@@ -547,6 +548,7 @@ router.patch(
   catchAsync(Extra.certificate_bonafide_dublicate_query)
 );
 
+router.patch("/:id/all/profile/photo/query", catchAsync(download_zip_file));
 // for certificate authority -> changes
 router.get(
   "/new/bonafide/student/:sid/query",

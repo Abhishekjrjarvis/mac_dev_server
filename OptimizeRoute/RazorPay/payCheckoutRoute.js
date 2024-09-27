@@ -23,5 +23,6 @@ router.get("/one/:pid", Razor.fetchPaymentOneHistory);
 
 router.get("/other/history/to", Razor.fetchPaymentOtherHistoryQueryTo);
 
+router.get("/one/other/history/to", Razor.fetchPaymentOneOtherHistoryQueryTo);
 
 module.exports = router;

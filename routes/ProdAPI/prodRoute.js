@@ -45,26 +45,27 @@ router.patch("/receipt/query", catchAsync(Prod.allReceiptInvoiceQuery));
 
 router.get("/all/student", catchAsync(Prod.auto_query));
 
-router.get("/class/:cid", catchAsync(Prod.renderClassArrayQuery))
+router.get("/class/:cid", catchAsync(Prod.renderClassArrayQuery));
 
-router.patch("/all/user/password/query", catchAsync(Prod.renderAllUserPasswordQuery))
+router.patch(
+  "/all/user/password/query",
+  catchAsync(Prod.renderAllUserPasswordQuery)
+);
 
 router.patch(
   "/accession/query",
   catchAsync(Prod.renderExcelToJSONEmailReplaceQuery)
 );
 
+router.patch("/:cid/all/student/query", catchAsync(Prod.renderAllStudentQuery));
+
 router.patch(
-  "/:cid/all/student/query",
-  catchAsync(Prod.renderAllStudentQuery)
+  "/all/student/code/query",
+  catchAsync(Prod.render_student_code_insertion_query)
 );
 
-router.patch("/all/student/code/query", catchAsync(Prod.render_student_code_insertion_query))
+router.patch("/all/payment/delete/query", catchAsync(Prod.delete_payment));
 
-router.patch("/all/payment/delete/query", catchAsync(Prod.delete_payment))
-
-router.patch("/all/new/chat/query", catchAsync(Prod.new_chat_username))
-
-
+router.patch("/all/new/chat/query", catchAsync(Prod.new_chat_username));
 
 module.exports = router;

@@ -29,8 +29,8 @@ exports.activateLibrary = async (req, res) => {
       institute: institute._id,
       coverId: "2",
     });
-    const codess = universal_random_password()
-    library.member_module_unique = `${codess}`
+    const codess = universal_random_password();
+    library.member_module_unique = `${codess}`;
     if (sid) {
       var staff = await Staff.findById(sid);
       var user = await User.findById({ _id: `${staff?.user}` });
@@ -1013,25 +1013,25 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
         description: val?.description,
         shellNumber: val?.shellNumber,
         subject: val?.Subject,
-      bill_date: val?.bill_date,
-      bill_number: val?.bill_number,
-      purchase_order_date: val?.purchase_order_date,
-      purchase_order_number: val?.purchase_order_number,
-      supplier: val?.supplier,
-      publisher_place: val?.publisher_place,
-      publication_year: val?.publication_year,
-      edition: val?.edition,
-      class_number: val?.class_number,
-      accession_number: val?.accession_number,
-      date: val?.date,
-      publisher: val?.publisher,
+        bill_date: val?.bill_date,
+        bill_number: val?.bill_number,
+        purchase_order_date: val?.purchase_order_date,
+        purchase_order_number: val?.purchase_order_number,
+        supplier: val?.supplier,
+        publisher_place: val?.publisher_place,
+        publication_year: val?.publication_year,
+        edition: val?.edition,
+        class_number: val?.class_number,
+        accession_number: val?.accession_number,
+        date: val?.date,
+        publisher: val?.publisher,
         totalPage: val?.totalPage,
-      book_type: val?.book_type,
-      depart: val?.depart
+        book_type: val?.book_type,
+        depart: val?.depart ?? null,
       });
       library.books.push(book._id);
       library.bookCount += 1;
-      book.qviple_book_id = `QLB${randomSixCode()}${val?.accession_number}`
+      book.qviple_book_id = `QLB${randomSixCode()}${val?.accession_number}`;
       book.library = lid;
       book.leftCopies = book.totalCopies;
       await book.save();

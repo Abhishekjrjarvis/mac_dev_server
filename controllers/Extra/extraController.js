@@ -5536,12 +5536,13 @@ const auto_society_receipt_generate_query = async (list) => {
 exports.student_bonafide_detail_query = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { id } = req.query;
     if (!sid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    const student = await Student.findById(sid)
+    let student = await Student.findById(sid)
       .select(
         "studentFirstName studentGRNO studentMiddleName  studentLastName studentProfilePhoto studentDOB student_bonafide"
       )
@@ -5563,6 +5564,13 @@ exports.student_bonafide_detail_query = async (req, res) => {
           "insName insAddress insPhoneNumber insEmail insEditableText_one insEditableText_two insProfilePhoto affliatedLogo authority_signature autority_stamp_profile insAffiliated is_dublicate_bonafide certificate_bonafide_count authority",
       });
 
+    if (student?.institute) {
+    } else {
+      const inst = await InstituteAdmin.findById(id).select(
+        "insName insAddress insPhoneNumber insEmail insEditableText_one insEditableText_two insProfilePhoto affliatedLogo authority_signature autority_stamp_profile insAffiliated is_dublicate_bonafide certificate_bonafide_count authority"
+      );
+      student.institute = inst;
+    }
     res.status(200).send({
       message: "Data updated successfully.",
       access: true,

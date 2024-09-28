@@ -220,7 +220,7 @@ const hostelBankDaybook = async (
         {
           label: "Main Heads",
           property: "head_name",
-          width: 160,
+          width: 140,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -269,7 +269,7 @@ const hostelBankDaybook = async (
         {
           label: "Receipt No",
           property: "receipt_no",
-          width: 80,
+          width: 100,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -338,7 +338,7 @@ const hostelBankDaybook = async (
         {
           label: "Main Heads",
           property: "head_name",
-          width: 200,
+          width: 180,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -377,7 +377,7 @@ const hostelBankDaybook = async (
         {
           label: "Receipt No",
           property: "receipt_no",
-          width: 80,
+          width: 100,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,

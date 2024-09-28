@@ -151,7 +151,8 @@ exports.fee_heads_receipt_json_to_excel_query = async (
   from,
   to,
   flow,
-  uid
+  uid,
+  c_name
 ) => {
   try {
     var real_book = xlsx.utils.book_new();
@@ -180,6 +181,9 @@ exports.fee_heads_receipt_json_to_excel_query = async (
       } else {
         var name = `Hostel-receipt-${new Date().getHours()}-${new Date().getMinutes()}`;
       }
+    }
+    if (c_name) {
+      var name = `${c_name}-${new Date().getHours()}-${new Date().getMinutes()}`;
     }
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 

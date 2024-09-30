@@ -5560,29 +5560,32 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
 
     obj.presentStudent = studentAttendance?.presentStudent;
     obj.absentStudent = studentAttendance?.absentStudent;
-    for (let t_slot of slot_based?.slot) {
-      if (t_slot?.is_extra && flow !== "Normal_Lecture") {
-        if (
-          `${studentAttendance?.from}` === `${t_slot.from}` &&
-          `${studentAttendance?.to}` === `${t_slot.to}`
-        ) {
-          t_slot.is_mark = false;
-          t_slot.student = [];
-          t_slot.deleted_attendance = true;
-          break;
+    if (slot_based?.slot?.length > 0) {
+      for (let t_slot of slot_based?.slot) {
+        if (t_slot?.is_extra && flow !== "Normal_Lecture") {
+          if (
+            `${studentAttendance?.from}` === `${t_slot.from}` &&
+            `${studentAttendance?.to}` === `${t_slot.to}`
+          ) {
+            t_slot.is_mark = false;
+            t_slot.student = [];
+            t_slot.deleted_attendance = true;
+            break;
+          }
         }
-      }
-      if (!t_slot?.is_extra && flow === "Normal_Lecture") {
-        if (
-          `${studentAttendance?.which_lecture}` === `${t_slot.which_lecture}`
-        ) {
-          t_slot.is_mark = false;
-          t_slot.student = [];
-          t_slot.deleted_attendance = true;
-          break;
+        if (!t_slot?.is_extra && flow === "Normal_Lecture") {
+          if (
+            `${studentAttendance?.which_lecture}` === `${t_slot.which_lecture}`
+          ) {
+            t_slot.is_mark = false;
+            t_slot.student = [];
+            t_slot.deleted_attendance = true;
+            break;
+          }
         }
       }
     }
+
     // await slot_based.save();
     // await AttendenceDate.findByIdAndDelete(said);
 
@@ -5595,19 +5598,23 @@ exports.subjectDeleteTodayAttendanceQuery = async (req, res) => {
       // i,
     });
     // var i = 0;
-    for (let ct of obj?.presentStudent) {
-      // i += 1;
-      const student = await Student.findById(ct?.student);
-      student.subjectAttendance.pull(said);
-      await student.save();
-      // console.log("number exist: ", i);
+    if (obj?.presentStudent?.length > 0) {
+      for (let ct of obj?.presentStudent) {
+        // i += 1;
+        const student = await Student.findById(ct?.student);
+        student.subjectAttendance.pull(said);
+        await student.save();
+        // console.log("number exist: ", i);
+      }
     }
-    for (let ct of obj?.absentStudent) {
-      // i += 1;
-      const student = await Student.findById(ct?.student);
-      student.subjectAttendance.pull(said);
-      await student.save();
-      // console.log("number exist absent : ", i);
+    if (obj?.absentStudent?.length > 0) {
+      for (let ct of obj?.absentStudent) {
+        // i += 1;
+        const student = await Student.findById(ct?.student);
+        student.subjectAttendance.pull(said);
+        await student.save();
+        // console.log("number exist absent : ", i);
+      }
     }
     subject.attendance.pull(said);
     await subject.save();

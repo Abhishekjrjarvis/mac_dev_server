@@ -256,131 +256,88 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
     var uni_co_assignment_wise = {};
     var uni_co_assignment_wise_internal = {};
     var uni_co_assignment_wise_external = {};
+    if (all_students?.length > 0) {
+      for (let stu of all_students) {
+        let stu_obj = {
+          studentFirstName: stu?.studentFirstName,
+          studentMiddleName: stu?.studentMiddleName,
+          studentLastName: stu?.studentLastName,
+          studentProfilePhoto: stu?.studentProfilePhoto,
+          studentGRNO: stu?.studentGRNO,
+          studentROLLNO: stu?.studentROLLNO,
+          marks: [],
+          co_wise: "",
+          co_assignment_wise: "",
+        };
+        let co_wise = {};
+        if (stu?.subjectMarks?.[0]?.marks?.length > 0) {
+          for (let sub_marks of stu?.subjectMarks?.[0]?.marks) {
+            if (sub_attainment?.length > 0) {
+              for (let sub_att of sub_attainment) {
+                if (sub_att?.attainment_assign?.length > 0) {
+                  for (let assign_att of sub_att?.attainment_assign) {
+                    if (
+                      String(assign_att?.examId) === String(sub_marks?.examId)
+                    ) {
+                      let mark = +(
+                        (sub_marks?.obtainMarks *
+                          assign_att?.attainment_mark_weight) /
+                        100
+                      ).toFixed(2);
 
-    for (let stu of all_students) {
-      let stu_obj = {
-        studentFirstName: stu?.studentFirstName,
-        studentMiddleName: stu?.studentMiddleName,
-        studentLastName: stu?.studentLastName,
-        studentProfilePhoto: stu?.studentProfilePhoto,
-        studentGRNO: stu?.studentGRNO,
-        studentROLLNO: stu?.studentROLLNO,
-        marks: [],
-        co_wise: "",
-        co_assignment_wise: "",
-      };
-      let co_wise = {};
-      for (let sub_marks of stu?.subjectMarks?.[0]?.marks) {
-        for (let sub_att of sub_attainment) {
-          for (let assign_att of sub_att?.attainment_assign) {
-            if (String(assign_att?.examId) === String(sub_marks?.examId)) {
-              let mark = +(
-                (sub_marks?.obtainMarks * assign_att?.attainment_mark_weight) /
-                100
-              ).toFixed(2);
+                      co_wise[sub_att.attainment_name] =
+                        co_wise[sub_att.attainment_name]?.length > 0
+                          ? [...co_wise[sub_att.attainment_name], mark]
+                          : [mark];
+                      if (uni_co_wise[sub_att.attainment_name]) {
+                        if (
+                          String(
+                            uni_co_wise[sub_att.attainment_name][
+                              assign_att?.examId
+                            ]?.examId
+                          ) === String(assign_att?.examId)
+                        ) {
+                          uni_co_wise[sub_att.attainment_name][
+                            assign_att?.examId
+                          ].mark =
+                            uni_co_wise[sub_att.attainment_name][
+                              assign_att?.examId
+                            ].mark + mark;
+                        } else {
+                          uni_co_wise[sub_att.attainment_name] = {
+                            ...uni_co_wise[sub_att.attainment_name],
+                            [assign_att?.examId]: {
+                              attainment_name: assign_att?.attainment_name,
+                              examId: assign_att?.examId,
+                              mark: mark,
+                            },
+                          };
+                        }
+                      } else {
+                        uni_co_wise[sub_att.attainment_name] = {
+                          ...uni_co_wise[sub_att.attainment_name],
+                          [assign_att?.examId]: {
+                            attainment_name: assign_att?.attainment_name,
+                            examId: assign_att?.examId,
+                            mark: mark,
+                          },
+                        };
+                      }
 
-              co_wise[sub_att.attainment_name] =
-                co_wise[sub_att.attainment_name]?.length > 0
-                  ? [...co_wise[sub_att.attainment_name], mark]
-                  : [mark];
-              if (uni_co_wise[sub_att.attainment_name]) {
-                if (
-                  String(
-                    uni_co_wise[sub_att.attainment_name][assign_att?.examId]
-                      ?.examId
-                  ) === String(assign_att?.examId)
-                ) {
-                  uni_co_wise[sub_att.attainment_name][
-                    assign_att?.examId
-                  ].mark =
-                    uni_co_wise[sub_att.attainment_name][assign_att?.examId]
-                      .mark + mark;
-                } else {
-                  uni_co_wise[sub_att.attainment_name] = {
-                    ...uni_co_wise[sub_att.attainment_name],
-                    [assign_att?.examId]: {
-                      attainment_name: assign_att?.attainment_name,
-                      examId: assign_att?.examId,
-                      mark: mark,
-                    },
-                  };
+                      stu_obj.marks.push(+mark);
+                    }
+                  }
                 }
-              } else {
-                uni_co_wise[sub_att.attainment_name] = {
-                  ...uni_co_wise[sub_att.attainment_name],
-                  [assign_att?.examId]: {
-                    attainment_name: assign_att?.attainment_name,
-                    examId: assign_att?.examId,
-                    mark: mark,
-                  },
-                };
               }
-
-              stu_obj.marks.push(+mark);
             }
           }
         }
-      }
 
-      let co_assignment_wise = {};
+        let co_assignment_wise = {};
 
-      for (let assignment of stu?.assignments) {
-        for (let sub_att of sub_attainment) {
-          for (let assign_att of sub_att?.attainment_assign) {
-            if (
-              String(assign_att?.assignmentId) ===
-              String(assignment?.assignment)
-            ) {
-              let mark = +(
-                (assignment?.assignment_obtain_mark *
-                  assign_att?.attainment_mark_weight) /
-                100
-              ).toFixed(2);
-
-              co_assignment_wise[sub_att.attainment_name] = co_assignment_wise[
-                sub_att.attainment_name
-              ]
-                ? co_assignment_wise[sub_att.attainment_name] + mark
-                : mark;
-
-              if (uni_co_assignment_wise[sub_att.attainment_name]) {
-                if (
-                  String(
-                    uni_co_assignment_wise[sub_att.attainment_name][
-                      assign_att?.assignmentId
-                    ]?.assignmentId
-                  ) === String(assign_att?.assignmentId)
-                ) {
-                  uni_co_assignment_wise[sub_att.attainment_name][
-                    assign_att?.assignmentId
-                  ].mark =
-                    uni_co_assignment_wise[sub_att.attainment_name][
-                      assign_att?.assignmentId
-                    ].mark + mark;
-                } else {
-                  uni_co_assignment_wise[sub_att.attainment_name] = {
-                    ...uni_co_assignment_wise[sub_att.attainment_name],
-                    [assign_att?.assignmentId]: {
-                      attainment_name: assign_att?.attainment_name,
-                      assignmentId: assign_att?.assignmentId,
-                      mark: mark,
-                    },
-                  };
-                }
-              } else {
-                uni_co_assignment_wise[sub_att.attainment_name] = {
-                  ...uni_co_assignment_wise[sub_att.attainment_name],
-                  [assign_att?.assignmentId]: {
-                    attainment_name: assign_att?.attainment_name,
-                    assignmentId: assign_att?.assignmentId,
-                    mark: mark,
-                  },
-                };
-              }
-
-              stu_obj.marks.push(+mark);
-            }
-            if (assign_att?.copo_attainment_type === "INTERNAL") {
+        for (let assignment of stu?.assignments) {
+          for (let sub_att of sub_attainment) {
+            for (let assign_att of sub_att?.attainment_assign) {
               if (
                 String(assign_att?.assignmentId) ===
                 String(assignment?.assignment)
@@ -391,20 +348,90 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
                   100
                 ).toFixed(2);
 
-                if (uni_co_assignment_wise_internal[sub_att.attainment_name]) {
+                co_assignment_wise[sub_att.attainment_name] =
+                  co_assignment_wise[sub_att.attainment_name]
+                    ? co_assignment_wise[sub_att.attainment_name] + mark
+                    : mark;
+
+                if (uni_co_assignment_wise[sub_att.attainment_name]) {
                   if (
                     String(
-                      uni_co_assignment_wise_internal[sub_att.attainment_name][
+                      uni_co_assignment_wise[sub_att.attainment_name][
                         assign_att?.assignmentId
                       ]?.assignmentId
                     ) === String(assign_att?.assignmentId)
                   ) {
-                    uni_co_assignment_wise_internal[sub_att.attainment_name][
+                    uni_co_assignment_wise[sub_att.attainment_name][
                       assign_att?.assignmentId
                     ].mark =
-                      uni_co_assignment_wise_internal[sub_att.attainment_name][
+                      uni_co_assignment_wise[sub_att.attainment_name][
                         assign_att?.assignmentId
                       ].mark + mark;
+                  } else {
+                    uni_co_assignment_wise[sub_att.attainment_name] = {
+                      ...uni_co_assignment_wise[sub_att.attainment_name],
+                      [assign_att?.assignmentId]: {
+                        attainment_name: assign_att?.attainment_name,
+                        assignmentId: assign_att?.assignmentId,
+                        mark: mark,
+                      },
+                    };
+                  }
+                } else {
+                  uni_co_assignment_wise[sub_att.attainment_name] = {
+                    ...uni_co_assignment_wise[sub_att.attainment_name],
+                    [assign_att?.assignmentId]: {
+                      attainment_name: assign_att?.attainment_name,
+                      assignmentId: assign_att?.assignmentId,
+                      mark: mark,
+                    },
+                  };
+                }
+
+                stu_obj.marks.push(+mark);
+              }
+              if (assign_att?.copo_attainment_type === "INTERNAL") {
+                if (
+                  String(assign_att?.assignmentId) ===
+                  String(assignment?.assignment)
+                ) {
+                  let mark = +(
+                    (assignment?.assignment_obtain_mark *
+                      assign_att?.attainment_mark_weight) /
+                    100
+                  ).toFixed(2);
+
+                  if (
+                    uni_co_assignment_wise_internal[sub_att.attainment_name]
+                  ) {
+                    if (
+                      String(
+                        uni_co_assignment_wise_internal[
+                          sub_att.attainment_name
+                        ][assign_att?.assignmentId]?.assignmentId
+                      ) === String(assign_att?.assignmentId)
+                    ) {
+                      uni_co_assignment_wise_internal[sub_att.attainment_name][
+                        assign_att?.assignmentId
+                      ].mark =
+                        uni_co_assignment_wise_internal[
+                          sub_att.attainment_name
+                        ][assign_att?.assignmentId].mark + mark;
+                    } else {
+                      uni_co_assignment_wise_internal[sub_att.attainment_name] =
+                        {
+                          ...uni_co_assignment_wise_internal[
+                            sub_att.attainment_name
+                          ],
+                          [assign_att?.assignmentId]: {
+                            attainment_name: assign_att?.attainment_name,
+                            assignmentId: assign_att?.assignmentId,
+                            mark: mark,
+                            present_student: assign_att.present_student_count,
+                            attainment_mark: assign_att.attainment_mark,
+                          },
+                        };
+                    }
                   } else {
                     uni_co_assignment_wise_internal[sub_att.attainment_name] = {
                       ...uni_co_assignment_wise_internal[
@@ -419,44 +446,49 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
                       },
                     };
                   }
-                } else {
-                  uni_co_assignment_wise_internal[sub_att.attainment_name] = {
-                    ...uni_co_assignment_wise_internal[sub_att.attainment_name],
-                    [assign_att?.assignmentId]: {
-                      attainment_name: assign_att?.attainment_name,
-                      assignmentId: assign_att?.assignmentId,
-                      mark: mark,
-                      present_student: assign_att.present_student_count,
-                      attainment_mark: assign_att.attainment_mark,
-                    },
-                  };
                 }
-              }
-            } else {
-              if (
-                String(assign_att?.assignmentId) ===
-                String(assignment?.assignment)
-              ) {
-                let mark = +(
-                  (assignment?.assignment_obtain_mark *
-                    assign_att?.attainment_mark_weight) /
-                  100
-                ).toFixed(2);
+              } else {
+                if (
+                  String(assign_att?.assignmentId) ===
+                  String(assignment?.assignment)
+                ) {
+                  let mark = +(
+                    (assignment?.assignment_obtain_mark *
+                      assign_att?.attainment_mark_weight) /
+                    100
+                  ).toFixed(2);
 
-                if (uni_co_assignment_wise_external[sub_att.attainment_name]) {
                   if (
-                    String(
-                      uni_co_assignment_wise_external[sub_att.attainment_name][
-                        assign_att?.assignmentId
-                      ]?.assignmentId
-                    ) === String(assign_att?.assignmentId)
+                    uni_co_assignment_wise_external[sub_att.attainment_name]
                   ) {
-                    uni_co_assignment_wise_external[sub_att.attainment_name][
-                      assign_att?.assignmentId
-                    ].mark =
+                    if (
+                      String(
+                        uni_co_assignment_wise_external[
+                          sub_att.attainment_name
+                        ][assign_att?.assignmentId]?.assignmentId
+                      ) === String(assign_att?.assignmentId)
+                    ) {
                       uni_co_assignment_wise_external[sub_att.attainment_name][
                         assign_att?.assignmentId
-                      ].mark + mark;
+                      ].mark =
+                        uni_co_assignment_wise_external[
+                          sub_att.attainment_name
+                        ][assign_att?.assignmentId].mark + mark;
+                    } else {
+                      uni_co_assignment_wise_external[sub_att.attainment_name] =
+                        {
+                          ...uni_co_assignment_wise_external[
+                            sub_att.attainment_name
+                          ],
+                          [assign_att?.assignmentId]: {
+                            attainment_name: assign_att?.attainment_name,
+                            assignmentId: assign_att?.assignmentId,
+                            mark: mark,
+                            present_student: assign_att.present_student_count,
+                            attainment_mark: assign_att.attainment_mark,
+                          },
+                        };
+                    }
                   } else {
                     uni_co_assignment_wise_external[sub_att.attainment_name] = {
                       ...uni_co_assignment_wise_external[
@@ -471,143 +503,139 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
                       },
                     };
                   }
-                } else {
-                  uni_co_assignment_wise_external[sub_att.attainment_name] = {
-                    ...uni_co_assignment_wise_external[sub_att.attainment_name],
-                    [assign_att?.assignmentId]: {
-                      attainment_name: assign_att?.attainment_name,
-                      assignmentId: assign_att?.assignmentId,
-                      mark: mark,
-                      present_student: assign_att.present_student_count,
-                      attainment_mark: assign_att.attainment_mark,
-                    },
-                  };
                 }
               }
             }
           }
         }
+        stu_obj.co_wise = co_wise;
+        stu_obj.co_assignment_wise = co_assignment_wise;
+        modify_student.push(stu_obj);
       }
-      stu_obj.co_wise = co_wise;
-      stu_obj.co_assignment_wise = co_assignment_wise;
-      modify_student.push(stu_obj);
     }
 
     const subject_attainment = [];
     let co_weightage_total = {};
+    if (sub_attainment?.length > 0) {
+      for (let sub_att of sub_attainment) {
+        let sub_obj = {
+          attainment_name: sub_att?.attainment_name,
+          attainment_target: sub_att?.attainment?.attainment_target,
+          attainment_assign: [],
+        };
+        let assignment_obj = {
+          attainment_assign_type: "ASSIGNMENT",
+          attainment_name: "ASSIGNMENT",
+          attainment_mark: 0,
+          attainment_mark_weight: 0,
+          assignmentId: [],
+          assignment_count: 0,
+          student_count: 0,
+          present_student_count: 0,
+          absent_student_count: 0,
+          total_marks: {
+            mark: 0,
+          },
+          avg_marks: 0,
+          cls_avg_marks: 0,
+        };
+        if (sub_att?.attainment_assign?.length > 0) {
+          for (let att_assign of sub_att?.attainment_assign) {
+            if (att_assign?.attainment_assign_type === "ASSIGNMENT") {
+              assignment_obj.attainment_mark += att_assign?.attainment_mark;
+              assignment_obj.attainment_mark_weight = +(
+                (assignment_obj.attainment_mark_weight +
+                  att_assign?.attainment_mark_weight) /
+                2
+              ).toFixed(2);
+              assignment_obj.assignment_count += 1;
+              assignment_obj.student_count += att_assign?.student_count;
+              assignment_obj.present_student_count +=
+                att_assign?.present_student_count;
+              assignment_obj.absent_student_count +=
+                att_assign?.absent_student_count;
 
-    for (let sub_att of sub_attainment) {
-      let sub_obj = {
-        attainment_name: sub_att?.attainment_name,
-        attainment_target: sub_att?.attainment?.attainment_target,
-        attainment_assign: [],
-      };
-      let assignment_obj = {
-        attainment_assign_type: "ASSIGNMENT",
-        attainment_name: "ASSIGNMENT",
-        attainment_mark: 0,
-        attainment_mark_weight: 0,
-        assignmentId: [],
-        assignment_count: 0,
-        student_count: 0,
-        present_student_count: 0,
-        absent_student_count: 0,
-        total_marks: {
-          mark: 0,
-        },
-        avg_marks: 0,
-        cls_avg_marks: 0,
-      };
-      for (let att_assign of sub_att?.attainment_assign) {
-        if (att_assign?.attainment_assign_type === "ASSIGNMENT") {
-          assignment_obj.attainment_mark += att_assign?.attainment_mark;
-          assignment_obj.attainment_mark_weight = +(
-            (assignment_obj.attainment_mark_weight +
-              att_assign?.attainment_mark_weight) /
-            2
-          ).toFixed(2);
-          assignment_obj.assignment_count += 1;
-          assignment_obj.student_count += att_assign?.student_count;
-          assignment_obj.present_student_count +=
-            att_assign?.present_student_count;
-          assignment_obj.absent_student_count +=
-            att_assign?.absent_student_count;
+              assignment_obj.total_marks.mark +=
+                +uni_co_assignment_wise[sub_att?.attainment_name]?.[
+                  att_assign?.assignmentId
+                ]?.mark?.toFixed(2);
 
-          assignment_obj.total_marks.mark +=
-            +uni_co_assignment_wise[sub_att?.attainment_name]?.[
-              att_assign?.assignmentId
-            ]?.mark?.toFixed(2);
+              let a_t_avg = +(
+                assignment_obj.total_marks.mark /
+                att_assign?.present_student_count
+              ).toFixed(3);
+              assignment_obj.avg_marks += a_t_avg;
+              assignment_obj.cls_avg_marks += +(
+                a_t_avg / att_assign?.attainment_mark
+              ).toFixed(3);
+              assignment_obj.assignmentId.push(att_assign?.assignmentId);
+              if (co_weightage_total["ASSIGNMENT"]) {
+                co_weightage_total["ASSIGNMENT"] += att_assign.attainment_mark;
+              } else {
+                co_weightage_total["ASSIGNMENT"] = att_assign.attainment_mark;
+              }
 
-          let a_t_avg = +(
-            assignment_obj.total_marks.mark / att_assign?.present_student_count
-          ).toFixed(3);
-          assignment_obj.avg_marks += a_t_avg;
-          assignment_obj.cls_avg_marks += +(
-            a_t_avg / att_assign?.attainment_mark
-          ).toFixed(3);
-          assignment_obj.assignmentId.push(att_assign?.assignmentId);
-          if (co_weightage_total["ASSIGNMENT"]) {
-            co_weightage_total["ASSIGNMENT"] += att_assign.attainment_mark;
-          } else {
-            co_weightage_total["ASSIGNMENT"] = att_assign.attainment_mark;
-          }
-
-          assignment_obj.total_marks.mark =
-            +assignment_obj.total_marks.mark?.toFixed(2);
-          assignment_obj.avg_marks = +assignment_obj.avg_marks?.toFixed(2);
-        } else {
-          let t_avg = +(
-            uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId]?.mark /
-            att_assign?.present_student_count
-          ).toFixed(3);
-          sub_obj.attainment_assign.push({
-            ...att_assign,
-            total_marks: {
-              attainment_name:
-                uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId][
-                  "attainment_name"
-                ],
-              examId:
-                uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId][
-                  "examId"
-                ],
-              mark: +uni_co_wise[sub_att?.attainment_name]?.[
-                att_assign?.examId
-              ]["mark"]?.toFixed(2),
-              // ...uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId],
-            },
-            avg_marks: t_avg,
-            cls_avg_marks: +(t_avg / att_assign?.attainment_mark).toFixed(3),
-          });
-          if (co_weightage_total[att_assign.examId]) {
-            if (
-              String(co_weightage_total[att_assign.examId]?.examId) ===
-              String(att_assign?.examId)
-            ) {
-              co_weightage_total[att_assign.examId].exam_wise_total =
-                co_weightage_total[att_assign.examId].exam_wise_total +
-                att_assign.attainment_mark;
+              assignment_obj.total_marks.mark =
+                +assignment_obj.total_marks.mark?.toFixed(2);
+              assignment_obj.avg_marks = +assignment_obj.avg_marks?.toFixed(2);
             } else {
-              co_weightage_total[att_assign.examId] = {
-                attainment_name: att_assign?.attainment_name,
-                examId: att_assign?.examId,
-                exam_wise_total: att_assign.attainment_mark,
-              };
+              let t_avg = +(
+                uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId]
+                  ?.mark / att_assign?.present_student_count
+              ).toFixed(3);
+              sub_obj.attainment_assign.push({
+                ...att_assign,
+                total_marks: {
+                  attainment_name:
+                    uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId][
+                      "attainment_name"
+                    ],
+                  examId:
+                    uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId][
+                      "examId"
+                    ],
+                  mark: +uni_co_wise[sub_att?.attainment_name]?.[
+                    att_assign?.examId
+                  ]["mark"]?.toFixed(2),
+                  // ...uni_co_wise[sub_att?.attainment_name]?.[att_assign?.examId],
+                },
+                avg_marks: t_avg,
+                cls_avg_marks: +(t_avg / att_assign?.attainment_mark).toFixed(
+                  3
+                ),
+              });
+              if (co_weightage_total[att_assign.examId]) {
+                if (
+                  String(co_weightage_total[att_assign.examId]?.examId) ===
+                  String(att_assign?.examId)
+                ) {
+                  co_weightage_total[att_assign.examId].exam_wise_total =
+                    co_weightage_total[att_assign.examId].exam_wise_total +
+                    att_assign.attainment_mark;
+                } else {
+                  co_weightage_total[att_assign.examId] = {
+                    attainment_name: att_assign?.attainment_name,
+                    examId: att_assign?.examId,
+                    exam_wise_total: att_assign.attainment_mark,
+                  };
+                }
+              } else {
+                co_weightage_total[att_assign.examId] = {
+                  attainment_name: att_assign?.attainment_name,
+                  examId: att_assign?.examId,
+                  exam_wise_total: att_assign.attainment_mark,
+                };
+              }
             }
-          } else {
-            co_weightage_total[att_assign.examId] = {
-              attainment_name: att_assign?.attainment_name,
-              examId: att_assign?.examId,
-              exam_wise_total: att_assign.attainment_mark,
-            };
           }
         }
-      }
-      if (assignment_obj?.assignment_count) {
-        sub_obj.attainment_assign.push(assignment_obj);
-      }
 
-      subject_attainment.push(sub_obj);
+        if (assignment_obj?.assignment_count) {
+          sub_obj.attainment_assign.push(assignment_obj);
+        }
+
+        subject_attainment.push(sub_obj);
+      }
     }
 
     let co_weightage = {
@@ -615,63 +643,70 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
       key_count: 0,
     };
     let co_weightage_assignment = ["ASSIGNMENT"];
-    for (let sub_att of sub_attainment) {
-      let co_weightage_count = 0;
-      co_weightage["key0"].push(sub_att?.attainment_name);
+    if (sub_attainment?.length > 0) {
+      for (let sub_att of sub_attainment) {
+        let co_weightage_count = 0;
+        co_weightage["key0"].push(sub_att?.attainment_name);
 
-      let assignment_obj = {
-        attainment_mark: 0,
-      };
-      for (let att_assign of sub_att?.attainment_assign) {
-        if (att_assign?.attainment_assign_type === "ASSIGNMENT") {
-          assignment_obj.attainment_mark += att_assign?.attainment_mark;
-        } else {
-          co_weightage_count += 1;
-          for (let tt in co_weightage) {
-            if (tt === "key0" || tt === "key_count") {
+        let assignment_obj = {
+          attainment_mark: 0,
+        };
+        if (sub_att?.attainment_assign?.length > 0) {
+          for (let att_assign of sub_att?.attainment_assign) {
+            if (att_assign?.attainment_assign_type === "ASSIGNMENT") {
+              assignment_obj.attainment_mark += att_assign?.attainment_mark;
             } else {
-              if (
-                `${co_weightage[tt]?.[0]?.examId}` === `${att_assign.examId}`
-              ) {
-                co_weightage_count = +tt?.substring(3);
+              co_weightage_count += 1;
+              for (let tt in co_weightage) {
+                if (tt === "key0" || tt === "key_count") {
+                } else {
+                  if (
+                    `${co_weightage[tt]?.[0]?.examId}` ===
+                    `${att_assign.examId}`
+                  ) {
+                    co_weightage_count = +tt?.substring(3);
+                  }
+                }
+              }
+
+              if (co_weightage[`key${co_weightage_count}`]?.length > 0) {
+                if (
+                  `${co_weightage[`key${co_weightage_count}`]?.[0]?.examId}` ===
+                  `${att_assign.examId}`
+                ) {
+                  co_weightage[`key${co_weightage_count}`]?.push({
+                    attainment_name: att_assign.attainment_name,
+                    marks: att_assign.attainment_mark,
+                    examId: att_assign.examId,
+                    name: sub_att?.attainment_name,
+                  });
+                } else {
+                  co_weightage.key_count += 1;
+                  co_weightage[`key${co_weightage.key_count}`]?.push({
+                    attainment_name: att_assign.attainment_name,
+                    marks: att_assign.attainment_mark,
+                    examId: att_assign.examId,
+                    name: sub_att?.attainment_name,
+                  });
+                }
+              } else {
+                co_weightage[`key${co_weightage_count}`] = [
+                  {
+                    attainment_name: att_assign.attainment_name,
+                    marks: att_assign.attainment_mark,
+                    examId: att_assign.examId,
+                    name: sub_att?.attainment_name,
+                  },
+                ];
               }
             }
           }
-
-          if (co_weightage[`key${co_weightage_count}`]?.length > 0) {
-            if (
-              `${co_weightage[`key${co_weightage_count}`]?.[0]?.examId}` ===
-              `${att_assign.examId}`
-            ) {
-              co_weightage[`key${co_weightage_count}`]?.push({
-                attainment_name: att_assign.attainment_name,
-                marks: att_assign.attainment_mark,
-                examId: att_assign.examId,
-                name: sub_att?.attainment_name,
-              });
-            } else {
-              co_weightage.key_count += 1;
-              co_weightage[`key${co_weightage.key_count}`]?.push({
-                attainment_name: att_assign.attainment_name,
-                marks: att_assign.attainment_mark,
-                examId: att_assign.examId,
-                name: sub_att?.attainment_name,
-              });
-            }
-          } else {
-            co_weightage[`key${co_weightage_count}`] = [
-              {
-                attainment_name: att_assign.attainment_name,
-                marks: att_assign.attainment_mark,
-                examId: att_assign.examId,
-                name: sub_att?.attainment_name,
-              },
-            ];
-          }
         }
+
+        co_weightage_assignment.push(assignment_obj.attainment_mark);
+        if (!co_weightage.key_count)
+          co_weightage.key_count = co_weightage_count;
       }
-      co_weightage_assignment.push(assignment_obj.attainment_mark);
-      if (!co_weightage.key_count) co_weightage.key_count = co_weightage_count;
     }
     co_weightage[`key_assignment`] = co_weightage_assignment;
 
@@ -700,83 +735,88 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
       co_attainment_name_list: [],
       insertedExam: [],
     };
+    if (subject_attainment?.length > 0) {
+      for (let sub_avg of subject_attainment) {
+        if (outer_cls_average_ia.co_list?.includes(sub_avg.attainment_name)) {
+        } else {
+          outer_cls_average_ia.co_list?.push(sub_avg.attainment_name);
+        }
 
-    for (let sub_avg of subject_attainment) {
-      if (outer_cls_average_ia.co_list?.includes(sub_avg.attainment_name)) {
-      } else {
-        outer_cls_average_ia.co_list?.push(sub_avg.attainment_name);
-      }
-
-      outer_cls_average_ia[sub_avg.attainment_name] = {
-        c_total: 0,
-        c_avg_total: 0,
-        count: 1,
-        list: [],
-        assingment_co: null,
-      };
-      for (let co_avg of sub_avg?.attainment_assign) {
-        if (co_avg?.copo_attainment_type === "INTERNAL") {
-          if (co_avg?.attainment_assign_type === "ASSIGNMENT") {
-          } else {
-            if (
-              outer_cls_average_ia.insertedExam?.includes(`${co_avg?.examId}`)
-            ) {
-            } else {
-              outer_cls_average_ia.insertedExam.push(`${co_avg?.examId}`);
-              outer_cls_average_ia.co_attainment_name_list?.push(
-                co_avg.attainment_name
+        outer_cls_average_ia[sub_avg.attainment_name] = {
+          c_total: 0,
+          c_avg_total: 0,
+          count: 1,
+          list: [],
+          assingment_co: null,
+        };
+        if (sub_avg?.attainment_assign?.length > 0) {
+          for (let co_avg of sub_avg?.attainment_assign) {
+            if (co_avg?.copo_attainment_type === "INTERNAL") {
+              if (co_avg?.attainment_assign_type === "ASSIGNMENT") {
+              } else {
+                if (
+                  outer_cls_average_ia.insertedExam?.includes(
+                    `${co_avg?.examId}`
+                  )
+                ) {
+                } else {
+                  outer_cls_average_ia.insertedExam.push(`${co_avg?.examId}`);
+                  outer_cls_average_ia.co_attainment_name_list?.push(
+                    co_avg.attainment_name
+                  );
+                }
+              }
+              outer_cls_average_ia[sub_avg.attainment_name].c_total +=
+                co_avg?.cls_avg_marks;
+              outer_cls_average_ia[sub_avg.attainment_name].list.push(
+                co_avg?.cls_avg_marks
               );
+              outer_cls_average_ia[sub_avg.attainment_name].count += 1;
             }
           }
-          outer_cls_average_ia[sub_avg.attainment_name].c_total +=
-            co_avg?.cls_avg_marks;
-          outer_cls_average_ia[sub_avg.attainment_name].list.push(
-            co_avg?.cls_avg_marks
-          );
-          outer_cls_average_ia[sub_avg.attainment_name].count += 1;
         }
-      }
 
-      let assingment_co = {
-        marks: 0,
-        count: 0,
-        avg_marks: 0,
-      };
-      for (let assign in uni_co_assignment_wise_internal[
-        sub_avg.attainment_name
-      ]) {
-        assingment_co.marks += +(
-          uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
-            ?.mark /
-          uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
-            ?.present_student /
-          uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
-            ?.attainment_mark
-        )?.toFixed(3);
-        assingment_co.count += 1;
-      }
+        let assingment_co = {
+          marks: 0,
+          count: 0,
+          avg_marks: 0,
+        };
+        for (let assign in uni_co_assignment_wise_internal[
+          sub_avg.attainment_name
+        ]) {
+          assingment_co.marks += +(
+            uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
+              ?.mark /
+            uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
+              ?.present_student /
+            uni_co_assignment_wise_internal[sub_avg.attainment_name][assign]
+              ?.attainment_mark
+          )?.toFixed(3);
+          assingment_co.count += 1;
+        }
 
-      assingment_co.avg_marks = +(
-        assingment_co.marks / assingment_co.count
-      ).toFixed(3);
+        assingment_co.avg_marks = +(
+          assingment_co.marks / assingment_co.count
+        ).toFixed(3);
 
-      let a_total =
-        +outer_cls_average_ia[sub_avg.attainment_name].c_total +
-        assingment_co?.avg_marks;
+        let a_total =
+          +outer_cls_average_ia[sub_avg.attainment_name].c_total +
+          assingment_co?.avg_marks;
 
-      outer_cls_average_ia[sub_avg.attainment_name].c_avg_total = Math.ceil(
-        (a_total / outer_cls_average_ia[sub_avg.attainment_name].count) * 100
-      );
-      outer_cls_average_ia[sub_avg.attainment_name].list?.push(
-        assingment_co?.avg_marks
-      );
-      outer_cls_average_ia[sub_avg.attainment_name].assingment_co =
-        assingment_co;
-      if (
-        outer_cls_average_ia.co_attainment_name_list?.includes("Assignment")
-      ) {
-      } else {
-        outer_cls_average_ia.co_attainment_name_list?.push("Assignment");
+        outer_cls_average_ia[sub_avg.attainment_name].c_avg_total = Math.ceil(
+          (a_total / outer_cls_average_ia[sub_avg.attainment_name].count) * 100
+        );
+        outer_cls_average_ia[sub_avg.attainment_name].list?.push(
+          assingment_co?.avg_marks
+        );
+        outer_cls_average_ia[sub_avg.attainment_name].assingment_co =
+          assingment_co;
+        if (
+          outer_cls_average_ia.co_attainment_name_list?.includes("Assignment")
+        ) {
+        } else {
+          outer_cls_average_ia.co_attainment_name_list?.push("Assignment");
+        }
       }
     }
 
@@ -785,84 +825,89 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
       co_attainment_name_list: [],
       insertedExam: [],
     };
-    for (let sub_avg of subject_attainment) {
-      if (outer_cls_average_ea.co_list?.includes(sub_avg.attainment_name)) {
-      } else {
-        outer_cls_average_ea.co_list?.push(sub_avg.attainment_name);
-      }
+    if (subject_attainment?.length > 0) {
+      for (let sub_avg of subject_attainment) {
+        if (outer_cls_average_ea.co_list?.includes(sub_avg.attainment_name)) {
+        } else {
+          outer_cls_average_ea.co_list?.push(sub_avg.attainment_name);
+        }
 
-      outer_cls_average_ea[sub_avg.attainment_name] = {
-        c_total: 0,
-        c_avg_total: 0,
-        count: 1,
-        list: [],
-        assingment_co: null,
-      };
-
-      for (let co_avg of sub_avg?.attainment_assign) {
-        if (co_avg?.copo_attainment_type === "EXTERNAL") {
-          if (co_avg?.attainment_assign_type === "ASSIGNMENT") {
-          } else {
-            if (
-              outer_cls_average_ea.insertedExam?.includes(`${co_avg?.examId}`)
-            ) {
-            } else {
-              outer_cls_average_ea.insertedExam.push(`${co_avg?.examId}`);
-              outer_cls_average_ea.co_attainment_name_list?.push(
-                co_avg.attainment_name
+        outer_cls_average_ea[sub_avg.attainment_name] = {
+          c_total: 0,
+          c_avg_total: 0,
+          count: 1,
+          list: [],
+          assingment_co: null,
+        };
+        if (sub_avg?.attainment_assign?.length > 0) {
+          for (let co_avg of sub_avg?.attainment_assign) {
+            if (co_avg?.copo_attainment_type === "EXTERNAL") {
+              if (co_avg?.attainment_assign_type === "ASSIGNMENT") {
+              } else {
+                if (
+                  outer_cls_average_ea.insertedExam?.includes(
+                    `${co_avg?.examId}`
+                  )
+                ) {
+                } else {
+                  outer_cls_average_ea.insertedExam.push(`${co_avg?.examId}`);
+                  outer_cls_average_ea.co_attainment_name_list?.push(
+                    co_avg.attainment_name
+                  );
+                }
+              }
+              outer_cls_average_ea[sub_avg.attainment_name].c_total +=
+                co_avg?.cls_avg_marks;
+              outer_cls_average_ea[sub_avg.attainment_name].list.push(
+                co_avg?.cls_avg_marks
               );
+              outer_cls_average_ea[sub_avg.attainment_name].count += 1;
             }
           }
-          outer_cls_average_ea[sub_avg.attainment_name].c_total +=
-            co_avg?.cls_avg_marks;
-          outer_cls_average_ea[sub_avg.attainment_name].list.push(
-            co_avg?.cls_avg_marks
-          );
-          outer_cls_average_ea[sub_avg.attainment_name].count += 1;
         }
-      }
 
-      let assingment_co = {
-        marks: 0,
-        count: 0,
-        avg_marks: 0,
-      };
-      for (let assign in uni_co_assignment_wise_external[
-        sub_avg.attainment_name
-      ]) {
-        assingment_co.marks += +(
-          uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
-            ?.mark /
-          uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
-            ?.present_student /
-          uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
-            ?.attainment_mark
-        )?.toFixed(3);
-        assingment_co.count += 1;
-      }
+        let assingment_co = {
+          marks: 0,
+          count: 0,
+          avg_marks: 0,
+        };
+        for (let assign in uni_co_assignment_wise_external[
+          sub_avg.attainment_name
+        ]) {
+          assingment_co.marks += +(
+            uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
+              ?.mark /
+            uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
+              ?.present_student /
+            uni_co_assignment_wise_external[sub_avg.attainment_name][assign]
+              ?.attainment_mark
+          )?.toFixed(3);
+          assingment_co.count += 1;
+        }
 
-      assingment_co.avg_marks = +(
-        assingment_co.marks / assingment_co.count
-      ).toFixed(3);
+        assingment_co.avg_marks = +(
+          assingment_co.marks / assingment_co.count
+        ).toFixed(3);
 
-      let a_total =
-        +outer_cls_average_ea[sub_avg.attainment_name].c_total +
-        assingment_co?.avg_marks;
+        let a_total =
+          +outer_cls_average_ea[sub_avg.attainment_name].c_total +
+          assingment_co?.avg_marks;
 
-      outer_cls_average_ea[sub_avg.attainment_name].c_avg_total = Math.ceil(
-        (a_total / outer_cls_average_ea[sub_avg.attainment_name].count) * 100
-      );
-      outer_cls_average_ea[sub_avg.attainment_name].list?.push(
-        assingment_co?.avg_marks
-      );
-      outer_cls_average_ea[sub_avg.attainment_name].assingment_co =
-        assingment_co;
+        outer_cls_average_ea[sub_avg.attainment_name].c_avg_total = Math.ceil(
+          (a_total / outer_cls_average_ea[sub_avg.attainment_name].count) * 100
+        );
+        outer_cls_average_ea[sub_avg.attainment_name].list?.push(
+          assingment_co?.avg_marks
+        );
+        outer_cls_average_ea[sub_avg.attainment_name].assingment_co =
+          assingment_co;
 
-      if (
-        outer_cls_average_ea.co_attainment_name_list?.includes("Assignment")
-      ) {
-      } else {
-        outer_cls_average_ea.co_attainment_name_list?.push("Assignment");
+        if (
+          outer_cls_average_ea.co_attainment_name_list?.includes("Assignment")
+        ) {
+        } else {
+          outer_cls_average_ea.co_attainment_name_list?.push("Assignment");
+        }
       }
     }
 
@@ -887,43 +932,51 @@ exports.getCoAttainmentTabelQuery = async (req, res) => {
       ],
     };
 
-    for (let co of calculation_co_attainment.co_list) {
-      let ia_attainment =
-        +(
-          outer_cls_average_ia[co]?.c_avg_total *
-          classes?.department?.internal_assesment
-        ) / 100;
-      let ea_attainment =
-        +(
-          outer_cls_average_ea[co]?.c_avg_total *
-          classes?.department?.external_assesment
-        ) / 100;
-      calculation_co_attainment[co] = {
-        // ia_attainment: ia_attainment,
-        // ea_attainment: ea_attainment,
-        ia_avg: ia_attainment.toFixed(3),
-        ea_avg: ea_attainment.toFixed(3),
-        direct_co: Math.ceil(ia_attainment + ea_attainment),
-      };
+    if (calculation_co_attainment?.co_list?.length > 0) {
+      for (let co of calculation_co_attainment.co_list) {
+        let ia_attainment =
+          +(
+            outer_cls_average_ia[co]?.c_avg_total *
+            classes?.department?.internal_assesment
+          ) / 100;
+        let ea_attainment =
+          +(
+            outer_cls_average_ea[co]?.c_avg_total *
+            classes?.department?.external_assesment
+          ) / 100;
+        calculation_co_attainment[co] = {
+          // ia_attainment: ia_attainment,
+          // ea_attainment: ea_attainment,
+          ia_avg: ia_attainment.toFixed(3),
+          ea_avg: ea_attainment.toFixed(3),
+          direct_co: Math.ceil(ia_attainment + ea_attainment),
+        };
+      }
     }
 
     let co_quality_compliance = {
       co_list: calculation_co_attainment["co_list"],
     };
-
-    for (let sub_avg of subject_attainment) {
-      let gap =
-        calculation_co_attainment[sub_avg?.attainment_name]?.["direct_co"] -
-        sub_avg?.attainment_target;
-      co_quality_compliance[sub_avg?.attainment_name] = {
-        attainment_name: sub_avg?.attainment_name,
-        attainment_target: sub_avg?.attainment_target,
-        co_attainment_gap: gap,
-        action_praposed_to_bridge_gap:
-          gap > 0 ? "Co Over Achived" : gap === 0 ? "Co Achived" : "Do not now",
-        modification_of_target_where_achived: " - ",
-      };
+    if (subject_attainment?.length > 0) {
+      for (let sub_avg of subject_attainment) {
+        let gap =
+          calculation_co_attainment[sub_avg?.attainment_name]?.["direct_co"] -
+          sub_avg?.attainment_target;
+        co_quality_compliance[sub_avg?.attainment_name] = {
+          attainment_name: sub_avg?.attainment_name,
+          attainment_target: sub_avg?.attainment_target,
+          co_attainment_gap: gap,
+          action_praposed_to_bridge_gap:
+            gap > 0
+              ? "Co Over Achived"
+              : gap === 0
+              ? "Co Achived"
+              : "Do not now",
+          modification_of_target_where_achived: " - ",
+        };
+      }
     }
+
     res.status(200).send({
       message: "Co attainment first table data",
       // uni_co_assignment_wise_external: uni_co_assignment_wise_external,

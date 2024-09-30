@@ -1391,6 +1391,7 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  cash_authority_list: [],
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

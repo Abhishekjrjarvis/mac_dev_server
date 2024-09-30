@@ -59,7 +59,10 @@ const {
   installment_checker_query,
   generate_random_code_structure,
 } = require("../../helper/functions");
-const { render_finance_current_role } = require("../Moderator/roleController");
+const {
+  render_finance_current_role,
+  cash_mods,
+} = require("../Moderator/roleController");
 const {
   retro_student_heads_sequencing_query,
   retro_receipt_heads_sequencing_query,
@@ -83,6 +86,7 @@ const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 const {
   json_to_excel_other_fees_subject_application_query,
 } = require("../../Custom/JSONToExcel");
+const StudentMessage = require("../../models/Content/StudentMessage");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -288,7 +292,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access",
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation online_amount_edit_access cash_authority_list",
       })
       .populate({
         path: "financeHead",
@@ -309,6 +313,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
         finance.enable_protection = false;
       }
     }
+    // await cash_mods(finance?.financeHead?._id, finance?.institute);
     const finance_bind = {
       message: "Finance Master Query",
       finance: finance,
@@ -7902,6 +7907,7 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
       roll_no,
       mode,
       fee_payment_amount,
+      staff_id,
     } = req?.body;
     if (!fid)
       return res.status(200).send({
@@ -7929,6 +7935,9 @@ exports.renderExistNonOtherFeesAddStudentQuery = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
     new_receipt.finance = finance?._id;
     new_receipt.receipt_status = "Already Generated";
+    if (staff_id) {
+      new_receipt.cashier_collect_by = staff_id;
+    }
     order.payment_module_type = "Other Fees";
     order.payment_to_end_user_id = institute?._id;
     order.payment_module_id = o_f._id;
@@ -8035,7 +8044,7 @@ exports.renderNewOtherFeesRemoveStudentQuery = async (req, res) => {
 exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
-    const { students, ofid, mode, fee_payment_amount } = req?.body;
+    const { students, ofid, mode, fee_payment_amount, staff_id } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -8075,6 +8084,9 @@ exports.renderNewOneOtherFeesAddStudentQuery = async (req, res) => {
         new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
         new_receipt.finance = finance?._id;
         new_receipt.receipt_status = "Already Generated";
+        if (staff_id) {
+          new_receipt.cashier_collect_by = staff_id;
+        }
         order.payment_module_type = "Other Fees";
         order.payment_to_end_user_id = institute?._id;
         order.payment_by_end_user_id = user._id;
@@ -8672,7 +8684,7 @@ exports.renderOneCombinedOtherFeesStudentListExportQuery = async (req, res) => {
               ? cls?.studentMiddleName ?? cls?.studentFatherName
               : ""
           } ${cls?.studentLastName}`,
-          RegistrationID: cls?.student_prn_enroll_number ?? cls?.studentGRNO,
+          RegistrationID: cls?.studentGRNO ?? cls?.student_prn_enroll_number,
           Mode: cls?.other_fees_obj.fee_payment_mode ?? "NA",
           TxnDate: cls?.other_fees_obj?.TxnDate ?? "NA",
           BankUTR:
@@ -8901,6 +8913,36 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
         access: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_miscellenous_fee_message = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    const { type, m_title, m_doc, message, message_bool } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Thier is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const new_message = new StudentMessage({
+      message: `${message}`,
+      message_type: `${type}`,
+      from_name: "Finance Manager",
+      message_title: m_title,
+      message_document: m_doc,
+      institute: finance?.institute,
+      message_mode: "MISCELLENOUS_FEE",
+    });
+    finance.student_message = new_message?._id;
+    if (message_bool) {
+      finance.message_bool = message_bool;
+    }
+    await Promise.all([new_message.save(), finance.save()]);
   } catch (e) {
     console.log(e);
   }

@@ -2113,6 +2113,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               },
             },
           });
+        // .lean()
+        // .exec();
         if (student?.studentClass) {
           var classes = await Class.findById({
             _id: `${student?.studentClass?._id}`,
@@ -2277,6 +2279,23 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       //   bind_student
       // );
       await calc_profile_percentage(student);
+      if (isApk) {
+        // const ins = await InstituteAdmin.findById({
+        //   _id: student?.institute?._id,
+        // });
+        // let obj = {
+        //   studentFormSetting: ins?.studentFormSetting,
+        //   insName: ins?.insName,
+        //   name: ins?.name,
+        //   transportDepart: ins?.transportDepart,
+        //   library: ins?.library,
+        //   student_section_form_show_query: ins?.student_section_form_show_query,
+        //   photoId: ins?.photoId,
+        //   insProfilePhoto: ins?.insProfilePhoto,
+        //   _id: "",
+        // };
+        // student.institute._id = "";
+      }
       res.status(200).send({
         message: "All Student Designation Feed from DB 🙌",
         // student: cached.student,
@@ -3220,7 +3239,7 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
     const { sid } = req.params;
     var staff = await Staff.findById({ _id: sid })
       .select(
-        "staffDesignationCount active_designation mentorDepartment teaching_type library_qr_code hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffStatus staffROLLNO"
+        "staffFirstName staffDesignationCount vehicle_category library_qr_code recentDesignation active_designation staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave current_designation staff_pf_number"
       )
       .populate({
         path: "staffDepartment",
@@ -3263,7 +3282,7 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName photoId insProfilePhoto student_section_form_show_query",
+          "insName photoId insProfilePhoto student_section_form_show_query financeDepart storeStatus storeDepart library",
       })
       .populate({
         path: "user",
@@ -3344,7 +3363,7 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "admissionModeratorDepartment",
-        select: "admission access_role active_tab",
+        select: "admission access_role active_tab access_application",
       })
       .populate({
         path: "financeModeratorDepartment",
@@ -3352,7 +3371,8 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "instituteModeratorDepartment",
-        select: "institute access_role academic_department lms",
+        select:
+          "institute access_role academic_department staff_institute_admin lms",
         populate: {
           path: "academic_department",
           select: "departmentSelectBatch dName dTitle",
@@ -3367,6 +3387,14 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
         select: "batchName batchStatus",
       })
       .populate({
+        path: "libraryModeratorDepartment",
+        select: "library access_role",
+        populate: {
+          path: "department",
+          select: "dName",
+        },
+      })
+      .populate({
         path: "lms_department",
         select: "id",
       })
@@ -3378,8 +3406,38 @@ exports.retrievePreciseStaffDesignationArray = async (req, res) => {
           select: "dName",
         },
       })
+      .populate({
+        path: "stores_department",
+        select: "_id",
+      })
+      .populate({
+        path: "goods_register",
+        select: "good_head_name good_title_person good_head_person",
+        populate: {
+          path: "store",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "_id financeDepart admissionDepart storeStatus",
+          },
+        },
+      })
+      .populate({
+        path: "payrollDepartment",
+        select: "_id",
+      })
+      .populate({
+        path: "custom_authority",
+        select: "_id custom_head_name",
+      })
       .lean()
       .exec();
+
+    for (let ele of staff?.instituteModeratorDepartment) {
+      if (ele?.academic_department) {
+        ele.academicDepartment = ele?.academic_department;
+      }
+    }
     const staff_obj = {
       message: "All Staff Designation Feed from DB 🙌",
       staff: staff,

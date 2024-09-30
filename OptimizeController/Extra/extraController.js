@@ -4714,12 +4714,26 @@ exports.roll_alignment = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.online_amount_change_query = async (req, res) => {
+  try {
+    const all_student = await Student.find({
+      online_amount_edit_access: "Granted",
+    }).select("online_amount_edit_access");
+
+    for (let ele of all_student) {
+      ele.online_amount_edit_access = "Not Granted";
+      await ele.save();
+    }
+    res.status(200).send({ message: "DONE" });
   } catch (e) {
     console.log(e);
   }

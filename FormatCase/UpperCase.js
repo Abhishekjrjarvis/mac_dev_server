@@ -15,18 +15,18 @@ exports.all_upper_case_query = async (stu_args) => {
     stu_args.studentMTongue = stu_args?.studentMTongue
       ? stu_args?.studentMTongue.toUpperCase()
       : stu_args?.studentMTongue;
-    stu_args.studentReligion = stu_args?.studentReligion
-      ? stu_args?.studentReligion.toUpperCase()
-      : stu_args?.studentReligion;
-    stu_args.studentNationality = stu_args?.studentNationality
-      ? stu_args?.studentNationality.toUpperCase()
-      : stu_args?.studentNationality;
+    // stu_args.studentReligion = stu_args?.studentReligion
+    //   ? stu_args?.studentReligion.toUpperCase()
+    //   : stu_args?.studentReligion;
+    // stu_args.studentNationality = stu_args?.studentNationality
+    //   ? stu_args?.studentNationality.toUpperCase()
+    //   : stu_args?.studentNationality;
     stu_args.studentCast = stu_args?.studentCast
       ? stu_args?.studentCast.toUpperCase()
       : stu_args?.studentCast;
-    stu_args.studentCastCategory = stu_args?.studentCastCategory
-      ? stu_args?.studentCastCategory.toUpperCase()
-      : stu_args?.studentCastCategory;
+    // stu_args.studentCastCategory = stu_args?.studentCastCategory
+    //   ? stu_args?.studentCastCategory.toUpperCase()
+    //   : stu_args?.studentCastCategory;
     stu_args.studentMotherName = stu_args?.studentMotherName
       ? stu_args?.studentMotherName.toUpperCase()
       : stu_args?.studentMotherName;

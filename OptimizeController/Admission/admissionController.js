@@ -142,6 +142,7 @@ const StudentPreviousData = require("../../models/StudentPreviousData");
 const moment = require("moment");
 const societyAdmissionFeeReceipt = require("../../scripts/societyAdmissionFeeReceipt");
 const FeesCategory = require("../../models/Finance/FeesCategory");
+const { classes_shuffle_func } = require("../../Designation/functions");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -253,7 +254,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode",
+          "_id insName insProfilePhoto status financeDepart hostelDepart random_institute_code alias_pronounciation profileQRCode cash_authority_list",
       });
     // const cached = await connect_redis_miss(
     //   `Admission-Detail-${aid}`,
@@ -2797,6 +2798,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_receipt.receipt_status = receipt_status
         ? receipt_status
         : "Already Generated";
+      if (staffId) {
+        new_receipt.cashier_collect_by = staffId;
+      }
       order.payment_module_type = "Admission Fees";
       order.payment_to_end_user_id = institute?._id;
       order.payment_by_end_user_id = user._id;
@@ -3120,6 +3124,9 @@ exports.cancelAdmissionApplication = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
+    }
     if (
       price &&
       mode === "Offline" &&
@@ -3565,6 +3572,8 @@ exports.retrieveClassAllotQuery = async (req, res) => {
               await ele.save();
             }
           }
+          await classes_shuffle_func(classes, student);
+
           await Promise.all([
             apply.save(),
             student.save(),
@@ -4221,6 +4230,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     new_receipt.receipt_status = receipt_status
       ? receipt_status
       : "Already Generated";
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
+    }
     const notify = new StudentNotification({});
     var all_status = await Status.find({
       $and: [
@@ -7738,7 +7750,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
 exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
-    const { amount, mode, type, rid } = req.body;
+    const { amount, mode, type, rid, staff_id } = req.body;
     if (!sid && !appId && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -7776,6 +7788,9 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.scholarship_status = "MARK_AS_SCHOLARSHIP";
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    if (staff_id) {
+      new_receipt.cashier_collect_by = staff_id;
+    }
     const notify = new StudentNotification({});
     const remaining_fee_lists = await RemainingList.findById({
       _id: rid,
@@ -8956,7 +8971,7 @@ exports.renderAllRefundedArray = async (req, res) => {
 exports.renderRemainingSetOffQuery = async (req, res) => {
   try {
     const { rcid, sid } = req.params;
-    const { amount, mode, type, nsid } = req.body;
+    const { amount, mode, type, nsid, staff_id } = req.body;
     if (!sid && !rcid && !amount && !mode && !type)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -9025,6 +9040,9 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         new_receipt.finance = finance?._id;
         new_receipt.set_off_status = "Set Off";
         new_receipt.fee_transaction_date = new Date();
+        if (staff_id) {
+          new_receipt.cashier_collect_by = staff_id;
+        }
         const notify = new StudentNotification({});
         if (valid_remain_card?.paid_fee >= price) {
           valid_remain_card.paid_fee -= price;
@@ -13473,6 +13491,9 @@ exports.cancelAllottedAdmissionApplication = async (req, res) => {
     new_receipt.receipt_generated_from = "BY_ADMISSION";
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
+    if (staffId) {
+      new_receipt.cashier_collect_by = staffId;
+    }
     if (
       price &&
       mode === "Offline" &&
@@ -16752,6 +16773,91 @@ exports.render_one_subject_student_query = async (req, res) => {
   }
 };
 
+exports.render_one_subject_all_dse_student_query = async (req, res) => {
+  try {
+    const { sid, aid } = req?.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_subject = await SubjectMaster.findById({ _id: sid });
+    const apply = await NewApplication.findById({ _id: aid });
+    // const nums = [aid]
+    // const all_user = await User.find({ applyApplication: { $in: nums } })
+    let numss = [];
+    for (let ele of apply?.confirmedApplication) {
+      numss.push(ele?.student);
+    }
+    for (let ele of apply?.allottedApplication) {
+      numss.push(ele?.student);
+    }
+    let subject_num = [...numss, ...apply?.reviewApplication];
+    const all_student = await Student.find({ _id: { $in: subject_num } })
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      })
+      .populate({
+        path: "student_optional_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "major_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "nested_subject",
+        select: "subjectName",
+      });
+    var n = [];
+    for (let val of all_student) {
+      // for (let ele of val?.student_optional_subject) {
+      //   if (`${ele?._id}` === `${one_subject?._id}`) n.push(val);
+      // }
+      for (let val of all_student) {
+        for (let ele of val?.major_subject) {
+          if (`${ele?._id}` === `${one_subject?._id}`) {
+            n.push(val);
+          }
+        }
+      }
+      // for (let val of all_student) {
+      //   for (let ele of val?.nested_subject) {
+      //     if (`${ele?._id}` === `${one_subject?._id}`) {
+      //       n.push(val);
+      //     }
+      //   }
+      // }
+    }
+    const unique = [...new Set(n.map((item) => item._id))];
+    const all = await Student.find({ _id: { $in: unique } })
+      .select(
+        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+      )
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    const all_students = await nested_document_limit(page, limit, all);
+    res.status(200).send({
+      message: "Explore All Students Master Query",
+      access: true,
+      student: all_students?.length > 0 ? all_students : [],
+      student_count: unique?.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.spce_student_name_sequencing = async (list) => {
   try {
     var i = 0;
@@ -18024,9 +18130,15 @@ exports.all_documents_export_query = async (req, res) => {
     var numss = {};
     for (let ele of all_student) {
       if (ele?.collect_docs?.length > 0) {
-        for (let val of ele?.collect_docs) {
-          numss[val?.docs?.document_name] = val?.not_filled ?? "No";
+        for (let val = 1; val <= ele?.collect_docs?.length; val++) {
+          if (ele?.collect_docs[val]?.not_filled == "Yes") {
+            numss[`Document_${val}`] =
+              ele?.collect_docs[val]?.not_filled == "Yes"
+                ? ele?.collect_docs[val]?.docs?.document_name
+                : "";
+          }
         }
+        // console.log(numss);
         excel_list.push({
           RegistrationID: ele?.studentGRNO ?? "#NA",
           Name: `${ele?.studentFirstName} ${

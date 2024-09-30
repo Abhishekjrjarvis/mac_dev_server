@@ -989,6 +989,11 @@ router.get(
   catchAsync(Admission.render_one_subject_student_query)
 );
 
+router.get(
+  "/:sid/one/subject/all/dse/:aid/student",
+  catchAsync(Admission.render_one_subject_all_dse_student_query)
+);
+
 router.patch(
   "/:sid/change/subject/query",
   catchAsync(Admission.render_one_subject_change_student_query)

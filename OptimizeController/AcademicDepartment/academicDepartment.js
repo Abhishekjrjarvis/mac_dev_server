@@ -499,9 +499,10 @@ exports.render_all_students_query = async (req, res) => {
     let ds = [];
     let dss = [];
     let dsss = [];
-    // console.log(all_subject);
+    console.log(all_subject?.length);
+    let all_subs = [...all_subject];
     all_subject = all_subject?.filter((val) => {
-      if (val?.optionalStudent?.length) return val;
+      if (val?.optionalStudent?.length > 0) return val;
     });
     if (all_subject?.length > 0) {
       for (let ele of all_subject) {
@@ -511,11 +512,12 @@ exports.render_all_students_query = async (req, res) => {
         }
       }
     } else {
-      for (let ele of all_subject) {
+      for (let ele of all_subs) {
+        // console.log("lasdjalk");
         ds.push(...ele?.class?.ApproveStudent);
       }
+      // console.log("ds", ds?.length);
     }
-    // console.log("ds", ds?.length);
     // console.log("dss", dss?.length);
     // console.log("dsss", dsss?.length);
 

@@ -1452,7 +1452,7 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
         book_type: val?.book_type,
         publisher: val?.publisher,
         totalPage: val?.totalPage,
-        depart: val?.depart,
+        depart: val?.depart ?? null,
       });
       library.books.push(book._id);
       library.bookCount += 1;

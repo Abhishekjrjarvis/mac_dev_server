@@ -2861,16 +2861,23 @@ exports.renderStudentNameCaseQuery = async (req, res) => {
 
     var format;
     if (`${valid_ins?.name_case_format_query}` === "CAPS_FORMAT") {
+      // console.log("NN");
+      // let i = 0;
       for (var ref of valid_ins?.ApproveStudent) {
         format = await all_upper_case_query(ref);
+        // console.log(i);
+        // i += 1;
       }
     } else if (`${valid_ins?.name_case_format_query}` === "SMALL_FORMAT") {
       for (var ref of valid_ins?.ApproveStudent) {
         format = await all_lower_case_query(ref);
       }
     } else if (`${valid_ins?.name_case_format_query}` === "TITLE_FORMAT") {
+      // let i = 0;
       for (var ref of valid_ins?.ApproveStudent) {
         format = await all_title_case_query(ref);
+        // console.log(i);
+        // i += 1;
       }
     } else {
     }
@@ -5455,6 +5462,50 @@ exports.certificate_bonafide_dublicate_query = async (req, res) => {
   }
 };
 
+
+// const all_student = await Student.find({
+//   _id: { $in: valid_ins?.ApproveStudent },
+// });
+// let list_1 = {
+//   HINDU: "Hindu",
+//   MUSLIM: "Muslim",
+//   SIKH: "Sikh",
+//   CHRISTIAN: "Christian",
+//   PARSI: "Parsi",
+//   JEWS: "Jews",
+//   "INDIGENOUS FAITH": "Indigenous Faith",
+//   BUDDHISM: "Buddhism",
+//   JAINISM: "Jainism",
+//   OTHER: "Other",
+// };
+// let list_2 = {
+//   HINDU: "General",
+//   OBC: "OBC",
+//   SC: "SC",
+//   ST: "ST",
+//   "NT-A": "NT-A",
+//   "NT-B": "NT-B",
+//   "NT-C": "NT-C",
+//   "NT-D": "NT-D",
+//   VJ: "VJ",
+//   SBC: "SBC",
+// };
+// let i = 0;
+// for (let ele of all_student) {
+//   ele.studentNationality = "Indian";
+//   ele.studentReligion = `${list_1[`${ele?.studentReligion}`]}`;
+//   ele.studentCastCategory = `${list_2[`${ele?.studentCastCategory}`]}`;
+//   await ele.save();
+//   console.log(
+//     i,
+//     ele.studentNationality,
+//     ele.studentReligion,
+//     ele.studentCastCategory
+//   );
+//   i += 1;
+// }
+// res.status(200).send({ message: "Done" });
+
 const auto_society_receipt_generate_query = async (list) => {
   try {
     if (list?.length === 0) {
@@ -5478,6 +5529,7 @@ const auto_society_receipt_generate_query = async (list) => {
     console.log(e);
   }
 };
+
 
 // for certificate authority -> changes
 
@@ -5589,3 +5641,4 @@ exports.student_bonafide_update_detail_query = async (req, res) => {
     console.log(e);
   }
 };
+

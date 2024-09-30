@@ -3,13 +3,15 @@ const BankAccount = require("../models/Finance/BankAccount");
 const FeeMaster = require("../models/Finance/FeeMaster");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
+const Staff = require("../models/Staff");
 
 const render_other_fees_daybook_heads_wise = async (
   fid,
   from,
   to,
   bank,
-  payment_type
+  payment_type,
+  staff
 ) => {
   try {
     var g_year;
@@ -83,81 +85,169 @@ const render_other_fees_daybook_heads_wise = async (
       }
     }
     const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
-    if (payment_type) {
-      var all_receipts = await FeeReceipt.find({
-        $and: [
-          { finance: fid },
-          // { fee_flow: "FEE_HEADS" },
-          {
-            created_at: {
-              $gte: g_date,
-              $lt: l_date,
+    if (staff) {
+      var one_staff = await Staff.findById({ _id: `${staff}` }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+      );
+      if (payment_type) {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
             },
-          },
-          {
-            receipt_generated_from: "BY_FINANCE_MANAGER",
-          },
-          {
-            refund_status: "No Refund",
-          },
-          {
-            fee_payment_mode: payment_type,
-          },
-          {
-            visible_status: "Not Hide",
-          },
-          // { student: { $in: sorted_array } },
-        ],
-      })
-        .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees")
-        .populate({
-          path: "other_fees",
-          select: "bank_account fees_heads",
-          populate: {
-            path: "bank_account",
-            select:
-              "finance_bank_account_number finance_bank_name finance_bank_account_name",
-          },
+            {
+              receipt_generated_from: "BY_FINANCE_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              fee_payment_mode: payment_type,
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            {
+              cashier_collect_by: `${staff}`,
+            },
+            // { student: { $in: sorted_array } },
+          ],
         })
-        .lean()
-        .exec();
+          .sort({ invoice_count: "1" })
+          .select("fee_heads other_fees")
+          .populate({
+            path: "other_fees",
+            select: "bank_account fees_heads",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          })
+          .lean()
+          .exec();
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            {
+              receipt_generated_from: "BY_FINANCE_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            {
+              cashier_collect_by: `${staff}`,
+            },
+            // { student: { $in: sorted_array } },
+          ],
+        })
+          .sort({ invoice_count: "1" })
+          .select("fee_heads other_fees")
+          .populate({
+            path: "other_fees",
+            select: "bank_account fees_heads",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          })
+          .lean()
+          .exec();
+      }
     } else {
-      var all_receipts = await FeeReceipt.find({
-        $and: [
-          { finance: fid },
-          // { fee_flow: "FEE_HEADS" },
-          {
-            created_at: {
-              $gte: g_date,
-              $lt: l_date,
+      if (payment_type) {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
             },
-          },
-          {
-            receipt_generated_from: "BY_FINANCE_MANAGER",
-          },
-          {
-            refund_status: "No Refund",
-          },
-          {
-            visible_status: "Not Hide",
-          },
-          // { student: { $in: sorted_array } },
-        ],
-      })
-        .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees")
-        .populate({
-          path: "other_fees",
-          select: "bank_account fees_heads",
-          populate: {
-            path: "bank_account",
-            select:
-              "finance_bank_account_number finance_bank_name finance_bank_account_name",
-          },
+            {
+              receipt_generated_from: "BY_FINANCE_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              fee_payment_mode: payment_type,
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            // { student: { $in: sorted_array } },
+          ],
         })
-        .lean()
-        .exec();
+          .sort({ invoice_count: "1" })
+          .select("fee_heads other_fees")
+          .populate({
+            path: "other_fees",
+            select: "bank_account fees_heads",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          })
+          .lean()
+          .exec();
+      } else {
+        var all_receipts = await FeeReceipt.find({
+          $and: [
+            { finance: fid },
+            // { fee_flow: "FEE_HEADS" },
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            {
+              receipt_generated_from: "BY_FINANCE_MANAGER",
+            },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            // { student: { $in: sorted_array } },
+          ],
+        })
+          .sort({ invoice_count: "1" })
+          .select("fee_heads other_fees")
+          .populate({
+            path: "other_fees",
+            select: "bank_account fees_heads",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          })
+          .lean()
+          .exec();
+      }
     }
     // console.log(all_receipts)
     all_receipts = all_receipts?.filter((val) => {
@@ -222,6 +312,7 @@ const render_other_fees_daybook_heads_wise = async (
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
+        one_staff: staff ? one_staff : {},
       };
     } else {
       return {
@@ -230,6 +321,7 @@ const render_other_fees_daybook_heads_wise = async (
         day_range_from: null,
         day_range_to: null,
         ins_info: {},
+        one_staff: {},
       };
     }
   } catch (e) {
@@ -242,7 +334,8 @@ const miscellaneousDaybookData = async (
   from = "",
   to = "",
   bank = "",
-  payment_type = ""
+  payment_type = "",
+  staff = ""
 ) => {
   // const ft = await getReceiptData(receiptId);
   // const ft = dataObj;
@@ -252,7 +345,8 @@ const miscellaneousDaybookData = async (
     from,
     to,
     bank,
-    payment_type
+    payment_type,
+    staff
   );
   return { ft };
 };

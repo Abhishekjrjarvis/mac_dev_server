@@ -79,6 +79,7 @@ const admissionIntakeReport = require("../../scripts/admissionIntakeReport");
 const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook");
 const hostelBankDaybook = require("../../scripts/hostelBankDaybook");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
+const Staff = require("../../models/Staff");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -1838,7 +1839,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "fee_structure",
             select:
@@ -1852,7 +1853,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -1861,7 +1862,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList",
           populate: {
             path: "batches",
             select: "batchName",
@@ -1920,20 +1921,23 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       };
       for (var ref of all_receipts) {
         var remain_list = await RemainingList.findOne({
-          $and: [{ student: ref?.student }, { appId: ref?.application }],
+          $and: [
+            { student: ref?.student?._id },
+            { appId: ref?.application?._id },
+          ],
         })
           .populate({
             path: "fee_structure",
             select:
               "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
-              path: "class_master batch_master",
-              select: "className batchName",
+              path: "class_master batch_master department",
+              select: "className batchName dName",
             },
           })
           .populate({
             path: "appId",
-            select: "applicationDepartment applicationBatch",
+            select: "applicationDepartment applicationBatch applicationName",
             populate: {
               path: "applicationDepartment applicationBatch",
               select: "dName batchName",
@@ -2012,9 +2016,13 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
+            Department:
+              `${remain_list?.fee_structure?.department?.dName}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            ApplicationName: `${remain_list?.appId?.applicationName}` ?? "#NA",
             FeeStructure:
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
@@ -3612,8 +3620,8 @@ exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
           select:
             "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees class_master batch_master",
           populate: {
-            path: "category_master batch_master class_master",
-            select: "category_name batchName className",
+            path: "category_master batch_master class_master department",
+            select: "category_name batchName className dName",
           },
         },
       });
@@ -3678,6 +3686,7 @@ exports.retrieveHostelPendingFeeFilterQuery = async (req, res) => {
           Standard: `${val?.fee_structure?.class_master?.className}`,
           FeeStructure:
             `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
+          Department: `${val?.fee_structure?.department?.dName}` ?? "#NA",
           Address: `${ref?.studentAddress}` ?? "#NA",
           // ...result,
         });
@@ -3906,7 +3915,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "hostel_fee_structure",
             select:
@@ -3920,7 +3929,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "student_unit",
             select: "hostel_unit_name",
@@ -3929,7 +3938,7 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList student_unit",
+            "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentGRNO studentGender remainingFeeList student_unit",
           populate: {
             path: "batches",
             select: "batchName",
@@ -3979,13 +3988,13 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             select:
               "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
-              path: "class_master batch_master",
-              select: "className batchName",
+              path: "class_master batch_master department",
+              select: "className batchName dName",
             },
           })
           .populate({
             path: "appId",
-            select: "applicationBatch applicationHostel",
+            select: "applicationBatch applicationHostel applicationName",
             populate: {
               path: "applicationBatch applicationHostel",
               select: "batchName",
@@ -4036,6 +4045,8 @@ exports.renderHostelFeeHeadsStructureReceiptQuery = async (req, res) => {
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            Department: remain_list?.fee_structure?.department?.dName ?? "#NA",
+            ApplicationName: remain_list?.appId?.applicationName ?? "#NA",
             FeeStructure:
               remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
@@ -4652,8 +4663,8 @@ exports.renderNormalStudentQuery = async (req, res) => {
         select:
           "unique_structure_name applicable_fees total_admission_fees category_master batch_master class_master",
         populate: {
-          path: "category_master batch_master class_master",
-          select: "category_name batchName className",
+          path: "category_master batch_master class_master department",
+          select: "category_name batchName className dName",
         },
       });
     valid_all_students.sort(function (st1, st2) {
@@ -4674,6 +4685,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
         })
         .populate({
           path: "applicable_card government_card",
+        })
+        .populate({
+          path: "appId",
+          select: "applicationName",
         });
       var pending = 0;
       var paid = 0;
@@ -4707,6 +4722,10 @@ exports.renderNormalStudentQuery = async (req, res) => {
           })
           .populate({
             path: "applicable_card government_card",
+          })
+          .populate({
+            path: "appId",
+            select: "applicationName",
           });
         currentPaid += valid_card?.applicable_card?.paid_fee;
         currentRemain +=
@@ -4755,6 +4774,8 @@ exports.renderNormalStudentQuery = async (req, res) => {
         SingleSeater: `${ref?.student_single_seater_room}` ?? "#NA",
         PhysicallyChallenged: `${ref?.student_ph}` ?? "#NA",
         ProfileCompletion: `${ref?.profile_percentage}` ?? "0",
+        Department: ref?.fee_structure?.department?.dName ?? "#NA",
+        // ApplicationName: ref?.fee_structure?.department?.dName ?? "#NA",
         Standard: `${ref?.fee_structure}`
           ? `${ref?.fee_structure?.class_master?.className}`
           : `${ref?.hostel_fee_structure}`
@@ -11118,7 +11139,7 @@ exports.renderTallyPriceQuery = async (req, res) => {
 exports.render_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.query;
+    const { from, to, bank, payment_type, staff } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -11128,7 +11149,7 @@ exports.render_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await bankDaybook(fid, from, to, bank, payment_type);
+    await bankDaybook(fid, from, to, bank, payment_type, "", staff);
     var g_year;
     var l_year;
     var g_month;
@@ -12709,8 +12730,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         populate: {
           path: "student",
           populate: {
-            path: "student_optional_subject major_subject nested_subject",
-            select: "subjectName",
+            path: "student_optional_subject major_subject nested_subject studentClass",
+            select: "subjectName className classTitle",
           },
         },
       });
@@ -13274,11 +13295,13 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
         var numss = {};
         for (var ref of valid_apply?.allottedApplication) {
           if (ref?.student?.studentFirstName != "") {
-            for (let ele of ref?.student?.student_dynamic_field) {
-              // numss.push(
-              //   [ele?.key]: ele?.value,
-              // );
-              numss[ele?.key] = ele?.value;
+            if (ref?.student?.student_dynamic_field?.length > 0) {
+              for (let ele of ref?.student?.student_dynamic_field) {
+                // numss.push(
+                //   [ele?.key]: ele?.value,
+                // );
+                numss[ele?.key] = ele?.value;
+              }
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
@@ -13296,6 +13319,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
               DOB: ref?.student?.studentDOB ?? "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+              Class: `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}`,
+              ROLLNO: ref?.student?.studentROLLNO,
               Religion: ref?.student?.studentReligion ?? "#NA",
               MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
               ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
@@ -14348,7 +14373,7 @@ exports.renderHostelApplicationListQuery = async (req, res) => {
 exports.render_other_fees_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type } = req.body;
+    const { from, to, bank, payment_type, staff } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -14358,7 +14383,15 @@ exports.render_other_fees_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await miscellaneousBankDaybook(fid, from, to, bank, payment_type);
+    await miscellaneousBankDaybook(
+      fid,
+      from,
+      to,
+      bank,
+      payment_type,
+      "",
+      staff
+    );
     var g_year;
     var l_year;
     var g_month;
@@ -14798,7 +14831,7 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
 exports.render_hostel_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, hid } = req.query;
+    const { from, to, bank, payment_type, hid, staff } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -14808,7 +14841,7 @@ exports.render_hostel_daybook_heads_wise = async (req, res) => {
       message: "Explore Day Book Heads Query",
       access: true,
     });
-    await hostelBankDaybook(fid, hid, from, to, bank, payment_type);
+    await hostelBankDaybook(fid, hid, from, to, bank, payment_type, "", staff);
     var g_year;
     var l_year;
     var g_month;
@@ -17131,7 +17164,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17187,7 +17220,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17243,7 +17276,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -17289,7 +17322,7 @@ const normal_daybook = async (from, to, bank, payment_type, fid) => {
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },
@@ -17886,7 +17919,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -17942,7 +17975,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -17998,7 +18031,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
               { finance: fid },
               // { fee_flow: "FEE_HEADS" },
               {
-                created_at: {
+                fee_transaction_date: {
                   $gte: g_date,
                   $lt: l_date,
                 },
@@ -18045,7 +18078,7 @@ const hostel_daybook = async (from, to, bank, payment_type, hid, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18411,7 +18444,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18465,7 +18498,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18516,7 +18549,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
             { finance: fid },
             // { fee_flow: "FEE_HEADS" },
             {
-              created_at: {
+              fee_transaction_date: {
                 $gte: g_date,
                 $lt: l_date,
               },
@@ -18537,7 +18570,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads other_fees fee_payment_mode")
+          .select("fee_heads other_fees fee_payment_mode fee_payment_amount")
           .populate({
             path: "other_fees",
             select: "bank_account fees_heads",
@@ -18549,6 +18582,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           })
           .lean()
           .exec();
+        console.log(all_receipts?.length, "iueqioueoiqueu");
       }
     } else {
       var all_receipts = await FeeReceipt.find({
@@ -18556,7 +18590,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
           { finance: fid },
           // { fee_flow: "FEE_HEADS" },
           {
-            created_at: {
+            fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
             },
@@ -18574,7 +18608,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         ],
       })
         .sort({ invoice_count: "1" })
-        .select("fee_heads other_fees fee_payment_mode")
+        .select("fee_heads other_fees fee_payment_mode fee_payment_amount")
         .populate({
           path: "other_fees",
           select: "bank_account fees_heads",
@@ -18597,7 +18631,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         if (`${val?.other_fees?.bank_account?._id}` === `${bank}`) return val;
       });
     }
-    console.log(all_receipts?.length);
+    // console.log(all_receipts?.length);
     let heads_queue = [];
     for (let i of all_receipts) {
       for (let j of i?.other_fees?.fees_heads) {
@@ -18620,6 +18654,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
       nest_obj.push(obj);
       obj = {};
     }
+    var total = 0;
     console.log("MM", all_receipts?.length);
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
@@ -19006,6 +19041,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
                   //   l.push(`${val?.original_paid}`);
                   // }
                   // t+= val?.original_paid
+                } else {
+                  console.log(ele?._id);
                 }
               }
             }
@@ -19030,6 +19067,13 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
       // day_range_to: to,
       // ins_info: institute,
       // });
+      for (let ele of all_receipts) {
+        if (ele?.fee_heads?.[0]?.is_society == true) {
+          console.log(ele?._id);
+        } else {
+          total += ele?.fee_payment_amount;
+        }
+      }
       return {
         message: "Explore Other Fees Day Book Heads Query",
         access: true,
@@ -19039,11 +19083,8 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
-        range: `${all_receipts[0]?.invoice_count?.substring(
-          14
-        )} To ${all_receipts[
-          all_receipts?.length - 1
-        ]?.invoice_count?.substring(14)}`,
+        range: "",
+        total: total,
       };
     } else {
       return {
@@ -19066,7 +19107,7 @@ const miscellanous_daybook = async (from, to, bank, payment_type, fid) => {
 exports.render_combined_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, flow, hid } = req.body;
+    const { from, to, bank, payment_type, flow, hid, staff } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19078,7 +19119,8 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
       to,
       bank,
       payment_type,
-      flow
+      flow,
+      staff
     );
     res.status(200).send({
       message: "Explore New Combined DayBook",
@@ -19112,6 +19154,7 @@ exports.render_combined_daybook_heads_wise = async (req, res) => {
     //   combines.push({
     //     results: cls?.results,
     //     range: cls?.range,
+    //     total: cls?.total ?? 0,
     //   });
     // }
     // const valid_bank = await BankAccount.findById({ _id: bank }).select(
@@ -19353,6 +19396,843 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
       res.status(200).send({
         message: "No New Excel Exports ",
         access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_all_cashier_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "cash_authority_list"
+    );
+
+    const all_staff = await Staff.find({
+      _id: { $in: ins?.cash_authority_list },
+    }).select(
+      "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+    );
+
+    if (all_staff?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Staff / Cashier Data set",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Staff / Cashier Data set",
+        access: false,
+        all_staff: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const date_for_all_functions = (from, to) => {
+  try {
+    var g_year;
+    var l_year;
+    var g_month;
+    var l_month;
+
+    var g_year = new Date(`${from}`).getFullYear();
+    var g_day = new Date(`${from}`).getDate();
+    var l_year = new Date(`${to}`).getFullYear();
+    var l_day = new Date(`${to}`).getDate();
+    var g_month = new Date(`${from}`).getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
+    if (g_day < 10) {
+      g_day = `0${g_day}`;
+    }
+    var l_month = new Date(`${to}`).getMonth() + 1;
+    if (l_month < 10) {
+      l_month = `0${l_month}`;
+    }
+    if (l_day < 10) {
+      l_day = `0${l_day}`;
+    }
+    const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    var l_months = l_month;
+    let list1 = ["01", "03", "05", "07", "08", "10", "12"];
+    let list2 = ["04", "06", "09", "11"];
+    let list3 = ["02"];
+    let g_days = l_months?.toString();
+    let l_days = l_months?.toString();
+    if (g_day == 30 && list2?.includes(String(g_days))) {
+      date.setMonth(date.getMonth() + 1);
+      var l_months = date.getMonth();
+      if (l_months < 10) {
+        l_months = `0${l_months}`;
+      }
+    }
+    if (g_day == 31) {
+      if (g_day >= 31 && list1?.includes(String(g_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
+    } else {
+      if (l_day == 31 && list1?.includes(String(l_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
+    }
+    const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
+    return {
+      l_date: l_date,
+      g_date: g_date,
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.universal_batch_all_department = async (req, res) => {
+  try {
+    const { uid } = req?.params;
+    if (!uid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const uni = await Batch.findById({ _id: uid }).select("merged_batches");
+
+    const all_depart = await Department.find({
+      batches: { $in: uni?.merged_batches },
+    }).select("dName dTitle");
+
+    if (all_depart?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Department By Universal Batch",
+        access: true,
+        all_depart: all_depart,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Department By Universal Batch",
+        access: false,
+        all_depart: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { from, to, bank } = req.query;
+    const { depart } = req?.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select("insName depart");
+
+    let by_date = date_for_all_functions(from, to);
+    var all_receipts = await FeeReceipt.find({
+      $and: [
+        { finance: fid },
+        {
+          created_at: {
+            $gte: by_date?.g_date,
+            $lte: by_date?.l_date,
+          },
+        },
+        {
+          receipt_generated_from: "BY_ADMISSION",
+        },
+        {
+          refund_status: "No Refund",
+        },
+        {
+          visible_status: "Not Hide",
+        },
+        {
+          set_off_status: "Not Set off",
+        },
+      ],
+    })
+      .sort({ invoice_count: "1" })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+        populate: {
+          path: "batches",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationDepartment applicationName",
+        populate: {
+          path: "applicationDepartment",
+          select: "bank_account",
+          populate: {
+            path: "bank_account",
+            select:
+              "finance_bank_account_number finance_bank_name finance_bank_account_name",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    if (bank) {
+      var bank_acc = await BankAccount.findById({ _id: bank });
+      if (bank_acc?.bank_account_type === "Society") {
+      } else {
+        all_receipts = all_receipts?.filter((val) => {
+          if (
+            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+            `${bank}`
+          )
+            return val;
+        });
+      }
+    }
+    if (depart?.length > 0) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (depart?.includes(`${val?.application?.applicationDepartment?._id}`))
+          return val;
+      });
+    }
+
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore Admission Fee Register Receipt Heads Structure Query",
+        access: true,
+        count: all_receipts?.length,
+      });
+      var head_list = [];
+      const buildStructureObject = async (arr) => {
+        var obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { HeadsName, PaidHeadFees } = arr[i];
+          obj[HeadsName] = PaidHeadFees;
+        }
+        return obj;
+      };
+      for (var ref of all_receipts) {
+        let normal = 0;
+        let society = 0;
+        var op = await OrderPayment.findOne({ fee_receipt: ref?._id }).select(
+          "paytm_query"
+        );
+        if (ref?.student?.studentFirstName) {
+          console.log("ENTER");
+          var remain_list = await RemainingList.findOne({
+            $and: [
+              { fee_structure: `${ref?.fee_structure}` },
+              { student: ref?.student?._id },
+              // { appId: ref?.application?._id },
+            ],
+          })
+            .select("fee_structure appId")
+            .populate({
+              path: "fee_structure",
+              select:
+                "applicable_fees total_admission_fees class_master batch_master unique_structure_name category_master",
+              populate: {
+                path: "class_master batch_master category_master department",
+                select: "className batchName category_name dName",
+              },
+            })
+            .populate({
+              path: "appId",
+              select: "applicationDepartment applicationBatch applicationName",
+              populate: {
+                path: "applicationDepartment applicationBatch",
+                select: "dName batchName",
+              },
+            })
+            .populate({
+              path: "applicable_card government_card",
+              select: "paid_fee remaining_fee applicable_fee remaining_array",
+            });
+          var head_array = [];
+          if (ref?.fee_heads?.length > 0) {
+            for (var val of ref?.fee_heads) {
+              if (bank_acc?.bank_account_type === "Society") {
+                if (
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
+                  val?.master &&
+                  val?.is_society == true
+                ) {
+                  const head = await FeeMaster.findById({ _id: val?.master });
+                  head_array.push({
+                    HeadsName: head?.master_name,
+                    PaidHeadFees: val?.original_paid,
+                  });
+                  society += val?.original_paid;
+                }
+              } else {
+                if (
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
+                  val?.master &&
+                  val?.is_society == false
+                ) {
+                  const head = await FeeMaster.findById({ _id: val?.master });
+                  head_array.push({
+                    HeadsName: head?.master_name,
+                    PaidHeadFees: val?.original_paid,
+                  });
+                  normal += val?.original_paid;
+                }
+              }
+            }
+          }
+          if (
+            remain_list?.applicable_card?.paid_fee -
+              remain_list?.applicable_card?.applicable_fee >
+            0
+          ) {
+            if (`${val?.appId}` === `${remain_list?.appId?._id}`) {
+              head_array.push({
+                HeadsName: "Excess Fees",
+                PaidHeadFees:
+                  remain_list?.applicable_card?.paid_fee -
+                  remain_list?.applicable_card?.applicable_fee,
+              });
+            }
+          }
+          if (ref?.fee_heads?.length > 0) {
+            var result = await buildStructureObject(head_array);
+          }
+          let stats;
+          if (remain_list) {
+            for (let cls of remain_list?.applicable_card?.remaining_array) {
+              if (`${cls?.fee_receipt}` === `${ref?._id}`) {
+                stats = cls?.revert_status ?? "NA";
+              }
+            }
+          }
+          if (result) {
+            head_list.push({
+              ReceiptNumber: bank
+                ? bank_acc?.bank_account_type === "Society"
+                  ? ref?.society_invoice_count
+                  : ref?.invoice_count
+                : ref?.invoice_count ?? "0",
+              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              TransactionAmount: ref?.fee_payment_amount ?? "0",
+              BankTxnValue: bank
+                ? bank_acc?.bank_account_type === "Society"
+                  ? society
+                  : normal
+                : normal,
+              TransactionDate:
+                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              BankName: ref?.fee_bank_name ?? "#NA",
+              BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              Card_Status: stats ?? "NA",
+              BankUTR:
+                op?.paytm_query?.length > 0
+                  ? op?.paytm_query?.[0]?.BANKTXNID
+                  : ref?.fee_utr_reference ?? "#NA",
+              GRNO: ref?.student?.studentGRNO ?? "#NA",
+              Name:
+                `${ref?.student?.studentFirstName} ${
+                  ref?.student?.studentMiddleName
+                    ? ref?.student?.studentMiddleName
+                    : ""
+                } ${ref?.student?.studentLastName}` ?? "#NA",
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              MiddleName:
+                ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
+              Gender: ref?.student?.studentGender ?? "#NA",
+              ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+              Standard:
+                `${remain_list?.fee_structure?.class_master?.className}` ??
+                "#NA",
+              Department:
+                `${remain_list?.fee_structure?.department?.dName}` ?? "#NA",
+              Batch:
+                remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+              ApplicationName:
+                `${remain_list?.appId?.applicationName}` ?? "#NA",
+              FeeStructure:
+                remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+              TotalFees:
+                remain_list?.applicable_card?.applicable_fee +
+                  remain_list?.government_card?.applicable_fee ?? 0,
+              ApplicableFees: remain_list?.applicable_card?.applicable_fee ?? 0,
+              GovernmentFees: remain_list?.government_card?.applicable_fee ?? 0,
+              TotalPaidFees:
+                remain_list?.applicable_card?.paid_fee +
+                  remain_list?.government_card?.paid_fee ?? 0,
+              ApplicablePaidFees: remain_list?.applicable_card?.paid_fee ?? 0,
+              GovernmentPaidFees: remain_list?.government_card?.paid_fee ?? 0,
+              TotalOutstandingFees:
+                remain_list?.applicable_card?.remaining_fee +
+                  remain_list?.government_card?.remaining_fee ?? 0,
+              ApplicableOutstandingFees:
+                remain_list?.applicable_card?.remaining_fee ?? 0,
+              GovernmentOutstandingFees:
+                remain_list?.government_card?.remaining_fee ?? 0,
+              Remark: remain_list?.remark ?? "#NA",
+              DepartmentBankName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_name ?? "#NA",
+              DepartmentBankAccountNumber:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_number ?? "#NA",
+              DepartmentBankAccountHolderName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_name ?? "#NA",
+              Narration: `Being Fees Received By ${
+                ref?.fee_payment_mode
+              } Date ${moment(ref?.fee_transaction_date).format(
+                "DD-MM-YYYY"
+              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+                remain_list?.fee_structure?.total_admission_fees
+              } Paid By ${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+              } ${ref?.student?.studentLastName} (${
+                remain_list?.fee_structure?.category_master?.category_name
+              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
+                ref?.student?.studentClass?.classTitle
+              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+              ...result,
+            });
+            result = [];
+          }
+          head_array = [];
+          stats = "";
+        }
+      }
+
+      // console.log(head_list);
+      await fee_heads_receipt_json_to_excel_query(
+        head_list,
+        institute?.insName,
+        institute?._id,
+        bank,
+        from,
+        to,
+        "",
+        "",
+        "Admission Fee Reg."
+      );
+    } else {
+      res.status(200).send({
+        message: "No Admission Fee Register Receipt Heads Structure Query",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fees_data = async (req, res) => {
+  try {
+    const all_receipt = await FeeReceipt.find({}).select(
+      "fee_structure student"
+    );
+    let nums = [];
+    let i = 0;
+    for (let ele of all_receipt) {
+      if (ele?.fee_structure) {
+        var remain_list = await RemainingList.findOne({
+          $and: [
+            { fee_structure: `${ele?.fee_structure}` },
+            { student: ele?.student },
+          ],
+        });
+        if (remain_list?._id) {
+        } else {
+          nums.push(ele?._id);
+        }
+      }
+      console.log(i);
+      i += 1;
+    }
+    res
+      .status(200)
+      .send({ message: "DONE", access: true, nums, count: nums?.length });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { from, to, bank } = req.query;
+    const { depart } = req?.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select("insName depart");
+
+    let by_date = date_for_all_functions(from, to);
+    var all_receipts = await FeeReceipt.find({
+      $and: [
+        { finance: fid },
+        {
+          created_at: {
+            $gte: by_date?.g_date,
+            $lte: by_date?.l_date,
+          },
+        },
+        {
+          receipt_generated_from: "BY_ADMISSION",
+        },
+        {
+          refund_status: "No Refund",
+        },
+        {
+          visible_status: "Not Hide",
+        },
+        {
+          set_off_status: "Not Set off",
+        },
+      ],
+    })
+      .sort({ invoice_count: "1" })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+        populate: {
+          path: "batches",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationDepartment applicationName",
+        populate: {
+          path: "applicationDepartment",
+          select: "bank_account",
+          populate: {
+            path: "bank_account",
+            select:
+              "finance_bank_account_number finance_bank_name finance_bank_account_name",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    if (bank) {
+      var bank_acc = await BankAccount.findById({ _id: bank });
+      if (bank_acc?.bank_account_type === "Society") {
+      } else {
+        all_receipts = all_receipts?.filter((val) => {
+          if (
+            `${val?.application?.applicationDepartment?.bank_account?._id}` ===
+            `${bank}`
+          )
+            return val;
+        });
+      }
+    }
+    if (depart?.length > 0) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (depart?.includes(`${val?.application?.applicationDepartment?._id}`))
+          return val;
+      });
+    }
+
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore Admission Fee Register Receipt Heads Structure Query",
+        access: true,
+        count: all_receipts?.length,
+      });
+      var head_list = [];
+      const buildStructureObject = async (arr) => {
+        var obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { HeadsName, PaidHeadFees } = arr[i];
+          obj[HeadsName] = PaidHeadFees;
+        }
+        return obj;
+      };
+      for (var ref of all_receipts) {
+        let normal = 0;
+        let society = 0;
+        var op = await OrderPayment.findOne({ fee_receipt: ref?._id }).select(
+          "paytm_query"
+        );
+        if (ref?.student?.studentFirstName) {
+          console.log("ENTER");
+          var remain_list = await RemainingList.findOne({
+            $and: [
+              { fee_structure: `${ref?.fee_structure}` },
+              { student: ref?.student?._id },
+              // { appId: ref?.application?._id },
+            ],
+          })
+            .select("fee_structure appId")
+            .populate({
+              path: "fee_structure",
+              select:
+                "applicable_fees total_admission_fees class_master batch_master unique_structure_name category_master",
+              populate: {
+                path: "class_master batch_master category_master department",
+                select: "className batchName category_name dName",
+              },
+            })
+            .populate({
+              path: "appId",
+              select: "applicationDepartment applicationBatch applicationName",
+              populate: {
+                path: "applicationDepartment applicationBatch",
+                select: "dName batchName",
+              },
+            })
+            .populate({
+              path: "applicable_card government_card",
+              select: "paid_fee remaining_fee applicable_fee remaining_array",
+            });
+          var head_array = [];
+          if (ref?.fee_heads?.length > 0) {
+            for (var val of ref?.fee_heads) {
+              if (bank_acc?.bank_account_type === "Society") {
+                if (
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
+                  val?.master &&
+                  val?.is_society == true
+                ) {
+                  const head = await FeeMaster.findById({ _id: val?.master });
+                  head_array.push({
+                    HeadsName: head?.master_name,
+                    PaidHeadFees: val?.original_paid,
+                  });
+                  society += val?.original_paid;
+                }
+              } else {
+                if (
+                  `${val?.appId}` === `${remain_list?.appId?._id}` &&
+                  val?.master &&
+                  val?.is_society == false
+                ) {
+                  const head = await FeeMaster.findById({ _id: val?.master });
+                  head_array.push({
+                    HeadsName: head?.master_name,
+                    PaidHeadFees: val?.original_paid,
+                  });
+                  normal += val?.original_paid;
+                }
+              }
+            }
+          }
+          if (
+            remain_list?.applicable_card?.paid_fee -
+              remain_list?.applicable_card?.applicable_fee >
+            0
+          ) {
+            if (`${val?.appId}` === `${remain_list?.appId?._id}`) {
+              head_array.push({
+                HeadsName: "Excess Fees",
+                PaidHeadFees:
+                  remain_list?.applicable_card?.paid_fee -
+                  remain_list?.applicable_card?.applicable_fee,
+              });
+            }
+          }
+          if (ref?.fee_heads?.length > 0) {
+            var result = await buildStructureObject(head_array);
+          }
+          let stats;
+          if (remain_list) {
+            for (let cls of remain_list?.applicable_card?.remaining_array) {
+              if (`${cls?.fee_receipt}` === `${ref?._id}`) {
+                stats = cls?.revert_status ?? "NA";
+              }
+            }
+          }
+          if (result) {
+            head_list.push({
+              ReceiptNumber: bank
+                ? bank_acc?.bank_account_type === "Society"
+                  ? ref?.society_invoice_count
+                  : ref?.invoice_count
+                : ref?.invoice_count ?? "0",
+              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              TransactionAmount: ref?.fee_payment_amount ?? "0",
+              BankTxnValue: bank
+                ? bank_acc?.bank_account_type === "Society"
+                  ? society
+                  : normal
+                : normal,
+              TransactionDate:
+                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              BankName: ref?.fee_bank_name ?? "#NA",
+              BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              Card_Status: stats ?? "NA",
+              BankUTR:
+                op?.paytm_query?.length > 0
+                  ? op?.paytm_query?.[0]?.BANKTXNID
+                  : ref?.fee_utr_reference ?? "#NA",
+              GRNO: ref?.student?.studentGRNO ?? "#NA",
+              Name:
+                `${ref?.student?.studentFirstName} ${
+                  ref?.student?.studentMiddleName
+                    ? ref?.student?.studentMiddleName
+                    : ""
+                } ${ref?.student?.studentLastName}` ?? "#NA",
+              FirstName: ref?.student?.studentFirstName ?? "#NA",
+              MiddleName:
+                ref?.student?.studentMiddleName ??
+                ref?.student?.studentFatherName,
+              LastName: ref?.student?.studentLastName ?? "#NA",
+              Gender: ref?.student?.studentGender ?? "#NA",
+              ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+              Standard:
+                `${remain_list?.fee_structure?.class_master?.className}` ??
+                "#NA",
+              Department:
+                `${remain_list?.fee_structure?.department?.dName}` ?? "#NA",
+              Batch:
+                remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+              ApplicationName:
+                `${remain_list?.appId?.applicationName}` ?? "#NA",
+              FeeStructure:
+                remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+              TotalFees:
+                remain_list?.applicable_card?.applicable_fee +
+                  remain_list?.government_card?.applicable_fee ?? 0,
+              ApplicableFees: remain_list?.applicable_card?.applicable_fee ?? 0,
+              GovernmentFees: remain_list?.government_card?.applicable_fee ?? 0,
+              TotalPaidFees:
+                remain_list?.applicable_card?.paid_fee +
+                  remain_list?.government_card?.paid_fee ?? 0,
+              ApplicablePaidFees: remain_list?.applicable_card?.paid_fee ?? 0,
+              GovernmentPaidFees: remain_list?.government_card?.paid_fee ?? 0,
+              TotalOutstandingFees:
+                remain_list?.applicable_card?.remaining_fee +
+                  remain_list?.government_card?.remaining_fee ?? 0,
+              ApplicableOutstandingFees:
+                remain_list?.applicable_card?.remaining_fee ?? 0,
+              GovernmentOutstandingFees:
+                remain_list?.government_card?.remaining_fee ?? 0,
+              Remark: remain_list?.remark ?? "#NA",
+              DepartmentBankName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_name ?? "#NA",
+              DepartmentBankAccountNumber:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_number ?? "#NA",
+              DepartmentBankAccountHolderName:
+                ref?.application?.applicationDepartment?.bank_account
+                  ?.finance_bank_account_name ?? "#NA",
+              Narration: `Being Fees Received By ${
+                ref?.fee_payment_mode
+              } Date ${moment(ref?.fee_transaction_date).format(
+                "DD-MM-YYYY"
+              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+                remain_list?.fee_structure?.total_admission_fees
+              } Paid By ${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+              } ${ref?.student?.studentLastName} (${
+                remain_list?.fee_structure?.category_master?.category_name
+              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
+                ref?.student?.studentClass?.classTitle
+              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+              ...result,
+            });
+            result = [];
+          }
+          head_array = [];
+          stats = "";
+        }
+      }
+
+      // console.log(head_list);
+      await fee_heads_receipt_json_to_excel_query(
+        head_list,
+        institute?.insName,
+        institute?._id,
+        bank,
+        from,
+        to,
+        "",
+        "",
+        "Admission Fee Reg."
+      );
+    } else {
+      res.status(200).send({
+        message: "No Admission Fee Register Receipt Heads Structure Query",
+        access: false,
+        all_students: [],
       });
     }
   } catch (e) {

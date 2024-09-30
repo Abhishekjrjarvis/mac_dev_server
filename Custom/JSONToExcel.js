@@ -183,7 +183,7 @@ exports.fee_heads_receipt_json_to_excel_query = async (
       }
     }
     if (c_name) {
-      var name = `${c_name}-${new Date().getHours()}-${new Date().getMinutes()}`;
+      var name = `${c_name}-${from}-${to}-${new Date().getHours()}-${new Date().getMinutes()}`;
     }
     xlsx.writeFile(real_book, `./export/${name}.xlsx`);
 

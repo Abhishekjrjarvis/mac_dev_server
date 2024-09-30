@@ -19549,7 +19549,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { from, to, bank } = req.query;
-    const { depart } = req?.body;
+    const { depart, batch } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19560,6 +19560,10 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName depart");
+
+    const batches = await Batch.findById({ _id: `${batch}` }).select(
+      "merged_batches"
+    );
 
     let by_date = date_for_all_functions(from, to);
     var all_receipts = await FeeReceipt.find({
@@ -19611,7 +19615,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationDepartment applicationName",
+        select: "applicationDepartment applicationName applicationBatch",
         populate: {
           path: "applicationDepartment",
           select: "bank_account",
@@ -19640,6 +19644,16 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
     if (depart?.length > 0) {
       all_receipts = all_receipts?.filter((val) => {
         if (depart?.includes(`${val?.application?.applicationDepartment?._id}`))
+          return val;
+      });
+    }
+    if (batch) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          batches?.merged_batches?.includes(
+            `${val?.application?.applicationBatch}`
+          )
+        )
           return val;
       });
     }
@@ -19755,35 +19769,35 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
           }
           if (result) {
             head_list.push({
-              ReceiptNumber: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? ref?.society_invoice_count
-                  : ref?.invoice_count
-                : ref?.invoice_count ?? "0",
-              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-              TransactionAmount: ref?.fee_payment_amount ?? "0",
-              BankTxnValue: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? society
-                  : normal
-                : normal,
-              TransactionDate:
-                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-              TransactionMode: ref?.fee_payment_mode ?? "#NA",
-              BankName: ref?.fee_bank_name ?? "#NA",
-              BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              // ReceiptNumber: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? ref?.society_invoice_count
+              //     : ref?.invoice_count
+              //   : ref?.invoice_count ?? "0",
+              // ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              // TransactionAmount: ref?.fee_payment_amount ?? "0",
+              // BankTxnValue: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? society
+              //     : normal
+              //   : normal,
+              // TransactionDate:
+              //   moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              // TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              // BankName: ref?.fee_bank_name ?? "#NA",
+              // BankHolderName: ref?.fee_bank_holder ?? "#NA",
               Card_Status: stats ?? "NA",
-              BankUTR:
-                op?.paytm_query?.length > 0
-                  ? op?.paytm_query?.[0]?.BANKTXNID
-                  : ref?.fee_utr_reference ?? "#NA",
+              // BankUTR:
+              //   op?.paytm_query?.length > 0
+              //     ? op?.paytm_query?.[0]?.BANKTXNID
+              //     : ref?.fee_utr_reference ?? "#NA",
               GRNO: ref?.student?.studentGRNO ?? "#NA",
               Name:
-                `${ref?.student?.studentFirstName} ${
+                `${ref?.student?.studentLastName} ${ref?.student?.studentFirstName} ${
                   ref?.student?.studentMiddleName
                     ? ref?.student?.studentMiddleName
                     : ""
-                } ${ref?.student?.studentLastName}` ?? "#NA",
+                }` ?? "#NA",
               FirstName: ref?.student?.studentFirstName ?? "#NA",
               MiddleName:
                 ref?.student?.studentMiddleName ??
@@ -19829,21 +19843,6 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${
-                ref?.fee_payment_mode
-              } Date ${moment(ref?.fee_transaction_date).format(
-                "DD-MM-YYYY"
-              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
-                remain_list?.fee_structure?.total_admission_fees
-              } Paid By ${ref?.student?.studentFirstName} ${
-                ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-              } ${ref?.student?.studentLastName} (${
-                remain_list?.fee_structure?.category_master?.category_name
-              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
-                ref?.student?.studentClass?.classTitle
-              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
               ...result,
             });
             result = [];
@@ -19912,7 +19911,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { from, to, bank } = req.query;
-    const { depart } = req?.body;
+    const { depart, batch } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19923,6 +19922,10 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName depart");
+
+    const batches = await Batch.findById({ _id: `${batch}` }).select(
+      "merged_batches"
+    );
 
     let by_date = date_for_all_functions(from, to);
     var all_receipts = await FeeReceipt.find({
@@ -19974,7 +19977,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationDepartment applicationName",
+        select: "applicationDepartment applicationName applicationBatch",
         populate: {
           path: "applicationDepartment",
           select: "bank_account",
@@ -20003,6 +20006,17 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
     if (depart?.length > 0) {
       all_receipts = all_receipts?.filter((val) => {
         if (depart?.includes(`${val?.application?.applicationDepartment?._id}`))
+          return val;
+      });
+    }
+
+    if (batch) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          batches?.merged_batches?.includes(
+            `${val?.application?.applicationBatch}`
+          )
+        )
           return val;
       });
     }
@@ -20118,35 +20132,36 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
           }
           if (result) {
             head_list.push({
-              ReceiptNumber: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? ref?.society_invoice_count
-                  : ref?.invoice_count
-                : ref?.invoice_count ?? "0",
-              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-              TransactionAmount: ref?.fee_payment_amount ?? "0",
-              BankTxnValue: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? society
-                  : normal
-                : normal,
-              TransactionDate:
-                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-              TransactionMode: ref?.fee_payment_mode ?? "#NA",
-              BankName: ref?.fee_bank_name ?? "#NA",
-              BankHolderName: ref?.fee_bank_holder ?? "#NA",
-              Card_Status: stats ?? "NA",
-              BankUTR:
-                op?.paytm_query?.length > 0
-                  ? op?.paytm_query?.[0]?.BANKTXNID
-                  : ref?.fee_utr_reference ?? "#NA",
+              // ReceiptNumber: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? ref?.society_invoice_count
+              //     : ref?.invoice_count
+              //   : ref?.invoice_count ?? "0",
+              // ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              // TransactionAmount: ref?.fee_payment_amount ?? "0",
+              // BankTxnValue: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? society
+              //     : normal
+              //   : normal,
+              // TransactionDate:
+              //   moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              // TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              // BankName: ref?.fee_bank_name ?? "#NA",
+              // BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              // BankUTR:
+              //   op?.paytm_query?.length > 0
+              //     ? op?.paytm_query?.[0]?.BANKTXNID
+              //     : ref?.fee_utr_reference ?? "#NA",
               GRNO: ref?.student?.studentGRNO ?? "#NA",
               Name:
-                `${ref?.student?.studentFirstName} ${
+                `${ref?.student?.studentLastName} ${
+                  ref?.student?.studentFirstName
+                } ${
                   ref?.student?.studentMiddleName
                     ? ref?.student?.studentMiddleName
                     : ""
-                } ${ref?.student?.studentLastName}` ?? "#NA",
+                }` ?? "#NA",
               FirstName: ref?.student?.studentFirstName ?? "#NA",
               MiddleName:
                 ref?.student?.studentMiddleName ??
@@ -20183,6 +20198,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
               GovernmentOutstandingFees:
                 remain_list?.government_card?.remaining_fee ?? 0,
               Remark: remain_list?.remark ?? "#NA",
+              Card_Status: stats ?? "NA",
               DepartmentBankName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_name ?? "#NA",
@@ -20192,21 +20208,6 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${
-                ref?.fee_payment_mode
-              } Date ${moment(ref?.fee_transaction_date).format(
-                "DD-MM-YYYY"
-              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
-                remain_list?.fee_structure?.total_admission_fees
-              } Paid By ${ref?.student?.studentFirstName} ${
-                ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-              } ${ref?.student?.studentLastName} (${
-                remain_list?.fee_structure?.category_master?.category_name
-              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
-                ref?.student?.studentClass?.classTitle
-              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
               ...result,
             });
             result = [];

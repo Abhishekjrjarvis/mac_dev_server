@@ -717,4 +717,14 @@ router.patch(
   catchAsync(Finance.add_miscellenous_fee_message)
 );
 
+router.patch(
+  "/show/:fid/miscellenous/fee/message",
+  catchAsync(Finance.get_miscellenous_fee_message)
+);
+
+router.patch(
+  "/edit/:sid/miscellenous/fee/message",
+  catchAsync(Finance.edit_miscellenous_fee_message)
+);
+
 module.exports = router;

@@ -118,16 +118,20 @@ exports.download_zip_file = async (req, res) => {
     var bucketName = process.env.AWS_BUCKET_NAME;
     const ins = await InstituteAdmin.findById({
       _id: id,
-    }).select("insName");
+    }).select("insName export_collection export_collection_count");
     const all_student = await Student.find({
       studentClass: { $in: request },
     }).select(
       "studentProfilePhoto studentFirstName studentMiddleName studentFatherName studentLastName studentGRNO"
     );
 
-    const zipFileName = `${ins?.insName}-${new Date().getTime()}.zip`;
+    const zipFileName = `${ins?.insName}-photo-${new Date().getTime()}.zip`;
     const zipFilePath = path.join(__dirname, zipFileName);
 
+    res.status(200).send({
+      message: "Explore All Student Profile Photo",
+      // uploadResult
+    });
     let fileKeys = [];
     for (let ele of all_student) {
       if (ele?.studentProfilePhoto) {
@@ -153,20 +157,23 @@ exports.download_zip_file = async (req, res) => {
       uploadKey
     );
 
+    if (uploadResult?.key) {
+      ins.export_collection.push({
+        excel_file: uploadResult?.key,
+        excel_file_name: zipFileName,
+      });
+      ins.export_collection_count += 1;
+      await ins.save();
+    }
+
     if (uploadResult?.Key) {
       fs.unlink(zipFilePath, (err) => {
         if (err) {
           console.error(`Error removing file: ${err}`);
         } else {
-          //   console.log(
-          //     `File successfully deleted from local folder: ${zipFilePath}`
-          //   );
         }
       });
     }
-    res
-      .status(200)
-      .send({ message: "Explore All Student Profile Photo", uploadResult });
   } catch (error) {
     console.error("Error:", error);
     res.status(500).send("An error occurred while downloading the file.");

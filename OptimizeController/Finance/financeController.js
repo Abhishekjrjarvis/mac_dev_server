@@ -8932,20 +8932,38 @@ exports.add_miscellenous_fee_message = async (req, res) => {
       });
 
     const finance = await Finance.findById({ _id: fid });
-    const new_message = new StudentMessage({
-      message: `${message}`,
-      message_type: `${type}`,
-      from_name: "Finance Manager",
-      message_title: m_title,
-      message_document: m_doc,
-      institute: finance?.institute,
-      message_mode: "MISCELLENOUS_FEE",
-    });
-    finance.student_message = new_message?._id;
-    if (message_bool) {
-      finance.message_bool = message_bool;
+    if (finance?.student_message) {
+      const exist_message = await StudentMessage.findById({
+        _id: `${finance?.student_message}`,
+      });
+      exist_message.message_title = m_title
+        ? m_title
+        : exist_message?.message_title;
+      exist_message.message_document = m_doc
+        ? m_doc
+        : exist_message?.message_document;
+      exist_message.message = message ? message : exist_message?.message;
+      exist_message.message_type = type ? type : exist_message?.message_type;
+      await exist_message.save();
+    } else {
+      const new_message = new StudentMessage({
+        message: `${message}`,
+        message_type: `${type}`,
+        from_name: "Finance Manager",
+        message_title: m_title,
+        message_document: m_doc,
+        institute: finance?.institute,
+        message_mode: "MISCELLENOUS_FEE",
+      });
+      finance.student_message = new_message?._id;
+      if (message_bool) {
+        finance.message_bool = message_bool;
+      }
+      await Promise.all([new_message.save(), finance.save()]);
     }
-    await Promise.all([new_message.save(), finance.save()]);
+    res
+      .status(200)
+      .send({ message: "Add Miscellenous Fee Message", access: true });
   } catch (e) {
     console.log(e);
   }

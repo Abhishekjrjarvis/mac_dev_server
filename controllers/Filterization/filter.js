@@ -47,6 +47,7 @@ const Admin = require("../../models/superAdmin");
 const CertificateQuery = require("../../models/Certificate/CertificateQuery");
 const { remove_duplicated_arr } = require("../../helper/functions");
 const FeeMaster = require("../../models/Finance/FeeMaster");
+const InstituteCertificateLog = require("../../models/InstituteLog/InstituteCertificateLog");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -4997,21 +4998,51 @@ exports.renderStudentStatisticsExcelQuery = async (req, res) => {
 
 exports.renderCertificateFilterQuery = async (req, res) => {
   try {
-    const { id } = req.query;
-    const { flow } = req?.body;
+    const { id } = req.params;
+    // const { flow } = req?.body;
+    const flow = "Request";
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
+    const { from, to, certificate_type } = req.body;
     var excel_list = [];
     var ins = await InstituteAdmin.findById({ _id: id });
     if (flow === "Request") {
-      var all_cert = await CertificateQuery.find({
-        $and: [{ institute: ins?._id }, { certificate_status: "Requested" }],
-      }).populate({
-        path: "student",
-      });
+      const gte_Date = new Date(from);
+      const lte_Date = new Date(to);
+      lte_Date.setDate(lte_Date.getDate() + 1);
+      var all_cert = [];
+      if (certificate_type === "ALL") {
+        all_cert = await CertificateQuery.find({
+          $and: [
+            { institute: ins?._id },
+            { certificate_status: "Requested" },
+            {
+              created_at: { $gte: gte_Date, $lte: lte_Date },
+            },
+          ],
+        }).populate({
+          path: "student",
+        });
+      } else {
+        all_cert = await CertificateQuery.find({
+          $and: [
+            { institute: ins?._id },
+            { certificate_status: "Requested" },
+            {
+              certificate_type: certificate_type,
+            },
+            {
+              created_at: { $gte: gte_Date, $lte: lte_Date },
+            },
+          ],
+        }).populate({
+          path: "student",
+        });
+      }
+
       if (all_cert?.length > 0) {
         res.status(200).send({
           message: "Explore Requested Certificate Query",
@@ -5950,3 +5981,85 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
 
 // arr.push(obj, obj2)
 // console.log(arr)
+
+exports.certificate_logs_export_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const { from, to, certificate_type } = req.body;
+    const gte_Date = new Date(from);
+    const lte_Date = new Date(to);
+    lte_Date.setDate(lte_Date.getDate() + 1);
+
+    const excel_list = [];
+    let all_logs = [];
+    if (certificate_type === "ALL") {
+      all_logs = await InstituteCertificateLog.find({
+        $and: [
+          {
+            instituteId: { $eq: `${id}` },
+          },
+          {
+            created_at: { $gte: gte_Date, $lte: lte_Date },
+          },
+        ],
+      }).populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentGender certificate_type valid_full_name",
+      });
+    } else {
+      all_logs = await InstituteCertificateLog.find({
+        $and: [
+          {
+            instituteId: { $eq: `${id}` },
+          },
+          {
+            created_at: { $gte: gte_Date, $lte: lte_Date },
+          },
+          {
+            certificate_type: certificate_type,
+          },
+        ],
+      }).populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentGRNO studentROLLNO studentGender certificate_type valid_full_name",
+      });
+    }
+    res.status(200).send({
+      message: "Explore Logs Certificate Query",
+      access: true,
+    });
+
+    if (all_logs?.length > 0) {
+      for (let val of all_logs) {
+        excel_list.push({
+          RollNo: val?.student?.studentROLLNO ?? "NA",
+          GRNO: val?.student?.studentGRNO ?? "#NA",
+          Name:
+            `${val?.student?.studentFirstName} ${
+              val?.student?.studentMiddleName
+                ? val?.student?.studentMiddleName
+                : ""
+            } ${val?.student?.studentLastName}` ??
+            val?.student?.valid_full_name,
+          Gender: val?.student?.studentGender ?? "#NA",
+          Type: val?.certificate_type,
+        });
+      }
+      await certificate_json_query(
+        excel_list,
+        "Certificate-History",
+        id,
+        "Certificate History List"
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

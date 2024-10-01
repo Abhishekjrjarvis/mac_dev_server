@@ -65,4 +65,13 @@ router
 router
   .route("/:cid/catalog/student/export/query")
   .patch(catchAsync(classController.cls_catalog_export_query));
+
+router
+  .route("/custom/sort/institute/:id/internal/batch/student")
+  .patch(
+    catchAsync(
+      classController.custom_sort_batch_wise_student_in_class_internal_batch_query
+    )
+  );
+
 module.exports = router;

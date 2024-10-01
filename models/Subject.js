@@ -368,6 +368,12 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectContinuousEvaluation",
   },
+  exam_marks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectExamMarks",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

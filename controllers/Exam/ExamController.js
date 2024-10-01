@@ -47,6 +47,7 @@ const {
   subject_marks_student_json_to_excel,
 } = require("../../Custom/JSONToExcel");
 const { getj_subject_marks_update_query } = require("../../Custom/excelToJSON");
+const SubjectExamMarks = require("../../models/Exam/SubjectExamMarks");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -323,7 +324,6 @@ exports.createExam = async (req, res) => {
   }
 };
 
-
 exports.allExam = async (req, res) => {
   const exam = await Exam.find({
     department: { $eq: `${req.params.did}` },
@@ -451,7 +451,6 @@ exports.allExamSubjectTeacher = async (req, res) => {
   }
 };
 
-
 exports.allStudentInSubjectTeacher = async (req, res) => {
   try {
     const { sid, eid } = req.params;
@@ -540,22 +539,473 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
   }
 };
 
+// exports.allStudentMarksBySubjectTeacher = async (req, res) => {
+//   try {
+//     const { examId, marks } = req.body;
+//     var sub_total_mark = 0;
+//     const subjectData = await Subject.findById({
+//       _id: req.params.sid,
+//     }).populate({
+//       path: "class",
+//     });
+//     const exam_data = await Exam.findById({ _id: examId });
+//     // let student_mark_value = [];
+//     // let student_mark_value_total = marks?.[0]?.totalMarks ?? 0;
+//     // student_mark_value.push(studt.obtainMarks);
+//     for (let studt of marks) {
+//       const student = await Student.findById(studt.studentId)
+//         .populate({
+//           path: "subjectMarks",
+//           match: {
+//             subject: { $eq: req.params.sid },
+//           },
+//         })
+//         .select("subjectMarks _id user");
+//       const user = await User.findById({ _id: `${student.user}` });
+//       const subjectMarks1 = await SubjectMarks.findById(
+//         student?.subjectMarks[0]?._id
+//       );
+//       for (let marks of subjectMarks1.marks) {
+//         if (marks.examId === examId) {
+//           marks.obtainMarks = studt.obtainMarks;
+//           sub_total_mark = marks.totalMarks;
+//           await subjectMarks1.save();
+//         }
+//       }
+//       var notify = new StudentNotification({});
+//       notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
+//       notify.notifySender = subjectData._id;
+//       notify.notifyReceiever = user._id;
+//       notify.notifyType = "Student";
+//       notify.notifyPublisher = student._id;
+//       notify.subjectId = subjectData._id;
+//       user.activity_tab.push(notify._id);
+//       notify.notifyBySubjectPhoto.subject_id = subjectData?._id;
+//       notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName;
+//       notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+//       notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle;
+//       notifyByExamPhoto = {
+//         exam_id: exam_data?._id,
+//         exam_name: exam_data?.examName,
+//       };
+//       notify.notifyCategory = "Marks";
+//       notify.redirectIndex = 21;
+//       //
+//       invokeMemberTabNotification(
+//         "Student Activity",
+//         notify,
+//         `${subjectData.subjectName} Marks`,
+//         user._id,
+//         user.deviceToken,
+//         "Student",
+//         notify
+//       );
+//       await Promise.all([student.save(), user.save(), notify.save()]);
+//     }
+//     res.status(200).send({ message: "updated" });
+//     const mark_list = await SubjectMarkList.findOne({
+//       $and: [
+//         {
+//           subjectMaster: subjectData.subjectMasterName,
+//         },
+//         {
+//           classMaster: subjectData.class.masterClassName,
+//         },
+//         {
+//           batch: subjectData.class?.batch,
+//         },
+//       ],
+//     });
+//     if (mark_list) {
+//       let examFlag = false;
+//       let examIndex = 0;
+//       for (let i = 0; i < mark_list?.exam_marks?.length; i++) {
+//         if (`${mark_list?.exam_marks[i].exam}` === `${examId}`) {
+//           examIndex = i;
+//           examFlag = true;
+//           break;
+//         } else {
+//           examFlag = false;
+//         }
+//       }
+//       // console.log("in mark list");
+//       if (examFlag) {
+//         let updated_subject = mark_list?.exam_marks[examIndex];
+//         // console.log("in mark list examFlag", marks);
 
-exports.allStudentMarksBySubjectTeacher = async (req, res) => {
+//         for (let stu of marks) {
+//           let flag = false;
+//           let findIndex = 0;
+//           for (let i = 0; i < updated_subject.marks.length; i++) {
+//             if (`${updated_subject.marks[i].student}` === `${stu.studentId}`) {
+//               findIndex = i;
+//               flag = true;
+//               break;
+//             }
+//           }
+//           if (flag) {
+//             updated_subject.marks[findIndex].totalMarks = +stu.obtainMarks;
+//           } else {
+//             updated_subject.marks.push({
+//               student: stu.studentId,
+//               related_subject: subjectData?._id,
+//               related_class: subjectData.class._id,
+//               totalMarks: stu.obtainMarks,
+//               maximumMarks: sub_total_mark,
+//             });
+//           }
+//         }
+
+//         let final_weight = 100;
+//         let fr_list = [];
+//         let student_mark_value = [];
+
+//         for (let e_marks of mark_list?.exam_marks) {
+//           // if (e_marks.examType === "Other") final_weight -= e_marks.examWeight;
+//           final_weight -= e_marks.examWeight;
+//         }
+//         for (let e_marks of mark_list?.exam_marks) {
+//           // if (e_marks.examType === "Other") {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // }
+//           // if (e_marks.examWeight > 0) {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // } else {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * final_weight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // }
+
+//           for (let s_mark of e_marks.marks) {
+//             let obj = {
+//               student: "",
+//               totalNumber: 0,
+//             };
+//             obj.totalNumber =
+//               e_marks.examWeight > 0
+//                 ? Math.ceil(
+//                     (s_mark.totalMarks * e_marks.examWeight) /
+//                       s_mark.maximumMarks
+//                   )
+//                 : s_mark.totalMarks;
+//             obj.student = s_mark.student;
+//             fr_list.push(obj);
+//           }
+//         }
+
+//         let fr_dubli = [];
+//         let fr_qnique = [];
+//         for (let m = 0; m < fr_list.length; m++) {
+//           let val = 0;
+//           for (let j = 0; j < fr_list.length; j++) {
+//             if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
+//               val += +fr_list[j].totalNumber;
+//               student_mark_value.push(+val);
+//             }
+//           }
+//           fr_dubli.push({
+//             student: fr_list[m].student,
+//             totalNumber: +val,
+//           });
+//         }
+//         fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
+//           JSON.parse
+//         );
+//         mark_list.marks_list = fr_qnique;
+//         //
+//         const subject_master = await SubjectMaster.findById(
+//           subjectData.subjectMasterName
+//         );
+//         let fg = false;
+//         for (let ot of subject_master?.max_obtain) {
+//           if (
+//             `${ot?.batch}` === `${subjectData.class?.batch}` &&
+//             subjectData.subject_category === ot.subject_category
+//           ) {
+//             ot.obtain_value = Math.max(...student_mark_value);
+//             fg = true;
+//           }
+//         }
+//         if (!fg) {
+//           subject_master.max_obtain.push({
+//             batch: subjectData.class?.batch,
+//             obtain_value: Math.max(...student_mark_value),
+//           });
+//         }
+//         await Promise.all([mark_list.save(), subject_master.save()]);
+//       } else {
+//         let student_mark_value = [];
+//         let obj = {
+//           exam: examId,
+//           examWeight: exam_data.examWeight,
+//           examType: exam_data.examType,
+//           marks: [],
+//         };
+//         for (let stu of marks) {
+//           obj.marks.push({
+//             student: stu.studentId,
+//             related_subject: subjectData?._id,
+//             related_class: subjectData.class._id,
+//             totalMarks: stu.obtainMarks,
+//             maximumMarks: sub_total_mark,
+//           });
+//         }
+//         mark_list.exam_marks.push(obj);
+//         let final_weight = 100;
+//         let fr_list = [];
+//         for (let e_marks of mark_list?.exam_marks) {
+//           // if (e_marks.examType === "Other") final_weight -= e_marks.examWeight;
+//           final_weight -= e_marks.examWeight;
+//         }
+//         for (let e_marks of mark_list?.exam_marks) {
+//           // if (e_marks.examType === "Other") {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // }
+//           // if (e_marks.examWeight > 0) {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // } else {
+//           //   for (let s_mark of e_marks.marks) {
+//           //     let obj = {
+//           //       student: "",
+//           //       totalNumber: 0,
+//           //     };
+//           //     obj.totalNumber = Math.ceil(
+//           //       (s_mark.totalMarks * final_weight) / s_mark.maximumMarks
+//           //     );
+//           //     obj.student = s_mark.student;
+//           //     fr_list.push(obj);
+//           //   }
+//           // }
+
+//           for (let s_mark of e_marks.marks) {
+//             let obj = {
+//               student: "",
+//               totalNumber: 0,
+//             };
+//             obj.totalNumber =
+//               e_marks.examWeight > 0
+//                 ? Math.ceil(
+//                     (s_mark.totalMarks * e_marks.examWeight) /
+//                       s_mark.maximumMarks
+//                   )
+//                 : s_mark.totalMarks;
+//             obj.student = s_mark.student;
+//             fr_list.push(obj);
+//           }
+//         }
+
+//         let fr_dubli = [];
+//         let fr_qnique = [];
+//         for (let m = 0; m < fr_list.length; m++) {
+//           let val = 0;
+//           for (let j = 0; j < fr_list.length; j++) {
+//             if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
+//               val += +fr_list[j].totalNumber;
+//               student_mark_value.push(val);
+//             }
+//           }
+//           fr_dubli.push({
+//             student: fr_list[m].student,
+//             totalNumber: val,
+//           });
+//         }
+//         fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
+//           JSON.parse
+//         );
+//         mark_list.marks_list = fr_qnique;
+
+//         //
+//         const subject_master = await SubjectMaster.findById(
+//           subjectData.subjectMasterName
+//         );
+//         let fg = false;
+//         for (let ot of subject_master?.max_obtain) {
+//           if (`${ot?.batch}` === `${subjectData.class?.batch}`) {
+//             ot.obtain_value = Math.max(...student_mark_value);
+//             fg = true;
+//           }
+//         }
+//         if (!fg) {
+//           subject_master.max_obtain.push({
+//             batch: subjectData.class?.batch,
+//             obtain_value: Math.max(...student_mark_value),
+//           });
+//         }
+//         await Promise.all([mark_list.save(), subject_master.save()]);
+//       }
+//     } else {
+//       const subject_master = await SubjectMaster.findById(
+//         subjectData.subjectMasterName
+//       );
+//       const create_mark_list = new SubjectMarkList({
+//         batch: subjectData.class.batch,
+//         classMaster: subjectData.class.masterClassName,
+//         subjectMaster: subjectData.subjectMasterName,
+//       });
+//       let all_marks = [];
+//       let unique_marks = [];
+//       let student_mark_value = [];
+//       let obj = {
+//         exam: examId,
+//         examWeight: exam_data.examWeight,
+//         examType: exam_data.examType,
+//         marks: [],
+//       };
+
+//       for (let stu of marks) {
+//         // let fr_marks =
+//         //   exam_data.examType === "Final"
+//         //     ? stu.obtainMarks
+//         //     : Math.ceil(
+//         //         (stu.obtainMarks * exam_data.examWeight) / sub_total_mark
+//         //       );
+//         let fr_marks =
+//           exam_data.examWeight > 0
+//             ? Math.ceil(
+//                 (+stu.obtainMarks * exam_data.examWeight) / sub_total_mark
+//               )
+//             : +stu.obtainMarks;
+//         // : Math.ceil((+stu.obtainMarks * 100) / sub_total_mark);
+//         student_mark_value.push(fr_marks);
+//         all_marks.push({
+//           student: stu.studentId,
+//           totalNumber: fr_marks,
+//         });
+//         obj.marks.push({
+//           student: stu.studentId,
+//           related_subject: subjectData?._id,
+//           related_class: subjectData.class._id,
+//           totalMarks: stu.obtainMarks,
+//           maximumMarks: sub_total_mark,
+//         });
+//       }
+//       unique_marks.push(obj);
+//       create_mark_list.marks_list = all_marks;
+//       create_mark_list.exam_marks = unique_marks;
+//       // class_master.standard_mark_list.push(create_mark_list?._id);
+//       subject_master.subject_mark_list.push(create_mark_list?._id);
+//       subjectData.subject_mark_list.push(create_mark_list?._id);
+
+//       // here outer level
+//       // let fg = false;
+//       // for (let ot of su_master?.max_obtain) {
+//       //   if (`${ot?.batch}` === `${subjectData.class?.batch}`) {
+//       //     ot.obtain_value = Math.max(student_mark_value);
+//       //     ot.max_value = student_mark_value_total;
+//       //     fg = true;
+//       //   }
+//       // }
+//       // if (!fg) {
+//       subject_master.max_obtain.push({
+//         batch: subjectData.class?.batch,
+//         obtain_value: Math.max(...student_mark_value),
+//         // max_value: student_mark_value_total,
+//       });
+//       // }
+//       await Promise.all([
+//         create_mark_list.save(),
+//         subject_master.save(),
+//         subjectData.save(),
+//         //  class_master.save()
+//       ]);
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+exports.allStudentMarksBySubjectTeacherModify = async (req, res) => {
   try {
+    const { sid } = req.params;
     const { examId, marks } = req.body;
-    var sub_total_mark = 0;
-    const subjectData = await Subject.findById({
-      _id: req.params.sid,
-    }).populate({
-      path: "class",
+
+    if (!sid || !examId || marks?.length <= 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const exam_su = await SubjectExamMarks.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          exam: { $eq: `${examId}` },
+        },
+      ],
     });
+
+    if (exam_su?._id) {
+      exam_su.student_list = marks;
+      await exam_su.save();
+      res.status(200).send({ message: "updated" });
+    } else {
+      const subject = await Subject.findById(sid);
+
+      const exam_sub = new SubjectExamMarks({
+        exam: examId,
+        subject: sid,
+        subject_master: subject?._id,
+        student_list: marks,
+      });
+      await exam_sub.save();
+
+      res.status(200).send({ message: "updated" });
+    }
+
     const exam_data = await Exam.findById({ _id: examId });
-    // let student_mark_value = [];
-    // let student_mark_value_total = marks?.[0]?.totalMarks ?? 0;
-    // student_mark_value.push(studt.obtainMarks);
+    const subjectData = await Subject.findById(sid);
     for (let studt of marks) {
-      const student = await Student.findById(studt.studentId)
+      const student = await Student.findById(studt.student)
         .populate({
           path: "subjectMarks",
           match: {
@@ -563,408 +1013,57 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
           },
         })
         .select("subjectMarks _id user");
-      const user = await User.findById({ _id: `${student.user}` });
       const subjectMarks1 = await SubjectMarks.findById(
         student?.subjectMarks[0]?._id
       );
       for (let marks of subjectMarks1.marks) {
         if (marks.examId === examId) {
-          marks.obtainMarks = studt.obtainMarks;
+          marks.obtainMarks = studt.obtain_marks;
           sub_total_mark = marks.totalMarks;
           await subjectMarks1.save();
         }
       }
-      var notify = new StudentNotification({});
-      notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
-      notify.notifySender = subjectData._id;
-      notify.notifyReceiever = user._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student._id;
-      notify.subjectId = subjectData._id;
-      user.activity_tab.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subjectData?._id;
-      notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName;
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
-      notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle;
-      notifyByExamPhoto = {
-        exam_id: exam_data?._id,
-        exam_name: exam_data?.examName,
-      };
-      notify.notifyCategory = "Marks";
-      notify.redirectIndex = 21;
-      //
-      invokeMemberTabNotification(
-        "Student Activity",
-        notify,
-        `${subjectData.subjectName} Marks`,
-        user._id,
-        user.deviceToken,
-        "Student",
-        notify
-      );
-      await Promise.all([student.save(), user.save(), notify.save()]);
-    }
-    res.status(200).send({ message: "updated" });
-    const mark_list = await SubjectMarkList.findOne({
-      $and: [
-        {
-          subjectMaster: subjectData.subjectMasterName,
-        },
-        {
-          classMaster: subjectData.class.masterClassName,
-        },
-        {
-          batch: subjectData.class?.batch,
-        },
-      ],
-    });
-    if (mark_list) {
-      let examFlag = false;
-      let examIndex = 0;
-      for (let i = 0; i < mark_list?.exam_marks?.length; i++) {
-        if (`${mark_list?.exam_marks[i].exam}` === `${examId}`) {
-          examIndex = i;
-          examFlag = true;
-          break;
-        } else {
-          examFlag = false;
-        }
-      }
-      // console.log("in mark list");
-      if (examFlag) {
-        let updated_subject = mark_list?.exam_marks[examIndex];
-        // console.log("in mark list examFlag", marks);
+      if (student.user) {
+        const user = await User.findById({ _id: `${student.user}` });
 
-        for (let stu of marks) {
-          let flag = false;
-          let findIndex = 0;
-          for (let i = 0; i < updated_subject.marks.length; i++) {
-            if (`${updated_subject.marks[i].student}` === `${stu.studentId}`) {
-              findIndex = i;
-              flag = true;
-              break;
-            }
-          }
-          if (flag) {
-            updated_subject.marks[findIndex].totalMarks = +stu.obtainMarks;
-          } else {
-            updated_subject.marks.push({
-              student: stu.studentId,
-              related_subject: subjectData?._id,
-              related_class: subjectData.class._id,
-              totalMarks: stu.obtainMarks,
-              maximumMarks: sub_total_mark,
-            });
-          }
-        }
-
-        let final_weight = 100;
-        let fr_list = [];
-        let student_mark_value = [];
-
-        for (let e_marks of mark_list?.exam_marks) {
-          // if (e_marks.examType === "Other") final_weight -= e_marks.examWeight;
-          final_weight -= e_marks.examWeight;
-        }
-        for (let e_marks of mark_list?.exam_marks) {
-          // if (e_marks.examType === "Other") {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // }
-          // if (e_marks.examWeight > 0) {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // } else {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * final_weight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // }
-
-          for (let s_mark of e_marks.marks) {
-            let obj = {
-              student: "",
-              totalNumber: 0,
-            };
-            obj.totalNumber =
-              e_marks.examWeight > 0
-                ? Math.ceil(
-                    (s_mark.totalMarks * e_marks.examWeight) /
-                      s_mark.maximumMarks
-                  )
-                : s_mark.totalMarks;
-            obj.student = s_mark.student;
-            fr_list.push(obj);
-          }
-        }
-
-        let fr_dubli = [];
-        let fr_qnique = [];
-        for (let m = 0; m < fr_list.length; m++) {
-          let val = 0;
-          for (let j = 0; j < fr_list.length; j++) {
-            if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
-              val += +fr_list[j].totalNumber;
-              student_mark_value.push(+val);
-            }
-          }
-          fr_dubli.push({
-            student: fr_list[m].student,
-            totalNumber: +val,
-          });
-        }
-        fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
-          JSON.parse
-        );
-        mark_list.marks_list = fr_qnique;
-        //
-        const subject_master = await SubjectMaster.findById(
-          subjectData.subjectMasterName
-        );
-        let fg = false;
-        for (let ot of subject_master?.max_obtain) {
-          if (
-            `${ot?.batch}` === `${subjectData.class?.batch}` &&
-            subjectData.subject_category === ot.subject_category
-          ) {
-            ot.obtain_value = Math.max(...student_mark_value);
-            fg = true;
-          }
-        }
-        if (!fg) {
-          subject_master.max_obtain.push({
-            batch: subjectData.class?.batch,
-            obtain_value: Math.max(...student_mark_value),
-          });
-        }
-        await Promise.all([mark_list.save(), subject_master.save()]);
-      } else {
-        let student_mark_value = [];
-        let obj = {
-          exam: examId,
-          examWeight: exam_data.examWeight,
-          examType: exam_data.examType,
-          marks: [],
+        var notify = new StudentNotification({});
+        notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
+        notify.notifySender = subjectData._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        notify.subjectId = subjectData._id;
+        user.activity_tab.push(notify._id);
+        notify.notifyBySubjectPhoto.subject_id = subjectData?._id;
+        notify.notifyBySubjectPhoto.subject_name = subjectData?.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subjectData?.subjectTitle;
+        notifyByExamPhoto = {
+          exam_id: exam_data?._id,
+          exam_name: exam_data?.examName,
         };
-        for (let stu of marks) {
-          obj.marks.push({
-            student: stu.studentId,
-            related_subject: subjectData?._id,
-            related_class: subjectData.class._id,
-            totalMarks: stu.obtainMarks,
-            maximumMarks: sub_total_mark,
-          });
-        }
-        mark_list.exam_marks.push(obj);
-        let final_weight = 100;
-        let fr_list = [];
-        for (let e_marks of mark_list?.exam_marks) {
-          // if (e_marks.examType === "Other") final_weight -= e_marks.examWeight;
-          final_weight -= e_marks.examWeight;
-        }
-        for (let e_marks of mark_list?.exam_marks) {
-          // if (e_marks.examType === "Other") {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // }
-          // if (e_marks.examWeight > 0) {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * e_marks.examWeight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // } else {
-          //   for (let s_mark of e_marks.marks) {
-          //     let obj = {
-          //       student: "",
-          //       totalNumber: 0,
-          //     };
-          //     obj.totalNumber = Math.ceil(
-          //       (s_mark.totalMarks * final_weight) / s_mark.maximumMarks
-          //     );
-          //     obj.student = s_mark.student;
-          //     fr_list.push(obj);
-          //   }
-          // }
-
-          for (let s_mark of e_marks.marks) {
-            let obj = {
-              student: "",
-              totalNumber: 0,
-            };
-            obj.totalNumber =
-              e_marks.examWeight > 0
-                ? Math.ceil(
-                    (s_mark.totalMarks * e_marks.examWeight) /
-                      s_mark.maximumMarks
-                  )
-                : s_mark.totalMarks;
-            obj.student = s_mark.student;
-            fr_list.push(obj);
-          }
-        }
-
-        let fr_dubli = [];
-        let fr_qnique = [];
-        for (let m = 0; m < fr_list.length; m++) {
-          let val = 0;
-          for (let j = 0; j < fr_list.length; j++) {
-            if (`${fr_list[m].student}` === `${fr_list[j].student}`) {
-              val += +fr_list[j].totalNumber;
-              student_mark_value.push(val);
-            }
-          }
-          fr_dubli.push({
-            student: fr_list[m].student,
-            totalNumber: val,
-          });
-        }
-        fr_qnique = [...new Set(fr_dubli?.map(JSON.stringify))]?.map(
-          JSON.parse
-        );
-        mark_list.marks_list = fr_qnique;
-
+        notify.notifyCategory = "Marks";
+        notify.redirectIndex = 21;
         //
-        const subject_master = await SubjectMaster.findById(
-          subjectData.subjectMasterName
-        );
-        let fg = false;
-        for (let ot of subject_master?.max_obtain) {
-          if (`${ot?.batch}` === `${subjectData.class?.batch}`) {
-            ot.obtain_value = Math.max(...student_mark_value);
-            fg = true;
-          }
-        }
-        if (!fg) {
-          subject_master.max_obtain.push({
-            batch: subjectData.class?.batch,
-            obtain_value: Math.max(...student_mark_value),
-          });
-        }
-        await Promise.all([mark_list.save(), subject_master.save()]);
-      }
-    } else {
-      const subject_master = await SubjectMaster.findById(
-        subjectData.subjectMasterName
-      );
-      const create_mark_list = new SubjectMarkList({
-        batch: subjectData.class.batch,
-        classMaster: subjectData.class.masterClassName,
-        subjectMaster: subjectData.subjectMasterName,
-      });
-      let all_marks = [];
-      let unique_marks = [];
-      let student_mark_value = [];
-      let obj = {
-        exam: examId,
-        examWeight: exam_data.examWeight,
-        examType: exam_data.examType,
-        marks: [],
-      };
+        await Promise.all([student.save(), user.save(), notify.save()]);
 
-      for (let stu of marks) {
-        // let fr_marks =
-        //   exam_data.examType === "Final"
-        //     ? stu.obtainMarks
-        //     : Math.ceil(
-        //         (stu.obtainMarks * exam_data.examWeight) / sub_total_mark
-        //       );
-        let fr_marks =
-          exam_data.examWeight > 0
-            ? Math.ceil(
-                (+stu.obtainMarks * exam_data.examWeight) / sub_total_mark
-              )
-            : +stu.obtainMarks;
-        // : Math.ceil((+stu.obtainMarks * 100) / sub_total_mark);
-        student_mark_value.push(fr_marks);
-        all_marks.push({
-          student: stu.studentId,
-          totalNumber: fr_marks,
-        });
-        obj.marks.push({
-          student: stu.studentId,
-          related_subject: subjectData?._id,
-          related_class: subjectData.class._id,
-          totalMarks: stu.obtainMarks,
-          maximumMarks: sub_total_mark,
-        });
+        if (user.deviceToken) {
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            `${subjectData?.subjectName} Marks`,
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+        }
       }
-      unique_marks.push(obj);
-      create_mark_list.marks_list = all_marks;
-      create_mark_list.exam_marks = unique_marks;
-      // class_master.standard_mark_list.push(create_mark_list?._id);
-      subject_master.subject_mark_list.push(create_mark_list?._id);
-      subjectData.subject_mark_list.push(create_mark_list?._id);
-
-      // here outer level
-      // let fg = false;
-      // for (let ot of su_master?.max_obtain) {
-      //   if (`${ot?.batch}` === `${subjectData.class?.batch}`) {
-      //     ot.obtain_value = Math.max(student_mark_value);
-      //     ot.max_value = student_mark_value_total;
-      //     fg = true;
-      //   }
-      // }
-      // if (!fg) {
-      subject_master.max_obtain.push({
-        batch: subjectData.class?.batch,
-        obtain_value: Math.max(...student_mark_value),
-        // max_value: student_mark_value_total,
-      });
-      // }
-      await Promise.all([
-        create_mark_list.save(),
-        subject_master.save(),
-        subjectData.save(),
-        //  class_master.save()
-      ]);
     }
   } catch (e) {
     console.log(e);
   }
 };
-
-
 exports.oneStudentMarksBySubjectTeacher = async (req, res) => {
   try {
     const { examId, studentId, obtainMarks } = req.body;
@@ -3755,7 +3854,6 @@ const one_student_report_change_data_format = async (
   return obj;
 };
 
-
 exports.finalizeAllStudentInOneClass = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -3926,7 +4024,6 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.renderNewBacklogExamQuery = async (req, res) => {
   try {
@@ -5186,10 +5283,16 @@ exports.createSubjectExam = async (req, res) => {
     res.status(201).send({ message: "Exam is created" });
 
     //here add batch student list
-    var all_student = classes.ApproveStudent || [];
+    let all_student = [];
     if (subject?.selected_batch_query) {
       const subject_batch = await Batch.findById(subject?.selected_batch_query);
       all_student = subject_batch.class_student_query;
+    } else {
+      if (subject?.optionalStudent?.length > 0) {
+        all_student = subject?.optionalStudent;
+      } else {
+        all_student = classes.ApproveStudent;
+      }
     }
     for (let stu of all_student) {
       const student = await Student.findById(stu);
@@ -5338,7 +5441,6 @@ exports.createSubjectExam = async (req, res) => {
   }
 };
 
-
 exports.examEditOneSubjectMasterQuery = async (req, res) => {
   try {
     const { eid, smid } = req.params;
@@ -5430,7 +5532,6 @@ exports.examEditOneSubjectMasterQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.examRemoveOneSubjectMasterQuery = async (req, res) => {
   try {
@@ -5738,7 +5839,6 @@ exports.examDirectCoMappingQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.oneStudentReportCardClassTeacherModify = async (req, res) => {
   try {
@@ -6165,7 +6265,6 @@ exports.oneStudentReportCardClassTeacherModify2 = async (req, res) => {
   }
 };
 
-
 exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
   try {
     const { eid, smid } = req.params;
@@ -6312,7 +6411,6 @@ exports.examQuestionEvaluationCoMappingQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.oneStudentReportCardFinalizeModify = async (req, res) => {
   try {
@@ -6990,3 +7088,221 @@ exports.resultAnalysisOfExamQuery = async (req, res) => {
   }
 };
 
+exports.subject_student_list_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject = await Subject.findById(sid).populate({
+      path: "selected_batch_query",
+      select: "class_student_query",
+    });
+    let student_id = [];
+    if (subject?.selected_batch_query?._id) {
+      student_id = subject?.selected_batch_query?.class_student_query;
+    } else {
+      if (subject?.optionalStudent?.length > 0) {
+        student_id = subject?.optionalStudent;
+      } else {
+        const cls = await Class.findById(subject?.class).select(
+          "ApproveStudent"
+        );
+        student_id = cls?.ApproveStudent;
+      }
+    }
+    let students = [];
+    if (student_id?.length > 0) {
+      students = await Student.find({
+        _id: {
+          $in: student_id,
+        },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number studentProfilePhoto"
+        )
+        .lean()
+        .exce();
+    }
+
+    students.sort((st1, st2) => {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
+
+    res.status(200).send({
+      message: "Exam One Subject student List.",
+      access: true,
+      students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subject_mark_fill_student_list_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { examId } = req.query;
+    if (!sid || !examId) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const subject = await Subject.findById(sid).populate({
+      path: "selected_batch_query",
+      select: "class_student_query",
+    });
+    let student_id = [];
+    if (subject?.selected_batch_query?._id) {
+      student_id = subject?.selected_batch_query?.class_student_query;
+    } else {
+      if (subject?.optionalStudent?.length > 0) {
+        student_id = subject?.optionalStudent;
+      } else {
+        const cls = await Class.findById(subject?.class).select(
+          "ApproveStudent"
+        );
+        student_id = cls?.ApproveStudent;
+      }
+    }
+    let students = [];
+    if (student_id?.length > 0) {
+      students = await Student.find({
+        _id: {
+          $in: student_id,
+        },
+      }).select(
+        "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number studentProfilePhoto"
+      );
+    }
+
+    students.sort((st1, st2) => {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
+
+    const exam_su = await SubjectExamMarks.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          exam: { $eq: `${examId}` },
+        },
+      ],
+    });
+
+    const student_marks = {};
+    if (exam_su?.student_list?.length > 0) {
+      for (let dfg of exam_su?.student_list) {
+        student_marks[dfg?.student] = {
+          obtain_marks: dfg?.obtain_marks,
+        };
+      }
+    }
+
+    res.status(200).send({
+      message: "Exam One Subject student marks List.",
+      access: true,
+      obtain_obj: {
+        students: students,
+        student_marks: student_marks,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.subject_exam_learner_export_query = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { sid, learner_type, criteria } = req.body;
+    if (!eid || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const subject_exam = await SubjectExamMarks.findOne({
+      $and: [
+        {
+          subject: { $eq: `${sid}` },
+        },
+        {
+          exam: { $eq: `${eid}` },
+        },
+      ],
+    });
+    const students = [];
+    if (subject_exam?.student_list?.length > 0) {
+      for (let dbt of subject_exam?.student_list) {
+        if (learner_type === "ADVANCED") {
+          if (dbt.obtain_marks >= criteria) {
+            const student = await Student.findById(dbt?.student).select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+            );
+            students.push({
+              "Enrollment / PRN NO ":
+                student?.student_prn_enroll_number ?? "#NA",
+              GRNO: student?.studentGRNO ?? "#NA",
+              ROLLNO: student.studentROLLNO ?? "#NA",
+              Name: `${student?.studentFirstName} ${
+                student?.studentMiddleName ? student?.studentMiddleName : ""
+              } ${student?.studentLastName}`,
+              Marks: dbt.obtain_marks ?? "#NA",
+            });
+          }
+        } else if (learner_type === "SLOW") {
+          if (dbt.obtain_marks <= criteria) {
+            const student = await Student.findById(dbt?.student).select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+            );
+            students.push({
+              "Enrollment / PRN NO ":
+                student?.student_prn_enroll_number ?? "#NA",
+              GRNO: student?.studentGRNO ?? "#NA",
+              ROLLNO: student.studentROLLNO ?? "#NA",
+              Name: `${student?.studentFirstName} ${
+                student?.studentMiddleName ? student?.studentMiddleName : ""
+              } ${student?.studentLastName}`,
+              Marks: dbt.obtain_marks ?? "#NA",
+            });
+          }
+        } else {
+          if (dbt.obtain_marks >= criteria) {
+            const student = await Student.findById(dbt?.student).select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+            );
+            students.push({
+              "Enrollment / PRN NO ":
+                student?.student_prn_enroll_number ?? "#NA",
+              GRNO: student?.studentGRNO ?? "#NA",
+              ROLLNO: student.studentROLLNO ?? "#NA",
+              Name: `${student?.studentFirstName} ${
+                student?.studentMiddleName ? student?.studentMiddleName : ""
+              } ${student?.studentLastName}`,
+              Marks: dbt.obtain_marks ?? "#NA",
+            });
+          }
+        }
+      }
+    }
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_marks_student_json_to_excel(
+        sid,
+        students,
+        "Students",
+        "LEARNER_MARKS",
+        "marks"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student Learners excel export",
+      excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

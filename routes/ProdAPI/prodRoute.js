@@ -68,4 +68,9 @@ router.patch("/all/payment/delete/query", catchAsync(Prod.delete_payment));
 
 router.patch("/all/new/chat/query", catchAsync(Prod.new_chat_username));
 
+router.patch(
+  "/all/student/name/correction/query",
+  catchAsync(Prod.correction_student_name_query)
+);
+
 module.exports = router;

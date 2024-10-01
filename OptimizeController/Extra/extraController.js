@@ -1840,6 +1840,7 @@ exports.renderChangeExistingUserPhoneQuery = async (req, res) => {
 
 exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
   try {
+    const { id } = req?.query;
     const { excel_file } = req.body;
 
     const val = await simple_object(excel_file);
@@ -1849,7 +1850,7 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
     const is_converted = await generate_excel_to_json_roll_no_query(val);
     if (is_converted?.value) {
       // await retrieveEmailReplaceQuery(is_converted?.email_array);
-      await retrieveROLLGRNOReplaceQuery(is_converted?.email_array);
+      await retrieveROLLGRNOReplaceQuery(is_converted?.email_array, id);
     } else {
       console.log("false");
     }

@@ -251,7 +251,6 @@ router.patch(
 
 router.patch(
   "/excel/to/json/email/replace/query",
-  // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONEmailReplaceQuery)
 );
 

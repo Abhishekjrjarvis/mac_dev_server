@@ -887,36 +887,31 @@ exports.retrieveEmailReplaceQuery = async (arr) => {
   }
 };
 
-exports.retrieveROLLGRNOReplaceQuery = async (arr) => {
+exports.retrieveROLLGRNOReplaceQuery = async (arr, id) => {
   try {
     if (arr?.length > 0) {
       var i = 0;
+      let nums = [];
       for (var ref of arr) {
-        let names = ref?.Name?.split(" ");
-        var combine;
-        for (let ele of names) {
-          combine = `${combine ?? ""}${ele?.toLowerCase()}`;
-        }
-        console.log(combine);
         var one_student = await Student.findOne({
-          $and: [
-            { scholar_name: `${combine}` },
-            { "student_form_flow.did": "6656bcf29764b93acce07526" },
-          ],
-        }).select("studentGRNO studentROLLNO valid_full_name scholar_name");
+          $and: [{ studentGRNO: `${ref?.Old}` }, { institute: `${id}` }],
+        }).select("studentGRNO studentROLLNO new_gr previous_gr");
         if (one_student?._id) {
-          one_student.studentGRNO = `24BA${ref?.Roll}`;
-          one_student.studentROLLNO = `${ref?.Roll}`;
+          one_student.previous_gr = `${one_student?.studentGRNO}`;
+          one_student.new_gr = `${ref?.New}`;
           await one_student.save();
-          console.log(i, one_student);
-          i += 1;
+          nums.push(one_student);
         } else {
-          console.log("Issue", i);
-          i += 1;
+          console.log("Issue");
         }
-        combine = "";
       }
       console.log("DONE");
+      if (nums?.length > 0) {
+        for (let ele of nums) {
+          ele.studentGRNO = `${ele?.new_gr}`;
+          await ele.save();
+        }
+      }
     }
   } catch (e) {
     console.log(e);

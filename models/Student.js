@@ -1250,6 +1250,12 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  previous_gr: {
+    type: String,
+  },
+  new_gr: {
+    type: String,
+                                          },
   student_bonafide: {
     reason: String,
     message: String,

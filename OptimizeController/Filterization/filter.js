@@ -19593,12 +19593,12 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
       })
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -19607,7 +19607,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
         populate: {
           path: "batches",
           select: "batchName",
@@ -19658,6 +19658,13 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       });
     }
 
+    all_receipts = all_receipts?.filter((cls) => {
+      if (
+        `${cls?.student?.studentStatus}` == "Approved" &&
+        cls?.student?.studentGRNO
+      )
+        return cls;
+    });
     if (all_receipts?.length > 0) {
       res.status(200).send({
         message: "Explore Admission Fee Register Receipt Heads Structure Query",
@@ -19673,6 +19680,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
         }
         return obj;
       };
+      let  i = 0
       for (var ref of all_receipts) {
         let normal = 0;
         let society = 0;
@@ -19680,7 +19688,8 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
           "paytm_query"
         );
         if (ref?.student?.studentFirstName) {
-          console.log("ENTER");
+          console.log("ENTER", i);
+          i+= 1
           var remain_list = await RemainingList.findOne({
             $and: [
               { fee_structure: `${ref?.fee_structure}` },
@@ -19722,9 +19731,9 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
                   const head = await FeeMaster.findById({ _id: val?.master });
                   head_array.push({
                     HeadsName: head?.master_name,
-                    PaidHeadFees: val?.original_paid,
+                    PaidHeadFees: val?.paid_fee,
                   });
-                  society += val?.original_paid;
+                  society += val?.paid_fee;
                 }
               } else {
                 if (
@@ -19735,9 +19744,9 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
                   const head = await FeeMaster.findById({ _id: val?.master });
                   head_array.push({
                     HeadsName: head?.master_name,
-                    PaidHeadFees: val?.original_paid,
+                    PaidHeadFees: val?.paid_fee,
                   });
-                  normal += val?.original_paid;
+                  normal += val?.paid_fee;
                 }
               }
             }
@@ -19786,14 +19795,15 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
               // TransactionMode: ref?.fee_payment_mode ?? "#NA",
               // BankName: ref?.fee_bank_name ?? "#NA",
               // BankHolderName: ref?.fee_bank_holder ?? "#NA",
-              Card_Status: stats ?? "NA",
               // BankUTR:
               //   op?.paytm_query?.length > 0
               //     ? op?.paytm_query?.[0]?.BANKTXNID
               //     : ref?.fee_utr_reference ?? "#NA",
-              GRNO: ref?.student?.studentGRNO ?? "#NA",
+              GRNO: ref?.student?.studentGRNO ?? "",
               Name:
-                `${ref?.student?.studentLastName} ${ref?.student?.studentFirstName} ${
+                `${ref?.student?.studentLastName} ${
+                  ref?.student?.studentFirstName
+                } ${
                   ref?.student?.studentMiddleName
                     ? ref?.student?.studentMiddleName
                     : ""
@@ -19843,6 +19853,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
+              Card_Status: stats ?? "NA",
               ...result,
             });
             result = [];
@@ -19853,8 +19864,13 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       }
 
       // console.log(head_list);
+      const key = "Name";
+
+      const arrayUniqueByKey = [
+        ...new Map(head_list.map((item) => [item[key], item])).values(),
+      ];
       await fee_heads_receipt_json_to_excel_query(
-        head_list,
+        arrayUniqueByKey,
         institute?.insName,
         institute?._id,
         bank,

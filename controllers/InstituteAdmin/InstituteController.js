@@ -4725,6 +4725,11 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
 exports.retrieveClass = async (req, res) => {
   try {
     const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     const classes = await Class.findById({ _id: cid })
       .select(
         "className classTitle classCode classStartDate classStatus classHeadTitle studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
@@ -9437,16 +9442,16 @@ exports.new_checklist_section_query = async (req, res) => {
     // const all_ifs = await DepartmentStudentForm.find({
     //   department: { $in: institute?.depart },
     // })
-      const all_app = await NewApplication.find({
-        $and: [
-          { _id: { $in: ads_admin?.newApplication } },
-          { applicationStatus: "Ongoing" },
-          { applicationTypeStatus: "Normal Application" },
-        ],
-      });
-      const all_ifs = await InstituteApplicationForm.find({
-        application: { $in: all_app },
-      })
+    const all_app = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
+      ],
+    });
+    const all_ifs = await InstituteApplicationForm.find({
+      application: { $in: all_app },
+    })
       .select("form_section")
       .populate({
         path: "form_section",

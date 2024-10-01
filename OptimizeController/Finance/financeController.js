@@ -300,7 +300,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       })
       .populate({
-        path: "studentMessage",
+        path: "student_message",
       });
     // const cached = await connect_redis_miss(
     //   `Finance-Detail-${fid}`,

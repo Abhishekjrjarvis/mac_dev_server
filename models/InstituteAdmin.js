@@ -1398,6 +1398,10 @@ const instituteAdminSchema = new mongoose.Schema({
   certificate_leaving_form_student: {
     type: String,
   },
+  latitude: { type: Number },
+  longitude: { type: Number },
+  place_name: { type: String },
+  premise_area: { type: Number },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

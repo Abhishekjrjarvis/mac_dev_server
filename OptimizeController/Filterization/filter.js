@@ -2358,6 +2358,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         for (var ref of valid_apply?.receievedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
@@ -2396,6 +2397,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -2515,6 +2517,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -2630,6 +2633,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -2738,6 +2742,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         for (var ref of valid_apply?.confirmedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
@@ -2774,6 +2779,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -2974,6 +2980,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           // console.log(numsss)
           excel_list.push({
             RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.studentFirstName} ${
               ref?.studentMiddleName
                 ? ref?.studentMiddleName ?? ref?.studentFatherName
@@ -3167,6 +3174,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -12265,7 +12273,7 @@ exports.render_subject_application_export = async (req, res) => {
     const unique = [...new Set(n.map((item) => item._id))];
     const all = await Student.find({ _id: { $in: unique } })
       .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        "studentFirstName studentMiddleName studentFatherName studentLastName student_abc_id studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
       )
       .populate({
         path: "user",
@@ -12275,6 +12283,7 @@ exports.render_subject_application_export = async (req, res) => {
     for (let ele of all) {
       excel_list.push({
         GRNO: ele?.studentGRNO ?? "#NA",
+        "ABC ID": ele?.student_abc_id ?? "",
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
         FirstName: ele?.studentFirstName ?? "#NA",
         FatherName: ele?.studentFatherName ?? "#NA",
@@ -12755,6 +12764,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -12849,6 +12859,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -12942,6 +12953,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -13035,6 +13047,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -13213,6 +13226,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             // console.log(numsss)
             excel_list.push({
               RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.studentFirstName} ${
                 ref?.studentMiddleName
                   ? ref?.studentMiddleName ?? ref?.studentFatherName
@@ -13305,6 +13319,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -14722,6 +14737,7 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
           ];
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -19297,6 +19313,7 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
           ];
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -19549,7 +19566,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { from, to, bank } = req.query;
-    const { depart } = req?.body;
+    const { depart, batch } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19560,6 +19577,10 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName depart");
+
+    const batches = await Batch.findById({ _id: `${batch}` }).select(
+      "merged_batches"
+    );
 
     let by_date = date_for_all_functions(from, to);
     var all_receipts = await FeeReceipt.find({
@@ -19589,12 +19610,12 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
       })
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
         populate: {
           path: "studentClass",
           select: "className classTitle",
@@ -19603,7 +19624,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          "studentFirstName studentMiddleName studentLastName studentStatus studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
         populate: {
           path: "batches",
           select: "batchName",
@@ -19611,7 +19632,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationDepartment applicationName",
+        select: "applicationDepartment applicationName applicationBatch",
         populate: {
           path: "applicationDepartment",
           select: "bank_account",
@@ -19643,7 +19664,24 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
           return val;
       });
     }
+    if (batch) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          batches?.merged_batches?.includes(
+            `${val?.application?.applicationBatch}`
+          )
+        )
+          return val;
+      });
+    }
 
+    all_receipts = all_receipts?.filter((cls) => {
+      if (
+        `${cls?.student?.studentStatus}` == "Approved" &&
+        cls?.student?.studentGRNO
+      )
+        return cls;
+    });
     if (all_receipts?.length > 0) {
       res.status(200).send({
         message: "Explore Admission Fee Register Receipt Heads Structure Query",
@@ -19659,6 +19697,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
         }
         return obj;
       };
+      let i = 0;
       for (var ref of all_receipts) {
         let normal = 0;
         let society = 0;
@@ -19666,7 +19705,8 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
           "paytm_query"
         );
         if (ref?.student?.studentFirstName) {
-          console.log("ENTER");
+          console.log("ENTER", i);
+          i += 1;
           var remain_list = await RemainingList.findOne({
             $and: [
               { fee_structure: `${ref?.fee_structure}` },
@@ -19708,9 +19748,9 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
                   const head = await FeeMaster.findById({ _id: val?.master });
                   head_array.push({
                     HeadsName: head?.master_name,
-                    PaidHeadFees: val?.original_paid,
+                    PaidHeadFees: val?.paid_fee,
                   });
-                  society += val?.original_paid;
+                  society += val?.paid_fee;
                 }
               } else {
                 if (
@@ -19721,9 +19761,9 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
                   const head = await FeeMaster.findById({ _id: val?.master });
                   head_array.push({
                     HeadsName: head?.master_name,
-                    PaidHeadFees: val?.original_paid,
+                    PaidHeadFees: val?.paid_fee,
                   });
-                  normal += val?.original_paid;
+                  normal += val?.paid_fee;
                 }
               }
             }
@@ -19755,35 +19795,36 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
           }
           if (result) {
             head_list.push({
-              ReceiptNumber: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? ref?.society_invoice_count
-                  : ref?.invoice_count
-                : ref?.invoice_count ?? "0",
-              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-              TransactionAmount: ref?.fee_payment_amount ?? "0",
-              BankTxnValue: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? society
-                  : normal
-                : normal,
-              TransactionDate:
-                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-              TransactionMode: ref?.fee_payment_mode ?? "#NA",
-              BankName: ref?.fee_bank_name ?? "#NA",
-              BankHolderName: ref?.fee_bank_holder ?? "#NA",
-              Card_Status: stats ?? "NA",
-              BankUTR:
-                op?.paytm_query?.length > 0
-                  ? op?.paytm_query?.[0]?.BANKTXNID
-                  : ref?.fee_utr_reference ?? "#NA",
-              GRNO: ref?.student?.studentGRNO ?? "#NA",
+              // ReceiptNumber: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? ref?.society_invoice_count
+              //     : ref?.invoice_count
+              //   : ref?.invoice_count ?? "0",
+              // ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              // TransactionAmount: ref?.fee_payment_amount ?? "0",
+              // BankTxnValue: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? society
+              //     : normal
+              //   : normal,
+              // TransactionDate:
+              //   moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              // TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              // BankName: ref?.fee_bank_name ?? "#NA",
+              // BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              // BankUTR:
+              //   op?.paytm_query?.length > 0
+              //     ? op?.paytm_query?.[0]?.BANKTXNID
+              //     : ref?.fee_utr_reference ?? "#NA",
+              GRNO: ref?.student?.studentGRNO ?? "",
               Name:
-                `${ref?.student?.studentFirstName} ${
+                `${ref?.student?.studentLastName} ${
+                  ref?.student?.studentFirstName
+                } ${
                   ref?.student?.studentMiddleName
                     ? ref?.student?.studentMiddleName
                     : ""
-                } ${ref?.student?.studentLastName}` ?? "#NA",
+                }` ?? "#NA",
               FirstName: ref?.student?.studentFirstName ?? "#NA",
               MiddleName:
                 ref?.student?.studentMiddleName ??
@@ -19829,21 +19870,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${
-                ref?.fee_payment_mode
-              } Date ${moment(ref?.fee_transaction_date).format(
-                "DD-MM-YYYY"
-              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
-                remain_list?.fee_structure?.total_admission_fees
-              } Paid By ${ref?.student?.studentFirstName} ${
-                ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-              } ${ref?.student?.studentLastName} (${
-                remain_list?.fee_structure?.category_master?.category_name
-              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
-                ref?.student?.studentClass?.classTitle
-              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+              Card_Status: stats ?? "NA",
               ...result,
             });
             result = [];
@@ -19854,8 +19881,13 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
       }
 
       // console.log(head_list);
+      const key = "Name";
+
+      const arrayUniqueByKey = [
+        ...new Map(head_list.map((item) => [item[key], item])).values(),
+      ];
       await fee_heads_receipt_json_to_excel_query(
-        head_list,
+        arrayUniqueByKey,
         institute?.insName,
         institute?._id,
         bank,
@@ -19912,7 +19944,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
   try {
     const { fid } = req.params;
     const { from, to, bank } = req.query;
-    const { depart } = req?.body;
+    const { depart, batch } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -19923,6 +19955,10 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName depart");
+
+    const batches = await Batch.findById({ _id: `${batch}` }).select(
+      "merged_batches"
+    );
 
     let by_date = date_for_all_functions(from, to);
     var all_receipts = await FeeReceipt.find({
@@ -19974,7 +20010,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationDepartment applicationName",
+        select: "applicationDepartment applicationName applicationBatch",
         populate: {
           path: "applicationDepartment",
           select: "bank_account",
@@ -20003,6 +20039,17 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
     if (depart?.length > 0) {
       all_receipts = all_receipts?.filter((val) => {
         if (depart?.includes(`${val?.application?.applicationDepartment?._id}`))
+          return val;
+      });
+    }
+
+    if (batch) {
+      all_receipts = all_receipts?.filter((val) => {
+        if (
+          batches?.merged_batches?.includes(
+            `${val?.application?.applicationBatch}`
+          )
+        )
           return val;
       });
     }
@@ -20118,35 +20165,36 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
           }
           if (result) {
             head_list.push({
-              ReceiptNumber: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? ref?.society_invoice_count
-                  : ref?.invoice_count
-                : ref?.invoice_count ?? "0",
-              ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
-              TransactionAmount: ref?.fee_payment_amount ?? "0",
-              BankTxnValue: bank
-                ? bank_acc?.bank_account_type === "Society"
-                  ? society
-                  : normal
-                : normal,
-              TransactionDate:
-                moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
-              TransactionMode: ref?.fee_payment_mode ?? "#NA",
-              BankName: ref?.fee_bank_name ?? "#NA",
-              BankHolderName: ref?.fee_bank_holder ?? "#NA",
-              Card_Status: stats ?? "NA",
-              BankUTR:
-                op?.paytm_query?.length > 0
-                  ? op?.paytm_query?.[0]?.BANKTXNID
-                  : ref?.fee_utr_reference ?? "#NA",
+              // ReceiptNumber: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? ref?.society_invoice_count
+              //     : ref?.invoice_count
+              //   : ref?.invoice_count ?? "0",
+              // ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+              // TransactionAmount: ref?.fee_payment_amount ?? "0",
+              // BankTxnValue: bank
+              //   ? bank_acc?.bank_account_type === "Society"
+              //     ? society
+              //     : normal
+              //   : normal,
+              // TransactionDate:
+              //   moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+              // TransactionMode: ref?.fee_payment_mode ?? "#NA",
+              // BankName: ref?.fee_bank_name ?? "#NA",
+              // BankHolderName: ref?.fee_bank_holder ?? "#NA",
+              // BankUTR:
+              //   op?.paytm_query?.length > 0
+              //     ? op?.paytm_query?.[0]?.BANKTXNID
+              //     : ref?.fee_utr_reference ?? "#NA",
               GRNO: ref?.student?.studentGRNO ?? "#NA",
               Name:
-                `${ref?.student?.studentFirstName} ${
+                `${ref?.student?.studentLastName} ${
+                  ref?.student?.studentFirstName
+                } ${
                   ref?.student?.studentMiddleName
                     ? ref?.student?.studentMiddleName
                     : ""
-                } ${ref?.student?.studentLastName}` ?? "#NA",
+                }` ?? "#NA",
               FirstName: ref?.student?.studentFirstName ?? "#NA",
               MiddleName:
                 ref?.student?.studentMiddleName ??
@@ -20183,6 +20231,7 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
               GovernmentOutstandingFees:
                 remain_list?.government_card?.remaining_fee ?? 0,
               Remark: remain_list?.remark ?? "#NA",
+              Card_Status: stats ?? "NA",
               DepartmentBankName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_name ?? "#NA",
@@ -20192,21 +20241,6 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
               DepartmentBankAccountHolderName:
                 ref?.application?.applicationDepartment?.bank_account
                   ?.finance_bank_account_name ?? "#NA",
-              Narration: `Being Fees Received By ${
-                ref?.fee_payment_mode
-              } Date ${moment(ref?.fee_transaction_date).format(
-                "DD-MM-YYYY"
-              )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
-                remain_list?.fee_structure?.total_admission_fees
-              } Paid By ${ref?.student?.studentFirstName} ${
-                ref?.student?.studentMiddleName
-                  ? ref?.student?.studentMiddleName
-                  : ""
-              } ${ref?.student?.studentLastName} (${
-                remain_list?.fee_structure?.category_master?.category_name
-              }) Towards Fees For ${ref?.student?.studentClass?.className}-${
-                ref?.student?.studentClass?.classTitle
-              } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
               ...result,
             });
             result = [];

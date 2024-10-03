@@ -1840,6 +1840,7 @@ exports.renderChangeExistingUserPhoneQuery = async (req, res) => {
 
 exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
   try {
+    const { id } = req?.query;
     const { excel_file } = req.body;
 
     const val = await simple_object(excel_file);
@@ -1849,7 +1850,7 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
     const is_converted = await generate_excel_to_json_roll_no_query(val);
     if (is_converted?.value) {
       // await retrieveEmailReplaceQuery(is_converted?.email_array);
-      await retrieveROLLGRNOReplaceQuery(is_converted?.email_array);
+      await retrieveROLLGRNOReplaceQuery(is_converted?.email_array, id);
     } else {
       console.log("false");
     }
@@ -2474,10 +2475,15 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.redirectIndex = 59;
         notify.student_message = new_message?._id;
         await Promise.all([user.save(), notify.save()]);
+        let combine_name = `${ref?.studentFirstName} ${
+          ref?.studentMiddleName ?? ref?.studentFatherName
+        } ${ref?.studentLastName}`;
         if (status === "EMAIL_NOTIFICATION") {
           send_email_student_message_query(
             ref?.studentEmail ?? user?.userEmail,
-            message
+            new_message,
+            valid_ins?.insName,
+            combine_name
           );
         } else {
           if (user?.deviceToken) {
@@ -2533,10 +2539,15 @@ exports.renderFilteredMessageQuery = async (req, res) => {
         notify.redirectIndex = 59;
         notify.student_message = new_message?._id;
         await Promise.all([user.save(), notify.save()]);
+        let combine_name = `${ref?.studentFirstName} ${
+          ref?.studentMiddleName ?? ref?.studentFatherName
+        } ${ref?.studentLastName}`;
         if (status === "EMAIL_NOTIFICATION") {
           send_email_student_message_query(
             ref?.studentEmail ?? user?.userEmail,
-            message
+            new_message,
+            institute?.insName,
+            combine_name
           );
         } else {
           if (user?.deviceToken) {
@@ -3565,10 +3576,15 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.redirectIndex = 59;
       notify.student_message = new_message?._id;
       await Promise.all([user.save(), notify.save()]);
+      let combine_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? student?.studentFatherName
+      } ${student?.studentLastName}`;
       if (status === "EMAIL_NOTIFICATION") {
         send_email_student_message_query(
           student?.studentEmail ?? user?.userEmail,
-          message
+          new_message,
+          valid_ins?.insName,
+          combine_name
         );
       } else {
         invokeSpecificRegister(
@@ -3620,10 +3636,15 @@ exports.renderOneStudentFilteredMessageQuery = async (req, res) => {
       notify.redirectIndex = 59;
       notify.student_message = new_message?._id;
       await Promise.all([user.save(), notify.save()]);
+      let combine_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? student?.studentFatherName
+      } ${student?.studentLastName}`;
       if (status === "EMAIL_NOTIFICATION") {
         send_email_student_message_query(
           student?.studentEmail ?? user?.userEmail,
-          message
+          new_message,
+          institute?.insName,
+          combine_name
         );
       } else {
         invokeSpecificRegister(

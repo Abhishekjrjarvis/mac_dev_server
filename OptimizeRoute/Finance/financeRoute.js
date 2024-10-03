@@ -718,6 +718,16 @@ router.patch(
 );
 
 router.patch(
+  "/show/:fid/miscellenous/fee/message",
+  catchAsync(Finance.get_miscellenous_fee_message)
+);
+
+router.patch(
+  "/edit/:sid/miscellenous/fee/message",
+  catchAsync(Finance.edit_miscellenous_fee_message)
+);
+
+router.patch(
   "/regenerate/admission/fee/receipt/:frid/query",
   catchAsync(Finance.finance_admission_fee_receipt_generate_query)
 );

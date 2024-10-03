@@ -287,7 +287,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern is_dublicate_receipt"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count tab_manage financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status show_receipt show_invoice_pattern is_dublicate_receipt message_bool"
       )
       .populate({
         path: "institute",
@@ -298,6 +298,9 @@ exports.retrieveFinanceQuery = async (req, res) => {
         path: "financeHead",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "student_message",
       });
     // const cached = await connect_redis_miss(
     //   `Finance-Detail-${fid}`,
@@ -8929,20 +8932,76 @@ exports.add_miscellenous_fee_message = async (req, res) => {
       });
 
     const finance = await Finance.findById({ _id: fid });
-    const new_message = new StudentMessage({
-      message: `${message}`,
-      message_type: `${type}`,
-      from_name: "Finance Manager",
-      message_title: m_title,
-      message_document: m_doc,
-      institute: finance?.institute,
-      message_mode: "MISCELLENOUS_FEE",
-    });
-    finance.student_message = new_message?._id;
-    if (message_bool) {
-      finance.message_bool = message_bool;
+    if (finance?.student_message) {
+      const exist_message = await StudentMessage.findById({
+        _id: `${finance?.student_message}`,
+      });
+      exist_message.message_title = m_title
+        ? m_title
+        : exist_message?.message_title;
+      exist_message.message_document = m_doc
+        ? m_doc
+        : exist_message?.message_document;
+      exist_message.message = message ? message : exist_message?.message;
+      exist_message.message_type = type ? type : exist_message?.message_type;
+      await exist_message.save();
+    } else {
+      const new_message = new StudentMessage({
+        message: `${message}`,
+        message_type: `${type}`,
+        from_name: "Finance Manager",
+        message_title: m_title,
+        message_document: m_doc,
+        institute: finance?.institute,
+        message_mode: "MISCELLENOUS_FEE",
+      });
+      finance.student_message = new_message?._id;
+      if (message_bool) {
+        finance.message_bool = message_bool;
+      }
+      await Promise.all([new_message.save(), finance.save()]);
     }
-    await Promise.all([new_message.save(), finance.save()]);
+    res
+      .status(200)
+      .send({ message: "Add Miscellenous Fee Message", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.get_miscellenous_fee_message = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Finance.findByIdAndUpdate(fid, req?.body);
+    res.status(200).send({
+      message: "Miscellenous Fee Message Toggle On / Off",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.edit_miscellenous_fee_message = async (req, res) => {
+  try {
+    const { sid } = req?.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await StudentMessage.findByIdAndUpdate(sid, req?.body);
+    res.status(200).send({
+      message: "Allow All Miscellenous Fee Message Content",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

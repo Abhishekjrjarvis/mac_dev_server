@@ -121,6 +121,15 @@ module.exports.form_params = [
         form_checklist_typo: "TEXT",
         form_checklist_required: false,
       },
+      {
+        form_checklist_name: "Scholarship Name",
+        form_checklist_key: "student_scholarship_name",
+        form_checklist_visibility: true,
+        form_checklist_placeholder: "Enter Scholarship Name",
+        form_checklist_lable: "Scholarship Name",
+        form_checklist_typo: "TEXT",
+        form_checklist_required: false,
+      },
     ],
   },
   {

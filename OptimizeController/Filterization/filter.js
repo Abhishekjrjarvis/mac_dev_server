@@ -2358,6 +2358,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         for (var ref of valid_apply?.receievedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
@@ -2396,6 +2397,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -2515,6 +2517,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -2630,6 +2633,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -2738,6 +2742,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         for (var ref of valid_apply?.confirmedApplication) {
           excel_list.push({
             RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName
@@ -2774,6 +2779,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -2974,6 +2980,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           // console.log(numsss)
           excel_list.push({
             RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.studentFirstName} ${
               ref?.studentMiddleName
                 ? ref?.studentMiddleName ?? ref?.studentFatherName
@@ -3167,6 +3174,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           }
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -12265,7 +12273,7 @@ exports.render_subject_application_export = async (req, res) => {
     const unique = [...new Set(n.map((item) => item._id))];
     const all = await Student.find({ _id: { $in: unique } })
       .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        "studentFirstName studentMiddleName studentFatherName studentLastName student_abc_id studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
       )
       .populate({
         path: "user",
@@ -12275,6 +12283,7 @@ exports.render_subject_application_export = async (req, res) => {
     for (let ele of all) {
       excel_list.push({
         GRNO: ele?.studentGRNO ?? "#NA",
+        "ABC ID": ele?.student_abc_id ?? "",
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
         FirstName: ele?.studentFirstName ?? "#NA",
         FatherName: ele?.studentFatherName ?? "#NA",
@@ -12755,6 +12764,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -12849,6 +12859,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -12942,6 +12953,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -13035,6 +13047,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -13213,6 +13226,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             // console.log(numsss)
             excel_list.push({
               RegistrationID: ref?.student_prn_enroll_number ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.studentFirstName} ${
                 ref?.studentMiddleName
                   ? ref?.studentMiddleName ?? ref?.studentFatherName
@@ -13305,6 +13319,7 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
             }
             excel_list.push({
               RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+              "ABC ID": ref?.student?.student_abc_id ?? "#NA",
               Name: `${ref?.student?.studentFirstName} ${
                 ref?.student?.studentMiddleName
                   ? ref?.student?.studentMiddleName ??
@@ -14722,6 +14737,7 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
           ];
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -19297,6 +19313,7 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
           ];
           excel_list.push({
             RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
             Name: `${ref?.student?.studentFirstName} ${
               ref?.student?.studentMiddleName
                 ? ref?.student?.studentMiddleName ??
@@ -19680,7 +19697,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
         }
         return obj;
       };
-      let  i = 0
+      let i = 0;
       for (var ref of all_receipts) {
         let normal = 0;
         let society = 0;
@@ -19689,7 +19706,7 @@ exports.renderNormalAdmissionFeesStudentQuery = async (req, res) => {
         );
         if (ref?.student?.studentFirstName) {
           console.log("ENTER", i);
-          i+= 1
+          i += 1;
           var remain_list = await RemainingList.findOne({
             $and: [
               { fee_structure: `${ref?.fee_structure}` },

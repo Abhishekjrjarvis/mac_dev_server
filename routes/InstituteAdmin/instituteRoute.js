@@ -839,4 +839,9 @@ router.patch(
   catchAsync(Institute.add_student_roll_coll_wise_query)
 );
 
+router.patch(
+  "/add/:id/location/premises/query",
+  catchAsync(Institute.add_location_premises_query)
+);
+
 module.exports = router;

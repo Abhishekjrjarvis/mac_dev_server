@@ -6,11 +6,12 @@ const subjectDataRequest = require("../../AjaxRequest/subject/subjectDataRequest
 const { uploadDocsFile } = require("../../S3Configuration");
 const Subject = require("../../models/Subject");
 const instituteReportHeader = require("./instituteReportHeader");
+const instituteReportData = require("../../AjaxRequest/instituteReportData");
 
-const subjectTeachingPlanReport = async (
-  teaching_list,
-  co_po_map,
-  subjectId,
+const inwardCreateReport = async (
+  outwardData,
+  outwardId,
+  instituteId,
   type
 ) => {
   const doc = new PDFDocument({
@@ -19,13 +20,14 @@ const subjectTeachingPlanReport = async (
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
   const result = await subjectDataRequest(subjectId);
-  const instituteData = result?.dt;
+  const ins_data = await instituteReportData(instituteId);
+  const instituteData = ins_data?.dt;
   const subject_data = result?.subject_data;
 
   const date = new Date();
   let ot_name = `${subject_data?.subject?.subjectName}-${type}`;
-  let pdf_name = `${ot_name}-${date.getTime()}`;
-  // let pdf_name = `${ot_name}`;
+  // let pdf_name = `${ot_name}-${date.getTime()}`;
+  let pdf_name = `${ot_name}`;
 
   const stream = fs.createWriteStream(`./uploads/${pdf_name}-Report.pdf`);
   doc.pipe(stream);
@@ -626,4 +628,4 @@ const subjectTeachingPlanReport = async (
   });
   return `${pdf_name}-Report.pdf`;
 };
-module.exports = subjectTeachingPlanReport;
+module.exports = inwardCreateReport;

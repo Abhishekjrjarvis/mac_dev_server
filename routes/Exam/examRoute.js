@@ -26,7 +26,10 @@ router
 
 router
   .route("/allstudents/marks/subjectteacher/:sid")
-  .post(isLoggedIn, catchAsync(examController.allStudentMarksBySubjectTeacher))
+  .post(
+    isLoggedIn,
+    catchAsync(examController.allStudentMarksBySubjectTeacherModify)
+  )
   .patch(
     upload.array("file"),
     isLoggedIn,
@@ -242,7 +245,7 @@ router
   .patch(catchAsync(examController.examEditOneSubjectMasterQuery))
   .delete(catchAsync(examController.examRemoveOneSubjectMasterQuery));
 
-  router
+router
   .route("/edit/one/:eid/subject/:smid/query")
   .patch(catchAsync(examController.examEditOneSubjectMasterQuery))
   .delete(catchAsync(examController.examRemoveOneSubjectMasterQuery));
@@ -255,7 +258,7 @@ router
   .route("/add/subject/master/qpevaluation/co/mapping")
   .patch(catchAsync(examController.examQuestionEvaluationCoMappingQuery));
 
-  router
+router
   .route("/excel/export/subject/:sid/query")
   .patch(catchAsync(examController.oneSubjectExamAllStudentExcelExportQuery));
 
@@ -270,5 +273,16 @@ router
 router
   .route("/result/analysis/query")
   .patch(catchAsync(examController.resultAnalysisOfExamQuery));
+
+router
+  .route("/subject/:sid/student/list")
+  .get(catchAsync(examController.subject_student_list_query));
+
+router
+  .route("/subject/mark/fill/:sid/student/list")
+  .get(catchAsync(examController.subject_mark_fill_student_list_query));
+router
+  .route("/learner/export/:eid/query")
+  .patch(catchAsync(examController.subject_exam_learner_export_query));
 
 module.exports = router;

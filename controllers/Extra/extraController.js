@@ -533,6 +533,46 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         certificate_attachment: certificate_attachment,
         certificate_type: certificate_type,
         certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+        other_data: [
+          {
+            studentCertificateNo,
+            leaving_date,
+            bookNo,
+            studentUidaiNumber,
+            studentPreviousSchool,
+            studentLeavingBehaviour,
+            studentLeavingStudy,
+            studentLeavingReason,
+            studentRemark,
+            instituteJoinDate,
+            instituteLeavingDate,
+            leaving_degree,
+            leaving_since_date,
+            leaving_course_duration,
+            elective_subject_one,
+            elective_subject_second,
+            leaving_project_work,
+            leaving_guide_name,
+            lcRegNo,
+            lcCaste,
+            lcBirth,
+            lcDOB,
+            lcAdmissionDate,
+            lcInstituteDate,
+            leaving_student_name,
+            leaving_nationality,
+            leaving_religion,
+            leaving_previous_school,
+            leaving_certificate_attach,
+            is_dublicate,
+
+            certificate_type,
+            certificate_attachment,
+            student_name,
+            staffId,
+            certificate_original_leaving_count,
+          },
+        ],
       });
       if (staffId) {
         c_logs.issue_by_staff = staffId;
@@ -3588,38 +3628,102 @@ exports.renderStudentAllCertificateQuery = async (req, res) => {
 exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
   try {
     const { id } = req?.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const { status } = req?.query;
-    if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
 
-    var ins = await InstituteAdmin.findById({ _id: id });
-    var all_cert = await CertificateQuery.find({
-      $and: [{ institute: ins?._id }, { certificate_status: `${status}` }],
-    })
-      .sort({ created_at: "-1" })
-      .limit(limit)
-      .skip(skip)
-      .populate({
-        path: "institute",
-        select: "insName name certificate_issued_count",
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
-      })
-      .populate({
-        path: "fee_receipt",
-        select: "fee_payment_amount fee_payment_mode invoice_count",
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
       });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    let all_cert = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      const student = await Student.find({
+        $or: [
+          {
+            studentFirstName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentMiddleName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentLastName: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+          {
+            studentGRNO: {
+              $regex: req.query.search,
+              $options: "i",
+            },
+          },
+        ],
+      }).select("_id");
+
+      let ids = [];
+      if (student?.length > 0) {
+        for (let dt of student) {
+          ids.push(dt?._id);
+        }
+      }
+
+      all_cert = await CertificateQuery.find({
+        $and: [
+          { institute: { $eq: `${id}` } },
+          { certificate_status: `Requested` },
+          { student: { $in: ids } },
+        ],
+      })
+        .populate({
+          path: "institute",
+          select: "insName name certificate_issued_count",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "fee_payment_amount fee_payment_mode invoice_count",
+        });
+    } else {
+      all_cert = await CertificateQuery.find({
+        $and: [
+          { institute: { $eq: `${id}` } },
+          { certificate_status: `Requested` },
+        ],
+      })
+        .sort({ created_at: "-1" })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "institute",
+          select: "insName name certificate_issued_count",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto valid_full_name studentGRNO studentROLLNO studentGender",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "fee_payment_amount fee_payment_mode invoice_count",
+        });
+    }
+
     res.status(200).send({
-      message: `Explore All ${status} Certificate Query`,
+      message: `Explore All Requested Certificate Query`,
       access: true,
       all_cert: all_cert,
     });
@@ -3631,36 +3735,114 @@ exports.renderStudentAllCertificateQueryStatus = async (req, res) => {
 exports.renderMarkCertificateQueryStatus = async (req, res) => {
   try {
     const { cid } = req?.params;
-    var { status, attach } = req?.query;
-    var { is_bonafide, certificate_bonafide_count } = req?.body;
+    const {
+      attach,
+      status,
+      is_bonafide,
+      certificate_bonafide_count,
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
+      student_bonafide,
+      // for leaving type and other also
+      other_data,
+      certificate_original_leaving_count,
+      is_dublicate,
+    } = req?.body;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    var valid_cert = await CertificateQuery.findById({ _id: cid });
-    var ins = await InstituteAdmin.findById({
-      _id: `${valid_cert?.institute}`,
-    });
     if (is_bonafide) {
-      ins.certificate_bonafide_count = certificate_bonafide_count;
-      await ins.save();
-    }
-
-    if (`${status}` === "Issued") {
+      const valid_cert = await CertificateQuery.findById(cid);
       valid_cert.certificate_status = `${status}`;
       valid_cert.certificate_issued_date = new Date();
       valid_cert.certificate_attach = `${attach}`;
-      ins.certificate_issued_count += 1;
-    } else if (`${status}` === "Rejected") {
-      valid_cert.certificate_status = `${status}`;
+      await valid_cert.save();
+
+      const institute = await InstituteAdmin.findById({
+        _id: `${valid_cert?.institute}`,
+      });
+      institute.certificate_issued_count += 1;
+      institute.certificate_bonafide_count = certificate_bonafide_count;
+      await institute.save();
+
+      res
+        .status(200)
+        .send({ message: `Explore New ${status} Query`, access: true });
+
+      const student = await Student.findById(valid_cert.student);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: "",
+          other_data: [student_bonafide],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+      }
     } else {
+      const valid_cert = await CertificateQuery.findById({ _id: cid });
+      valid_cert.certificate_status = `${status}`;
+      valid_cert.certificate_issued_date = new Date();
+      valid_cert.certificate_attach = `${attach}`;
+      await valid_cert.save();
+
+      const institute = await InstituteAdmin.findById({
+        _id: `${valid_cert?.institute}`,
+      });
+      institute.certificate_issued_count += 1;
+      if (
+        !is_dublicate &&
+        certificate_original_leaving_count &&
+        certificate_attachment
+      ) {
+        institute.certificate_original_leaving_count =
+          certificate_original_leaving_count;
+      }
+      await institute.save();
+
+      res
+        .status(200)
+        .send({ message: `Explore New ${status} Query`, access: true });
+      const student = await Student.findById(valid_cert.student);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+          other_data: [other_data],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+      }
     }
-    await valid_cert.save();
-    res
-      .status(200)
-      .send({ message: `Explore New ${status} Query`, access: true });
   } catch (e) {
     console.log(e);
   }
@@ -4331,6 +4513,46 @@ exports.notExistStudentCertificateQuery = async (req, res) => {
         certificate_attachment: certificate_attachment,
         certificate_type: certificate_type,
         certificate_issue_type: is_dublicate ? "Dublicate" : "Original",
+        other_data: [
+          {
+            studentCertificateNo,
+            leaving_date,
+            bookNo,
+            studentUidaiNumber,
+            studentPreviousSchool,
+            studentLeavingBehaviour,
+            studentLeavingStudy,
+            studentLeavingReason,
+            studentRemark,
+            instituteJoinDate,
+            instituteLeavingDate,
+            leaving_degree,
+            leaving_since_date,
+            leaving_course_duration,
+            elective_subject_one,
+            elective_subject_second,
+            leaving_project_work,
+            leaving_guide_name,
+            lcRegNo,
+            lcCaste,
+            lcBirth,
+            lcDOB,
+            lcAdmissionDate,
+            lcInstituteDate,
+            leaving_student_name,
+            leaving_nationality,
+            leaving_religion,
+            leaving_previous_school,
+            leaving_certificate_attach,
+            is_dublicate,
+
+            certificate_type,
+            certificate_attachment,
+            student_name,
+            staffId,
+            certificate_original_leaving_count,
+          },
+        ],
       });
       if (staffId) {
         c_logs.issue_by_staff = staffId;
@@ -4571,136 +4793,156 @@ exports.customGenerateCheckAllApplicationFormQuery = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
+    // console.log("Hit");
     let not_generate_student_list = [];
     let a_app = [];
     let all_app = [];
     const admission = await Admission.findById(aid);
-    // all_app = await NewApplication.find({
-    //   $and: [
-    //     {
-    //       admissionAdmin: { $eq: `${aid}` },
-    //     },
-    //     {
-    //       applicationStatus: { $eq: "Ongoing" },
-    //     },
-    //     {
-    //       applicationTypeStatus: { $eq: "Normal Application" },
-    //     },
-    //   ],
-    // });
-    all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
+    all_app = await NewApplication.find({
+      $and: [
+        {
+          admissionAdmin: { $eq: `${aid}` },
+        },
+        {
+          applicationStatus: { $eq: "Ongoing" },
+        },
+        {
+          applicationTypeStatus: { $eq: "Normal Application" },
+        },
+      ],
+    });
+    // all_app = await NewApplication.findById("666a78c330ee0b50462c00ef");
 
-    // for (let i = 0; i < all_app?.length; i++) {
-    // for (let dfg of all_app) {
-    let new_app = all_app;
-    // let new_app = all_app[i];
-    // let new_app = dfg;
-    a_app.push(new_app?.applicationName);
-    console.log(new_app?.applicationName);
-    if (
-      false
-      // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
-    ) {
-    } else {
-      if (admission?.institute) {
-        for (let st of new_app?.receievedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+    for (let i = 0; i < all_app?.length; i++) {
+      // for (let dfg of all_app) {
+      // let new_app = all_app;
+      let new_app = all_app[i];
+      // let new_app = dfg;
+      a_app.push(new_app?.applicationName);
+      console.log(new_app?.applicationName);
+      if (
+        false
+        // new_app?.applicationName === "F.Y. M.Sc (Analytical Chemistry - 2024-25)"
+      ) {
+      } else {
+        if (admission?.institute) {
+          for (let st of new_app?.receievedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.selectedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.selectedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.FeeCollectionApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.FeeCollectionApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.confirmedApplication) {
-          if (st?.student) {
-            const stu = await Student.findById(st?.student);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.confirmedApplication) {
+            if (st?.student) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
-        }
-        for (let st of new_app?.reviewApplication) {
-          if (st) {
-            const stu = await Student.findById(st);
-            if (stu?._id) {
-              if (stu?.application_print?.length > 0) {
-              } else {
-                not_generate_student_list.push(stu?._id);
-                await generateStudentAdmissionForm(
-                  stu?._id,
-                  admission?.institute,
-                  `${stu?.studentFirstName ?? ""} ${
-                    stu?.studentMiddleName ?? ""
-                  } ${stu?.studentLastName ?? ""}`,
-                  new_app?.applicationName
-                );
+          for (let st of new_app?.reviewApplication) {
+            if (st) {
+              const stu = await Student.findById(st);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
+              }
+            }
+          }
+          for (let st of new_app?.allottedApplication) {
+            if (st) {
+              const stu = await Student.findById(st?.student);
+              if (stu?._id) {
+                if (stu?.application_print?.length > 0) {
+                } else {
+                  not_generate_student_list.push(stu?._id);
+                  await generateStudentAdmissionForm(
+                    stu?._id,
+                    admission?.institute,
+                    `${stu?.studentFirstName ?? ""} ${
+                      stu?.studentMiddleName ?? ""
+                    } ${stu?.studentLastName ?? ""}`,
+                    new_app?.applicationName
+                  );
+                }
               }
             }
           }
         }
       }
     }
-    // }
 
     res.status(200).send({
       message: "All application form is created.",
@@ -5220,6 +5462,7 @@ exports.certificate_bonafide_dublicate_query = async (req, res) => {
   }
 };
 
+
 // const all_student = await Student.find({
 //   _id: { $in: valid_ins?.ApproveStudent },
 // });
@@ -5262,3 +5505,140 @@ exports.certificate_bonafide_dublicate_query = async (req, res) => {
 //   i += 1;
 // }
 // res.status(200).send({ message: "Done" });
+
+const auto_society_receipt_generate_query = async (list) => {
+  try {
+    if (list?.length === 0) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    if (list?.length > 0) {
+      let i = 0;
+      for (let rt of list) {
+        await societyAdmissionFeeReceipt(rt?.frid, rt?.instituteId);
+        ++i;
+        console.log(i);
+      }
+    }
+    res.status(200).send({
+      message: "Miscellaneous Fee receipt amount changes.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+// for certificate authority -> changes
+
+exports.student_bonafide_detail_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { id } = req.query;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let student = await Student.findById(sid)
+      .select(
+        "studentFirstName studentGRNO studentMiddleName  studentLastName studentProfilePhoto studentDOB student_bonafide"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "institute",
+        select:
+          "insName insAddress insPhoneNumber insEmail insEditableText_one insEditableText_two insProfilePhoto affliatedLogo authority_signature autority_stamp_profile insAffiliated is_dublicate_bonafide certificate_bonafide_count authority",
+      });
+
+    if (student?.institute) {
+    } else {
+      const inst = await InstituteAdmin.findById(id).select(
+        "insName insAddress insPhoneNumber insEmail insEditableText_one insEditableText_two insProfilePhoto affliatedLogo authority_signature autority_stamp_profile insAffiliated is_dublicate_bonafide certificate_bonafide_count authority"
+      );
+      student.institute = inst;
+    }
+    res.status(200).send({
+      message: "Data updated successfully.",
+      access: true,
+      student: student,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.student_bonafide_update_detail_query = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const {
+      student_bonafide,
+      isLogs,
+      certificate_type,
+      certificate_attachment,
+      student_name,
+      staffId,
+      certificate_bonafide_count,
+      instituteId,
+    } = req.body;
+    if (!sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await Student.findByIdAndUpdate(sid, { student_bonafide });
+
+    if (isLogs) {
+      const institute = await InstituteAdmin.findById(instituteId);
+      institute.certificate_bonafide_count = certificate_bonafide_count;
+      await institute.save();
+      const student = await Student.findById(sid);
+      if (institute?.institute_log && student?._id) {
+        const i_log = await InstituteLog.findById(institute?.institute_log);
+        const c_logs = new InstituteCertificateLog({
+          instituteId: institute?._id,
+          institute_log_id: i_log?._id,
+          student_name: student_name,
+          student: student?._id,
+          certificate_attachment: certificate_attachment,
+          certificate_type: certificate_type,
+          certificate_issue_type: "",
+          other_data: [student_bonafide],
+        });
+        if (staffId) {
+          c_logs.issue_by_staff = staffId;
+        } else {
+          c_logs.issue_by_institute = "NIL";
+        }
+        i_log.certificate_logs.push(c_logs?._id);
+        student.certificate_logs.push(c_logs?._id);
+        await Promise.all([c_logs.save(), i_log.save(), student.save()]);
+        res.status(200).send({
+          message: "Data updated successfully.",
+          access: true,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "Data updated successfully.",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+

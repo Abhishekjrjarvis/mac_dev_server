@@ -122,6 +122,7 @@ exports.createDailyUpdate = async (req, res) => {
         if (val?.current_status === "Completed") {
           var valid_date = custom_date_time(0);
           var valid_topic = await ChapterTopic.findById({ _id: val?.topicId });
+          valid_topic.teaching_method = val?.teaching_method ?? "";
           var subject_date = await Subject.findById({
             _id: `${valid_topic?.subject}`,
           });

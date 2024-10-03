@@ -24,7 +24,8 @@ const subjectTeachingPlanReport = async (
 
   const date = new Date();
   let ot_name = `${subject_data?.subject?.subjectName}-${type}`;
-  let pdf_name = `${ot_name}-${date.getTime()}`;
+  // let pdf_name = `${ot_name}-${date.getTime()}`;
+  let pdf_name = `${ot_name}`;
 
   const stream = fs.createWriteStream(`./uploads/${pdf_name}-Report.pdf`);
   doc.pipe(stream);
@@ -249,7 +250,7 @@ const subjectTeachingPlanReport = async (
   doc.moveDown(0.9);
 
   doc.y += 2;
-  // console.log(pageWidth);
+  // console.log(pageHeight, doc.y);
   if (teaching_list?.length > 0) {
     let header = [
       {
@@ -268,8 +269,9 @@ const subjectTeachingPlanReport = async (
         align: "center",
         valign: "center",
         padding: [2, 2, 2, 2],
-        width: 340,
+        width: 285,
       },
+
       {
         label: "Schedule Date",
         property: "schedule_date",
@@ -291,6 +293,15 @@ const subjectTeachingPlanReport = async (
       {
         label: "CO Mapping",
         property: "co",
+        render: null,
+        align: "center",
+        valign: "center",
+        padding: [2, 2, 2, 2],
+        width: 55,
+      },
+      {
+        label: "Teaching Method",
+        property: "tech_method",
         render: null,
         align: "center",
         valign: "center",
@@ -360,7 +371,7 @@ const subjectTeachingPlanReport = async (
             align: "left",
             valign: "center",
             padding: [2, 2, 2, 2],
-            width: 340,
+            width: 285,
           },
           {
             label: "Schedule Date",
@@ -383,6 +394,15 @@ const subjectTeachingPlanReport = async (
           {
             label: "CO Mapping",
             property: "co",
+            render: null,
+            align: "center",
+            valign: "center",
+            padding: [2, 2, 2, 2],
+            width: 55,
+          },
+          {
+            label: "Teaching Method",
+            property: "tech_method",
             render: null,
             align: "center",
             valign: "center",
@@ -419,6 +439,10 @@ const subjectTeachingPlanReport = async (
           // addPage: true,
         });
       } else {
+        let dbt = pageHeight - 60;
+        if (doc.y >= dbt) {
+          doc.addPage();
+        }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -446,8 +470,9 @@ const subjectTeachingPlanReport = async (
             align: "left",
             valign: "center",
             padding: [2, 2, 2, 2],
-            width: 340,
+            width: 285,
           },
+
           {
             label: "Schedule Date",
             property: "schedule_date",
@@ -474,6 +499,15 @@ const subjectTeachingPlanReport = async (
             valign: "center",
             padding: [2, 2, 2, 2],
             width: 55,
+          },
+          {
+            label: "Teaching Method",
+            property: "tech_method",
+            render: null,
+            align: "center",
+            valign: "center",
+            padding: [2, 2, 2, 2],
+            width: 50,
           },
         ];
         const table = {
@@ -509,8 +543,13 @@ const subjectTeachingPlanReport = async (
   }
 
   doc.moveDown(1);
+  doc.y += 2;
 
   if (subject_data?.subject?.web_reference) {
+    let dbt = pageHeight - 60;
+    if (doc.y >= dbt) {
+      doc.addPage();
+    }
     doc
       .fontSize(11)
       .font("Times-Bold")
@@ -533,6 +572,10 @@ const subjectTeachingPlanReport = async (
   doc.moveDown(1);
 
   if (subject_data?.subject?.book_reference) {
+    let dbt = pageHeight - 60;
+    if (doc.y >= dbt) {
+      doc.addPage();
+    }
     doc
       .fontSize(11)
       .font("Times-Bold")

@@ -23,10 +23,14 @@ exports.check_staff_guide_tab_query = async (req, res) => {
     let guides = [];
     guides = await Guide.find({
       _id: { $in: staff.guide },
-    }).populate({
-      path: "department",
-      select: "dName",
-    });
+    })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .select(
+        "staff guide_type mentees_count meetings_count export_collection_count department"
+      );
 
     res.status(200).send({
       message: "Guide Tab Activated",
@@ -46,32 +50,52 @@ exports.check_staff_guide_tab_query = async (req, res) => {
 exports.activate_staff_guide_tab_query = async (req, res) => {
   try {
     const { did } = req.params;
-    const { sid, guide_type } = req.body;
+    const { sid, guide_type, gid } = req.body;
     if (!did || !sid) {
       return res.status(200).send({
         message: "Url Segement parameter required is not fulfill.",
       });
     }
 
-    const staff = await Staff.findById(sid);
-    const guide = new Guide({
-      staff: staff?._id,
-      department: did,
-      guide_type: guide_type,
-    });
-    staff.guide.push(guide?._id);
-    staff.guide_count += 1;
-    await Promise.all([guide.save(), staff.save()]);
+    if (gid) {
+      const guide = await Guide.findById(gid);
+      if (guide.department) {
+        const department = await Department.findById(guide.department);
+        department.guide.pull(guide?._id);
+        department.guide_count -= 1;
+        await department.save();
+      }
 
-    res.status(200).send({
-      message: "Guide Tab Activated",
-      access: true,
-    });
+      guide.department = did;
+      const department = await Department.findById(did);
+      department.guide.push(guide?._id);
+      department.guide_count += 1;
+      await Promise.all([guide.save(), department.save()]);
+      res.status(200).send({
+        message: "Guide Tab Edited",
+        access: true,
+      });
+    } else {
+      const staff = await Staff.findById(sid);
+      const guide = new Guide({
+        staff: staff?._id,
+        department: did,
+        guide_type: guide_type,
+      });
+      staff.guide.push(guide?._id);
+      staff.guide_count += 1;
+      await Promise.all([guide.save(), staff.save()]);
 
-    const department = await Department.findById(did);
-    department.guide.push(guide?._id);
-    department.guide_count += 1;
-    await department.save();
+      res.status(200).send({
+        message: "Guide Tab Activated",
+        access: true,
+      });
+
+      const department = await Department.findById(did);
+      department.guide.push(guide?._id);
+      department.guide_count += 1;
+      await department.save();
+    }
   } catch (e) {
     console.log(e);
   }

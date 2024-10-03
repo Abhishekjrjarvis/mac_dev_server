@@ -1690,12 +1690,17 @@ exports.studentSubjectMasterPullDataQuery = async (req, res) => {
     //     old_master: "66585c9afea53c3960572c93",
     //   },
     // ];
-    const student_list = [
-      {
-        stu: "66697554e2c7009023bb81c1",
-        old_master: "6640d58b0728cf14e8bfb10a",
-      },
-    ];
+    // const student_list = [
+    //   {
+    //     stu: "668f7e73ed11c00d68bd9318",
+    //     old_master: "66694ad7ca43f4f89fb5f817",
+    //   },
+    //   {
+    //     stu: "668f7e73ed11c00d68bd9318",
+    //     old_master: "66694af5ca43f4f89fb5f875",
+    //   },
+    // ];
+    const student_list = [];
     if (student_list?.length > 0) {
       for (let ft of student_list) {
         const student = await Student.findById(ft?.stu);
@@ -1785,6 +1790,10 @@ exports.oneStudentSubjectInsertWithMasterQuery = async (req, res) => {
       //     "6640d5790728cf14e8bfb0d0",
       //     "6640d58b0728cf14e8bfb10a",
       //   ],
+      // },
+      // {
+      //   stu: "668f7e73ed11c00d68bd9318",
+      //   master: ["66694ae6ca43f4f89fb5f828", "66694b04ca43f4f89fb5f8bf"],
       // },
     ];
     if (student_list?.length > 0) {

@@ -1260,6 +1260,13 @@ const studentSchema = new mongoose.Schema({
     print_content: String,
     update_date: Date,
   },
+
+  inward_create: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InwardCreate",
+    },
+  ],
 });
 const Student = mongoose.model("Student", studentSchema);
 

@@ -9326,3 +9326,32 @@ exports.finance_receipt_dublicate_query = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.finance_admission_fee_receipt_generate_query = async (req, res) => {
+  try {
+    const { frid } = req.params;
+    if (!frid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const fee_rece = await FeeReceipt.findById(frid).populate({
+      path: "finance",
+      select: "institute show_receipt",
+    });
+
+    if (fee_rece?.finance?.show_receipt === "Normal") {
+      await normalAdmissionFeeReceipt(frid, fee_rece?.application);
+    } else if (fee_rece?.finance?.show_receipt === "Society") {
+      await societyAdmissionFeeReceipt(frid, fee_rece?.finance?.institute);
+    }
+
+    res.status(200).send({
+      message: "Fee receipt generated successfully",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

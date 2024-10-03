@@ -5386,6 +5386,7 @@ exports.customGenerateOneStudentApplicationFormQuery = async (req, res) => {
     console.log(e);
   }
 };
+
 exports.customAmountStudentOtherFeeReceiptQuery = async (req, res) => {
   try {
     const { ofid } = req.params;
@@ -5462,7 +5463,6 @@ exports.certificate_bonafide_dublicate_query = async (req, res) => {
   }
 };
 
-
 // const all_student = await Student.find({
 //   _id: { $in: valid_ins?.ApproveStudent },
 // });
@@ -5529,7 +5529,6 @@ const auto_society_receipt_generate_query = async (list) => {
     console.log(e);
   }
 };
-
 
 // for certificate authority -> changes
 
@@ -5642,3 +5641,19 @@ exports.student_bonafide_update_detail_query = async (req, res) => {
   }
 };
 
+exports.customOneStudentOtherFeeReceiptQuery = async (req, res) => {
+  try {
+    const { frid, id } = req.params;
+    if (!frid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    await studentOtherFeeReceipt(frid, id);
+    res.status(200).send({
+      message: "Miscellaneous Fee receipt amount changes.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

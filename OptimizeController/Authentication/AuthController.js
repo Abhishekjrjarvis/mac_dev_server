@@ -1309,10 +1309,16 @@ module.exports.authentication = async (req, res) => {
       }
     } else {
       if (user) {
-        const checkUserPass = bcrypt.compareSync(
-          insPassword,
-          user?.userPassword
-        );
+        // const checkUserPass = bcrypt.compareSync(
+        //   insPassword,
+        //   user?.userPassword
+        // );
+        if (user?.userPassword) {
+          var checkUserPass = bcrypt.compareSync(
+            insPassword,
+            user?.userPassword
+          );
+        }
         var checkUserUniversalPass = bcrypt.compareSync(
           insPassword,
           user?.user_universal_password

@@ -560,4 +560,8 @@ router.patch(
   catchAsync(Extra.student_bonafide_update_detail_query)
 );
 
+router.patch(
+  "/one/student/other/custom/:frid/institute/:id/query",
+  catchAsync(Extra.customOneStudentOtherFeeReceiptQuery)
+);
 module.exports = router;

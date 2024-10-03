@@ -717,4 +717,9 @@ router.patch(
   catchAsync(Finance.add_miscellenous_fee_message)
 );
 
+router.patch(
+  "/regenerate/admission/fee/receipt/:frid/query",
+  catchAsync(Finance.finance_admission_fee_receipt_generate_query)
+);
+
 module.exports = router;

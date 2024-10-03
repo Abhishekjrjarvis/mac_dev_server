@@ -1379,7 +1379,6 @@ const instituteAdminSchema = new mongoose.Schema({
   admission_form_print_case: {
     type: String,
   },
-
   is_dublicate_bonafide: {
     type: String,
   },
@@ -1392,6 +1391,13 @@ const instituteAdminSchema = new mongoose.Schema({
     default: false,
   },
   cash_authority_list: [],
+  inward_outward: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InwardOutward",
+  },
+  certificate_leaving_form_student: {
+    type: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

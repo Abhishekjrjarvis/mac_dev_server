@@ -1119,10 +1119,12 @@ module.exports.authentication = async (req, res) => {
       }
     } else {
       if (user) {
-        const checkUserPass = bcrypt.compareSync(
-          insPassword,
-          user?.userPassword
-        );
+        if (user?.userPassword) {
+          var checkUserPass = bcrypt.compareSync(
+            insPassword,
+            user?.userPassword
+          );
+        }
         if (checkUserPass) {
           if (
             user.activeStatus === "Deactivated" &&

@@ -1256,6 +1256,9 @@ const studentSchema = new mongoose.Schema({
   new_gr: {
     type: String,
   },
+  student_scholarship_name: {
+    type: String,
+  },
 });
 const Student = mongoose.model("Student", studentSchema);
 

@@ -623,6 +623,7 @@ exports.correction_student_name_query = async (req, res) => {
         cls?.studentMiddleName ?? cls?.studentFatherName
       } ${cls?.studentLastName}`;
       cls.scholar_name = `${cls?.studentFirstName?.toLowerCase()}${cls?.studentMiddleName?.toLowerCase()}${cls?.studentLastName?.toLowerCase()}`;
+      cls.student_scholarship_name = `${cls?.studentFirstName?.toLowerCase()}${cls?.studentMiddleName?.toLowerCase()}${cls?.studentLastName?.toLowerCase()}`;
       console.log(
         i,
         m_name || fa_name,

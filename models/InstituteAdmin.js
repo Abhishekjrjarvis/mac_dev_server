@@ -1392,6 +1392,10 @@ const instituteAdminSchema = new mongoose.Schema({
     default: false,
   },
   cash_authority_list: [],
+  latitude: { type: Number },
+  longitude: { type: Number },
+  place_name: { type: String },
+  premise_area: { type: Number },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

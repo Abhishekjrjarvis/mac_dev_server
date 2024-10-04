@@ -3198,7 +3198,9 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentFatherName ??
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB)?.format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",

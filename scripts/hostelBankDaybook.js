@@ -152,6 +152,24 @@ const hostelBankDaybook = async (
     });
 
   doc.moveDown(1);
+
+  if (account_other?.one_staff?.staffFirstName) {
+    doc
+      .fontSize(11)
+      .font("Times-Bold")
+      .fillColor("#121212")
+      .text(
+        `Cashier :${account_other?.one_staff?.staffFirstName ?? ""} ${
+          account_other?.one_staff?.staffMiddleName ?? ""
+        } ${account_other?.one_staff?.staffLastName ?? ""}`,
+        {
+          align: "left",
+        }
+      );
+
+    doc.moveDown(1);
+  }
+
   if (payment_type === "BOTH") {
     let total = {
       sr_number: "",
@@ -202,7 +220,7 @@ const hostelBankDaybook = async (
         {
           label: "Main Heads",
           property: "head_name",
-          width: 160,
+          width: 140,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -251,7 +269,7 @@ const hostelBankDaybook = async (
         {
           label: "Receipt No",
           property: "receipt_no",
-          width: 80,
+          width: 100,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -320,7 +338,7 @@ const hostelBankDaybook = async (
         {
           label: "Main Heads",
           property: "head_name",
-          width: 200,
+          width: 180,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
@@ -359,7 +377,7 @@ const hostelBankDaybook = async (
         {
           label: "Receipt No",
           property: "receipt_no",
-          width: 80,
+          width: 100,
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,

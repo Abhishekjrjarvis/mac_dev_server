@@ -1690,12 +1690,17 @@ exports.studentSubjectMasterPullDataQuery = async (req, res) => {
     //     old_master: "66585c9afea53c3960572c93",
     //   },
     // ];
-    const student_list = [
-      {
-        stu: "66697554e2c7009023bb81c1",
-        old_master: "6640d58b0728cf14e8bfb10a",
-      },
-    ];
+    // const student_list = [
+    //   {
+    //     stu: "668f7e73ed11c00d68bd9318",
+    //     old_master: "66694ad7ca43f4f89fb5f817",
+    //   },
+    //   {
+    //     stu: "668f7e73ed11c00d68bd9318",
+    //     old_master: "66694af5ca43f4f89fb5f875",
+    //   },
+    // ];
+    const student_list = [];
     if (student_list?.length > 0) {
       for (let ft of student_list) {
         const student = await Student.findById(ft?.stu);
@@ -1724,6 +1729,117 @@ exports.studentSubjectMasterPullDataQuery = async (req, res) => {
 
     res.status(200).send({
       message: "Students particular master pulled out data",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.oneStudentSubjectInsertWithMasterQuery = async (req, res) => {
+  try {
+    const student_list = [
+      // {
+      //   stu: "66618def52e37b2755e6336e",
+      //   master: [
+      //     "6640d5310728cf14e8bfafd4",
+      //     "6640d5700728cf14e8bfb0c9",
+      //     "6640d5790728cf14e8bfb0d0",
+      //   ],
+      // },
+      // {
+      //   stu: "66608155bb80a72ffb411842",
+      //   master: ["6640d5310728cf14e8bfafd4", "6640d5930728cf14e8bfb13c"],
+      // },
+      // {
+      //   stu: "6662b4f70fa8694c41016f1f",
+      //   master: [
+      //     "6640d5310728cf14e8bfafd4",
+      //     "6640d5810728cf14e8bfb0dd",
+      //     "6640d58b0728cf14e8bfb10a",
+      //   ],
+      // },
+      // // {
+      // //   stu: "667b8f1002477471d43a1c42",
+      // //   master: [],
+      // // },
+      // {
+      //   stu: "6666be90cfd743cd51dd78a0",
+      //   master: [
+      //     "6640d5390728cf14e8bfaffe",
+      //     "66585c8afea53c3960572c85",
+      //     "6640d5930728cf14e8bfb13c",
+      //   ],
+      // },
+      // {
+      //   stu: "666326de2b6eda008621a861",
+      //   master: ["6640d5310728cf14e8bfafd4", "6640d5790728cf14e8bfb0d0"],
+      // },
+      // {
+      //   stu: "665ad410fea53c39605f5aeb",
+      //   master: [
+      //     "6640d5310728cf14e8bfafd4",
+      //     "6640d5790728cf14e8bfb0d0",
+      //     "6640d5810728cf14e8bfb0dd",
+      //   ],
+      // },
+      // {
+      //   stu: "669f9a7acdc263939ce06bf5",
+      //   master: [
+      //     "6640d5230728cf14e8bfafad",
+      //     "6640d5790728cf14e8bfb0d0",
+      //     "6640d58b0728cf14e8bfb10a",
+      //   ],
+      // },
+      // {
+      //   stu: "668f7e73ed11c00d68bd9318",
+      //   master: ["66694ae6ca43f4f89fb5f828", "66694b04ca43f4f89fb5f8bf"],
+      // },
+    ];
+    if (student_list?.length > 0) {
+      for (let ft of student_list) {
+        const student = await Student.findById(ft?.stu);
+        for (let dt of ft?.master) {
+          const new_sub_list = await Subject.find({
+            $and: [
+              {
+                class: { $eq: `${student?.studentClass}` },
+              },
+              {
+                subjectMasterName: { $eq: `${dt}` },
+              },
+            ],
+          });
+          if (new_sub_list?.length > 0) {
+            for (let j = 0; j < new_sub_list?.length; j++) {
+              let tu = new_sub_list[j];
+              if (tu?.selected_batch_query) {
+              } else {
+                if (tu.optionalStudent?.includes(ft?.stu)) {
+                } else {
+                  tu.optionalStudent.push(ft?.stu);
+                }
+                if (tu.theory_students?.includes(ft?.stu)) {
+                } else {
+                  tu.theory_students.push(ft?.stu);
+                }
+                await tu.save();
+              }
+            }
+          }
+          if (student.student_optional_subject?.includes(dt)) {
+          } else {
+            student.student_optional_subject.push(dt);
+          }
+          console.log("asnbfs");
+        }
+        await student.save();
+      }
+    }
+
+    res.status(200).send({
+      message:
+        "Students subject data insert with thier respective subject with master",
       access: true,
     });
   } catch (e) {

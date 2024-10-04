@@ -697,6 +697,7 @@ exports.teaching_plan_export_report_query = async (req, res) => {
                     "DD/MM/yyyy"
                   ),
                   co: top?.course_outcome,
+                  tech_method: top?.teaching_method ?? "",
                 });
                 ++count;
               }

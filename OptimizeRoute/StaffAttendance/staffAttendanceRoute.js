@@ -88,5 +88,20 @@ router.patch(
   catchAsync(staffAttendanceController.staffTeachingPlanCustomCriteriaQuery)
 );
 
-module.exports = router;
+router.patch(
+  "/self/in/institute/:id/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staff_self_in_attendance_query)
+);
 
+router.patch(
+  "/self/out/institute/:id/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staff_self_out_attendance_query)
+);
+router.get(
+  "/self/logs/date/:id/query",
+  // isLoggedIn,
+  catchAsync(staffAttendanceController.staff_self_attendance_date_logs_query)
+);
+module.exports = router;

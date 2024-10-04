@@ -727,4 +727,9 @@ router.patch(
   catchAsync(Finance.edit_miscellenous_fee_message)
 );
 
+router.patch(
+  "/one/:ofid/all/miscellenous/fee/message",
+  catchAsync(Finance.one_all_miscellenous_fee_students)
+);
+
 module.exports = router;

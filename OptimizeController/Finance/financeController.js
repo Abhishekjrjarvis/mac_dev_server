@@ -7293,6 +7293,8 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     if (search) {
       var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "students_data.student students_data.fee_receipt",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO other_fees_remain_price qviple_student_pay_id receipt_file fee_payment_amount payable_amount",
       });
       // var all_student = await Student.find({
       //   $and: [{ _id: { $in: list } }],
@@ -7324,6 +7326,8 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     } else {
       var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "students_data.student students_data.fee_receipt",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO other_fees_remain_price qviple_student_pay_id receipt_file fee_payment_amount payable_amount",
       });
       // var all_student = await Student.find({ _id: { $in: list } })
       //   .select(
@@ -7863,8 +7867,8 @@ exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
         o_f.student_count += 1;
         o_f.remaining_students.push(stu?._id);
         o_f.students_data.push({
-          student: stu?._id
-        })
+          student: stu?._id,
+        });
         const notify = new StudentNotification({});
         notify.notifyContent = `Hi ${stu?.studentFirstName} ${
           stu?.studentMiddleName ?? stu?.studentFatherName

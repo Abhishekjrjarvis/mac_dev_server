@@ -18820,9 +18820,7 @@ exports.update_fees_card_query = async (req, res) => {
         for (let ele of nest_app?.remaining_array) {
           let total = 0;
           if (
-            ele?.fee_receipt &&
-            nest_app?.paid_fee > 0 &&
-            nest_app?.remaining_fee <= 0
+            ele?.status == "Not Paid"
           ) {
             // total += ele?.remainAmount;
             if (nums?.includes(`${cls?.applicable_card}`)) {

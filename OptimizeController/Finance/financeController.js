@@ -6852,8 +6852,8 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           order.fee_receipt = new_receipt?._id;
           o_f.students_data.push({
             student: stu?._id,
-            fee_receipt: new_receipt?._id;
-          })
+            fee_receipt: new_receipt?._id,
+          });
           await fee_receipt_count_query(
             institute,
             new_receipt,
@@ -6908,7 +6908,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             o_f.remaining_students.push(stu?._id);
             o_f.students_data.push({
               student: stu?._id,
-            })
+            });
             const notify = new StudentNotification({});
             notify.notifyContent = `Hi ${stu?.studentFirstName} ${
               stu?.studentMiddleName ?? stu?.studentFatherName
@@ -6968,7 +6968,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
           o_f.remaining_students.push(stu?._id);
           o_f.students_data.push({
             student: stu?._id,
-          })
+          });
           const notify = new StudentNotification({});
           notify.notifyContent = `Hi ${stu?.studentFirstName} ${
             stu?.studentMiddleName ?? stu?.studentFatherName
@@ -7026,7 +7026,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
             o_f.remaining_students.push(stu?._id);
             o_f.students_data.push({
               student: stu?._id,
-            })
+            });
             const notify = new StudentNotification({});
             notify.notifyContent = `Hi ${stu?.studentFirstName} ${
               stu?.studentMiddleName ?? stu?.studentFatherName
@@ -7291,10 +7291,9 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
     // ];
     // one_of?.students
     if (search) {
-      var one_of = await OtherFees.findById({ _id: ofid })
-        .populate({
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "students_data.student students_data.fee_receipt",
-      })
+      });
       // var all_student = await Student.find({
       //   $and: [{ _id: { $in: list } }],
       //   $or: [
@@ -7323,11 +7322,9 @@ exports.renderOneOtherFeesStudentListQuery = async (req, res) => {
       //     },
       //   });
     } else {
-
-      var one_of = await OtherFees.findById({ _id: ofid })
-        .populate({
+      var one_of = await OtherFees.findById({ _id: ofid }).populate({
         path: "students_data.student students_data.fee_receipt",
-      })
+      });
       // var all_student = await Student.find({ _id: { $in: list } })
       //   .select(
       //     "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO qviple_student_pay_id other_fees_remain_price other_fees_obj other_fees_paid_price"
@@ -8805,7 +8802,7 @@ exports.delete_other_fees_receipt_query = async (req, res) => {
       stu.other_fee_receipt.pull(fee?._id);
       for (let cls of o_f?.students_data) {
         if (`${cls?.fee_receipt}` === `${fee?._id}`) {
-          o_f.students_data.pull(cls)
+          o_f.students_data.pull(cls);
         }
       }
       for (let val of o_f?.fees_heads) {
@@ -9031,8 +9028,6 @@ exports.edit_miscellenous_fee_message = async (req, res) => {
     console.log(e);
   }
 };
-
-
 
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
@@ -9412,4 +9407,3 @@ exports.finance_receipt_dublicate_query = async (req, res) => {
     console.log(e);
   }
 };
-

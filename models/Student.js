@@ -1278,7 +1278,9 @@ const studentSchema = new mongoose.Schema({
   student_scholarship_name: {
     type: String,
   },
-
+  student_expand_DOB: {
+    type: Date,
+  },
 });
 const Student = mongoose.model("Student", studentSchema);
 

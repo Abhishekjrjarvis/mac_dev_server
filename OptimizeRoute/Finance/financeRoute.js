@@ -736,4 +736,9 @@ router.patch(
   catchAsync(Finance.finance_admission_fee_receipt_generate_query)
 );
 
+router.patch(
+  "/new/format/fee/collect/:fid",
+  catchAsync(Finance.new_format_fee_collect)
+);
+
 module.exports = router;

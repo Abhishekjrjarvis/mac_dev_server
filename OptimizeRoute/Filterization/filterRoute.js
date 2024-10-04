@@ -354,4 +354,5 @@ router.get(
 
 router.get("/all/feess", catchAsync(Filter.fees_data));
 
+router.patch("/dob/query/:id", catchAsync(Filter.dob_query));
 module.exports = router;

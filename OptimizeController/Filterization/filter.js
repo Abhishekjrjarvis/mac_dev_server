@@ -2364,7 +2364,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName
                 : ""
             } ${ref?.student?.studentLastName}`,
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CPI: ref?.student?.student_hostel_cpi ?? "#NA",
             Programme: ref?.student?.student_programme ?? "#NA",
@@ -2409,7 +2411,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ref?.student?.studentFatherName ??
                 ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -2529,7 +2533,9 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentFatherName ??
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
@@ -2645,7 +2651,9 @@ exports.renderApplicationListQuery = async (req, res) => {
               ref?.student?.studentFatherName ??
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
@@ -2748,7 +2756,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ? ref?.student?.studentMiddleName
                 : ""
             } ${ref?.student?.studentLastName}`,
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CPI: ref?.student?.student_hostel_cpi ?? "#NA",
             Programme: ref?.student?.student_programme ?? "#NA",
@@ -2791,7 +2801,9 @@ exports.renderApplicationListQuery = async (req, res) => {
                 ref?.student?.studentFatherName ??
                 ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -2989,7 +3001,7 @@ exports.renderApplicationListQuery = async (req, res) => {
             FirstName: ref?.studentFirstName ?? "#NA",
             FatherName: ref?.studentFatherName ?? ref?.studentMiddleName,
             LastName: ref?.studentLastName ?? "#NA",
-            DOB: ref?.studentDOB ?? "#NA",
+            DOB: moment(ref?.student_expand_DOB).format("DD/MM/YYYY") ?? "#NA",
             Gender: ref?.studentGender ?? "#NA",
             CasteCategory: ref?.studentCastCategory ?? "#NA",
             Religion: ref?.studentReligion ?? "#NA",
@@ -12285,6 +12297,7 @@ exports.render_subject_application_export = async (req, res) => {
         GRNO: ele?.studentGRNO ?? "#NA",
         "ABC ID": ele?.student_abc_id ?? "",
         Name: `${ele?.studentFirstName} ${ele?.studentFatherName} ${ele?.studentLastName}`,
+        DOB: moment(ele?.student_expand_DOB).format("DD/MM/YYYY") ?? "#NA",
         FirstName: ele?.studentFirstName ?? "#NA",
         FatherName: ele?.studentFatherName ?? "#NA",
         LastName: ele?.studentLastName ?? "#NA",
@@ -12771,7 +12784,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                     ref?.student?.studentFatherName
                   : ""
               } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -12866,7 +12881,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                     ref?.student?.studentFatherName
                   : ""
               } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -12960,7 +12977,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                     ref?.student?.studentFatherName
                   : ""
               } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -13054,7 +13073,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                     ref?.student?.studentFatherName
                   : ""
               } ${ref?.student?.studentLastName}`,
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Religion: ref?.student?.studentReligion ?? "#NA",
@@ -13232,7 +13253,8 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                   ? ref?.studentMiddleName ?? ref?.studentFatherName
                   : ""
               } ${ref?.studentLastName}`,
-              DOB: ref?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student_expand_DOB).format("DD/MM/YYYY") ?? "#NA",
               Gender: ref?.studentGender ?? "#NA",
               CasteCategory: ref?.studentCastCategory ?? "#NA",
               Religion: ref?.studentReligion ?? "#NA",
@@ -13331,7 +13353,9 @@ exports.renderApplicationCombinedListQuery = async (req, res) => {
                 ref?.student?.studentFatherName ??
                 ref?.student?.studentMiddleName,
               LastName: ref?.student?.studentLastName ?? "#NA",
-              DOB: ref?.student?.studentDOB ?? "#NA",
+              DOB:
+                moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+                "#NA",
               Gender: ref?.student?.studentGender ?? "#NA",
               CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
               Class: `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}`,
@@ -14749,7 +14773,9 @@ exports.renderApplicationAllottedListQuery = async (req, res) => {
               ref?.student?.studentFatherName ??
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
@@ -15690,6 +15716,7 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
       let list2 = ["04", "06", "09", "11"];
       let list3 = ["02"];
       let g_days = l_months?.toString();
+      let l_days = l_months?.toString();
       if (g_day == 30 && list2?.includes(String(g_days))) {
         date.setMonth(date.getMonth() + 1);
         var l_months = date.getMonth();
@@ -15702,6 +15729,24 @@ exports.render_admin_daybook_heads_wise = async (req, res) => {
         var l_months = date.getMonth();
         if (l_months < 10) {
           l_months = `0${l_months}`;
+        }
+      }
+      if (g_day == 30 && l_day == 30) {
+      } else if (g_day == 31 && l_day == 31) {
+      } else {
+        if (l_day == 30 && list2?.includes(String(l_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
+        }
+        if (l_day >= 31 && list1?.includes(String(l_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
         }
       }
       const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
@@ -19325,7 +19370,9 @@ exports.renderApplicationDSEAllottedListQuery = async (req, res) => {
               ref?.student?.studentFatherName ??
               ref?.student?.studentMiddleName,
             LastName: ref?.student?.studentLastName ?? "#NA",
-            DOB: ref?.student?.studentDOB ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB).format("DD/MM/YYYY") ??
+              "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
@@ -20269,6 +20316,38 @@ exports.renderAdmissionFeesRegisterQuery = async (req, res) => {
         all_students: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.dob_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "ApproveStudent"
+    );
+
+    const all_student = await Student.find({
+      _id: { $in: ins?.ApproveStudent },
+    });
+
+    let i = 0;
+    for (let ele of all_student) {
+      if (ele?.studentDOB) {
+        ele.student_expand_DOB = new Date(`${ele?.studentDOB}`);
+        await ele.save();
+      }
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "DOB Query", access: true });
   } catch (e) {
     console.log(e);
   }

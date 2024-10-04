@@ -33,6 +33,7 @@ const instituteCertificateLogSchema = new mongoose.Schema({
     ref: "NotExistStudentCertificate",
   },
 
+  other_data: [],
 });
 
 module.exports = mongoose.model(

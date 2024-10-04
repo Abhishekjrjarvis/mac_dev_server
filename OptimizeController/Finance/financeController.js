@@ -7862,6 +7862,9 @@ exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
         o_f.students.push(stu?._id);
         o_f.student_count += 1;
         o_f.remaining_students.push(stu?._id);
+        o_f.students_data.push({
+          student: stu?._id
+        })
         const notify = new StudentNotification({});
         notify.notifyContent = `Hi ${stu?.studentFirstName} ${
           stu?.studentMiddleName ?? stu?.studentFatherName

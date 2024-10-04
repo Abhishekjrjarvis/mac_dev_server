@@ -5654,6 +5654,24 @@ exports.renderFeeHeadsStructureReceiptRePayQueryBank = async (req, res) => {
           }
         }
       }
+      if (g_day == 30 && l_day == 30) {
+      } else if (g_day == 31 && l_day == 31) {
+      } else {
+        if (l_day == 30 && list2?.includes(String(l_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
+        }
+        if (l_day > 31 && list1?.includes(String(l_days))) {
+          date.setMonth(date.getMonth() + 1);
+          var l_months = date.getMonth();
+          if (l_months < 10) {
+            l_months = `0${l_months}`;
+          }
+        }
+      }
       var l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
       var all_receipts = await FeeReceipt.find({
         $and: [

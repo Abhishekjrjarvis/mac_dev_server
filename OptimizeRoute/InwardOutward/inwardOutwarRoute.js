@@ -71,5 +71,11 @@ router
 router
   .route("/outward/:oid/reject/staff/:sid/query")
   .patch(catchAsync(inwardOutwardController.outward_reject_by_staff_query));
+router
+  .route("/outward/update/:oid/query")
+  .patch(catchAsync(inwardOutwardController.outward_update_query));
+router
+  .route("/outward/remove/:oid/query")
+  .delete(catchAsync(inwardOutwardController.outward_remove_query));
 
 module.exports = router;

@@ -3,10 +3,12 @@ const OutwardCreate = require("../../models/InwardOutward/OutwardCreate");
 const InwardOutward = require("../../models/InwardOutward/InwardOutward");
 const InwardOutwardStaff = require("../../models/InwardOutward/InwardOutwardStaff");
 const Staff = require("../../models/Staff");
-const InwardCreate = require("../../models/InwardOutward/InwardCreate");
 const Student = require("../../models/Student");
 const outwardCreateReport = require("../../scripts/inwardOutward/outwardCreateReport");
 const moment = require("moment");
+const User = require("../../models/User");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 exports.custom_institute_generate_inward_outward_query = async (req, res) => {
   try {
@@ -244,12 +246,63 @@ exports.outward_creation_query = async (req, res) => {
     }
 
     if (approvals_for?.length > 0) {
+      let prep_by = await Staff.findById(prepare_by);
+      let which_one = isInward ? "Inward" : "Outward";
       for (let dt of approvals_for) {
         const staff_ou = await InwardOutwardStaff.findOne({
           staff: `${dt?.staff}`,
         });
-        staff_ou.recieve_outward_pending.push(outward?._id);
-        await staff_ou.save();
+        if (staff_ou?._id) {
+          staff_ou.recieve_outward_pending.push(outward?._id);
+          await staff_ou.save();
+          const staff = await Staff.findById(dt?.staff);
+          if (staff?.user) {
+            const user = await User.findById({ _id: `${staff?.user}` });
+            const notify = new StudentNotification({
+              inoutward: outward?._id,
+            });
+            notify.notifyContent = `New ${which_one} Approval by - ${
+              prep_by?.staffFirstName ?? ""
+            } ${prep_by?.staffMiddleName ?? ""} ${
+              prep_by?.staffLastName ?? ""
+            }.`;
+            notify.notify_hi_content = `New ${which_one} Approval by - ${
+              prep_by?.staffFirstName ?? ""
+            } ${prep_by?.staffMiddleName ?? ""} ${
+              prep_by?.staffLastName ?? ""
+            }.`;
+            notify.notify_mr_content = `New ${which_one} Approval by - ${
+              prep_by?.staffFirstName ?? ""
+            } ${prep_by?.staffMiddleName ?? ""} ${
+              prep_by?.staffLastName ?? ""
+            }.`;
+            notify.notifySender = prepare_by;
+            notify.notifyReceiever = user?._id;
+            notify.notifyType = "Student";
+            notify.notifyPublisher = staff?._id;
+            user.activity_tab.push(notify._id);
+            // staff_ou.notification.push(notify._id);
+            notify.notifyByStaffPhoto = prepare_by;
+            notify.notifyCategory = "INOUTWARD_APPROVAL";
+            notify.redirectIndex = 66;
+            await Promise.all([notify.save(), user.save()]);
+            if (user?.deviceToken) {
+              invokeMemberTabNotification(
+                "Student Activity",
+                notify,
+                `New ${which_one} Approval by - ${
+                  prep_by?.staffFirstName ?? ""
+                } ${prep_by?.staffMiddleName ?? ""} ${
+                  prep_by?.staffLastName ?? ""
+                }.`,
+                user?._id,
+                user?.deviceToken,
+                "Student",
+                notify
+              );
+            }
+          }
+        }
       }
     }
   } catch (e) {
@@ -315,6 +368,58 @@ exports.outward_apprve_by_staff_query = async (req, res) => {
         staff_ou.sent_outward_pending.pull(oid);
         staff_ou.sent_outward_approved.push(oid);
         await staff_ou.save();
+      }
+      if (out?.prepare_by) {
+        const staff_app = await Staff.findById(sid);
+        const staff = await Staff.findById(out?.prepare_by);
+        let which_one = out.model_type === "INWARD" ? "Inward" : "Outward";
+        let first_name = out?.subject ?? out?.name ?? "";
+
+        if (staff?.user) {
+          const user = await User.findById({ _id: `${staff?.user}` });
+          const notify = new StudentNotification({
+            inoutward: out?._id,
+          });
+          notify.notifyContent = `${first_name} ${which_one} Approved by - ${
+            staff_app?.staffFirstName ?? ""
+          } ${staff_app?.staffMiddleName ?? ""} ${
+            staff_app?.staffLastName ?? ""
+          }.`;
+          notify.notify_hi_content = `${first_name} ${which_one} Approved by - ${
+            staff_app?.staffFirstName ?? ""
+          } ${staff_app?.staffMiddleName ?? ""} ${
+            staff_app?.staffLastName ?? ""
+          }.`;
+          notify.notify_mr_content = `${first_name} ${which_one} Approved by - ${
+            staff_app?.staffFirstName ?? ""
+          } ${staff_app?.staffMiddleName ?? ""} ${
+            staff_app?.staffLastName ?? ""
+          }.`;
+          notify.notifySender = sid;
+          notify.notifyReceiever = user?._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = staff?._id;
+          user.activity_tab.push(notify._id);
+          notify.notifyByStaffPhoto = sid;
+          notify.notifyCategory = "INOUTWARD_APPROVED";
+          notify.redirectIndex = 66;
+          await Promise.all([notify.save(), user.save()]);
+          if (user?.deviceToken) {
+            invokeMemberTabNotification(
+              "Student Activity",
+              notify,
+              `${first_name} ${which_one} Approved by - ${
+                staff_app?.staffFirstName ?? ""
+              } ${staff_app?.staffMiddleName ?? ""} ${
+                staff_app?.staffLastName ?? ""
+              }.`,
+              user?._id,
+              user?.deviceToken,
+              "Student",
+              notify
+            );
+          }
+        }
       }
     } else {
     }
@@ -652,122 +757,6 @@ exports.staff_outward_sent_approved_list_query = async (req, res) => {
   }
 };
 
-exports.inward_add_manual_query = async (req, res) => {
-  try {
-    const { ioid } = req.params;
-    const {
-      inward_type,
-      name,
-      number,
-      date,
-      attachment,
-      prepare_by,
-      approvals_for,
-    } = req.body;
-    if (!ioid) {
-      return res.status(200).send({
-        message: "Url Segement parameter required is not fulfill.",
-      });
-    }
-
-    const outward = new InwardCreate({
-      inward_type,
-      name,
-      number,
-      date,
-      attachment,
-      prepare_by,
-      approvals_for,
-      inward_outward: ioid,
-    });
-    const inou = await InwardOutward.findById(ioid);
-    inou.inward.push(outward?._id);
-    await Promise.all([outward.save(), inou.save()]);
-    res.status(200).send({
-      message: "Add manual inward created things",
-      access: true,
-    });
-
-    if (prepare_by) {
-      const staff_ou = await InwardOutwardStaff.findOne({
-        staff: `${prepare_by}`,
-      });
-      staff_ou.sent_inward_pending.push(outward?._id);
-      await staff_ou.save();
-    }
-
-    if (approvals_for?.length > 0) {
-      for (let dt of approvals_for) {
-        const staff_ou = await InwardOutwardStaff.findOne({
-          staff: `${dt?.staff}`,
-        });
-        staff_ou.recieve_inward_pending.push(outward?._id);
-        await staff_ou.save();
-      }
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.inward_add_by_student_query = async (req, res) => {
-  try {
-    const { ioid } = req.params;
-    const {
-      inward_type,
-      subject,
-      body,
-      image,
-      attachment,
-      prepare_by,
-      approvals_for,
-    } = req.body;
-    if (!ioid) {
-      return res.status(200).send({
-        message: "Url Segement parameter required is not fulfill.",
-      });
-    }
-
-    const outward = new InwardCreate({
-      inward_type,
-      subject,
-      body,
-      image,
-      attachment,
-      date: new Date(),
-      prepare_by,
-      approvals_for,
-      inward_outward: ioid,
-      is_prepare_by: "STUDENT",
-    });
-    const inou = await InwardOutward.findById(ioid);
-    inou.inward.push(outward?._id);
-    await Promise.all([outward.save(), inou.save()]);
-    res.status(200).send({
-      message: "Add manual inward created things",
-      access: true,
-    });
-
-    if (prepare_by) {
-      const sstudent_ou = await Student.findById(prepare_by);
-      sstudent_ou.inward_create.push(outward?._id);
-      await sstudent_ou.save();
-    }
-
-    if (approvals_for?.length > 0) {
-      for (let dt of approvals_for) {
-        const staff_ou = await InwardOutwardStaff.findOne({
-          staff: `${dt?.staff}`,
-        });
-        staff_ou.recieve_inward_pending.push(outward?._id);
-        await staff_ou.save();
-      }
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 // for not staff personal realetd
 exports.outward_list_query = async (req, res) => {
   try {
@@ -1078,6 +1067,118 @@ exports.outward_reject_by_staff_query = async (req, res) => {
     res.status(200).send({
       message: "Outward reject successfully",
       access: true,
+    });
+
+    if (outward?.prepare_by) {
+      const staff_app = await Staff.findById(sid);
+      const staff = await Staff.findById(outward?.prepare_by);
+      let which_one = out.model_type === "INWARD" ? "Inward" : "Outward";
+      let first_name = outward?.subject ?? outward?.name ?? "";
+
+      if (staff?.user) {
+        const user = await User.findById({ _id: `${staff?.user}` });
+        const notify = new StudentNotification({
+          inoutward: outward?._id,
+        });
+        notify.notifyContent = `${first_name} ${which_one} Rejected by - ${
+          staff_app?.staffFirstName ?? ""
+        } ${staff_app?.staffMiddleName ?? ""} ${
+          staff_app?.staffLastName ?? ""
+        }.`;
+        notify.notify_hi_content = `${first_name} ${which_one} Rejected by - ${
+          staff_app?.staffFirstName ?? ""
+        } ${staff_app?.staffMiddleName ?? ""} ${
+          staff_app?.staffLastName ?? ""
+        }.`;
+        notify.notify_mr_content = `${first_name} ${which_one} Rejected by - ${
+          staff_app?.staffFirstName ?? ""
+        } ${staff_app?.staffMiddleName ?? ""} ${
+          staff_app?.staffLastName ?? ""
+        }.`;
+        notify.notifySender = sid;
+        notify.notifyReceiever = user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = staff?._id;
+        user.activity_tab.push(notify._id);
+        notify.notifyByStaffPhoto = sid;
+        notify.notifyCategory = "INOUTWARD_APPROVED";
+        notify.redirectIndex = 66;
+        await Promise.all([notify.save(), user.save()]);
+        if (user?.deviceToken) {
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            `${first_name} ${which_one} Rejected by - ${
+              staff_app?.staffFirstName ?? ""
+            } ${staff_app?.staffMiddleName ?? ""} ${
+              staff_app?.staffLastName ?? ""
+            }.`,
+            user?._id,
+            user?.deviceToken,
+            "Student",
+            notify
+          );
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.outward_update_query = async (req, res) => {
+  try {
+    const { oid } = req.params;
+    if (!oid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    await OutwardCreate.findByIdAndUpdate(iod, req.body);
+    return res.status(200).send({
+      message: "Outward updated successfully",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.outward_remove_query = async (req, res) => {
+  try {
+    const { oid } = req.params;
+    if (!oid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const outward = await OutwardCreate.findById(iod);
+    if (outward?.inward_outward) {
+      const inout = await InwardOutward.findById(outward?.inward_outward);
+      inout.outward.pull(outward?._id);
+      inout.outward_number -= 1;
+      inout.monthly_outward_number -= 1;
+      await inout.save();
+    }
+
+    if (outward?.is_prepare_by === "STAFF") {
+      const staff_ou = await InwardOutwardStaff.findOne({
+        staff: `${outward?.prepare_by}`,
+      });
+      staff_ou.sent_outward_pending.pull(outward?._id);
+      await staff_ou.save();
+    } else {
+    }
+    if (outward?.approvals_for?.length > 0) {
+      for (let dt of approvals_for) {
+        const staff_ou = await InwardOutwardStaff.findOne({
+          staff: `${dt?.staff}`,
+        });
+        staff_ou.recieve_outward_pending.pull(outward?._id);
+        await staff_ou.save();
+      }
+    }
+    return res.status(200).send({
+      message: "Outward updated successfully",
     });
   } catch (e) {
     console.log(e);

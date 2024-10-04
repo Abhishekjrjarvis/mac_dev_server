@@ -145,7 +145,7 @@ router.patch(
 );
 
 router.patch(
-  "/by/certificate/query",
+  "/by/certificate/:id/query",
   catchAsync(Filter.renderCertificateFilterQuery)
 );
 
@@ -159,6 +159,11 @@ router.patch("/payment/data/query", catchAsync(Filter.renderPaymentDataQuery));
 router.patch(
   "/bank/heads/by/:fid/receipt/query/repay",
   catchAsync(Filter.renderFeeHeadsStructureReceiptRePayQueryBank)
+);
+
+router.patch(
+  "/by/certificate/logs/export/:id/query",
+  catchAsync(Filter.certificate_logs_export_query)
 );
 
 module.exports = router;

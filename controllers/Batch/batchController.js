@@ -115,7 +115,7 @@ exports.preformedStructure = async (req, res) => {
           head_name: one_head?.head_name,
           head_amount: one_head?.head_amount,
           master: one_head?.master,
-          is_society: one_head?.is_society
+          is_society: one_head?.is_society,
         });
         new_struct.applicable_fees_heads_count += 1;
       }
@@ -124,7 +124,7 @@ exports.preformedStructure = async (req, res) => {
           head_name: one_head?.head_name,
           head_amount: one_head?.head_amount,
           master: one_head?.master,
-          is_society: one_head?.is_society
+          is_society: one_head?.is_society,
         });
         new_struct.government_fees_heads_count += 1;
       }
@@ -179,11 +179,11 @@ exports.preformedStructure = async (req, res) => {
       for (let ele of oneClass?.multiple_batches) {
         var new_id_batch = new Batch({
           batchName: ele?.batchName,
-          class_batch_select: identicalClass?._id
-        })
-        identicalClass.multiple_batches.push(new_id_batch?._id)
-        identicalClass.multiple_batches_count += 1
-        await new_id_batch.save()
+          class_batch_select: identicalClass?._id,
+        });
+        identicalClass.multiple_batches.push(new_id_batch?._id);
+        identicalClass.multiple_batches_count += 1;
+        await new_id_batch.save();
       }
       if (req?.body?.with_designation === "No") {
         if (oneClass?.classTeacher) {
@@ -639,7 +639,8 @@ exports.promoteStudent = async (req, res) => {
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
                   `${student?.fee_structure?.category_master?._id}` &&
-                `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
+                `${ref?.batch_master}` === `${batch?._id}` &&
+                ref?.document_update == false
               )
                 return ref;
             });
@@ -653,7 +654,8 @@ exports.promoteStudent = async (req, res) => {
                   `${ref?.class_master}` === `${classes?.masterClassName}` &&
                   `${ref?.category_master?._id}` ===
                     `${student?.fee_structure?.category_master?.secondary_category}` &&
-                  `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
+                  `${ref?.batch_master}` === `${batch?._id}` &&
+                  ref?.document_update == false
                 )
                   return ref;
               });
@@ -664,7 +666,8 @@ exports.promoteStudent = async (req, res) => {
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
                 `${ref?.category_master?._id}` ===
                   `${student?.fee_structure?.category_master?._id}` &&
-                `${ref?.batch_master}` === `${batch?._id}` && ref?.document_update == false
+                `${ref?.batch_master}` === `${batch?._id}` &&
+                ref?.document_update == false
               )
                 return ref;
             });
@@ -1321,6 +1324,24 @@ exports.classUncomplete = async (req, res) => {
       message: "Class unlock successfully...",
       classStatus: class_teacher.classStatus,
     });
+    if (classes?.subject?.length > 0) {
+      for (let subId of classes?.subject) {
+        const subject = await Subject.findById(subId);
+        if (subject.subjectStatus === "Completed") {
+          subject.subjectStatus = "UnCompleted";
+          if (subject?.subjectTeacherName) {
+            const subStaff = await Staff.findById(
+              subject?.subjectTeacherName
+            ).select("staffSubject previousStaffSubject staffDesignationCount");
+            subStaff.staffDesignationCount += 1;
+            subStaff.previousStaffSubject?.pull(subject._id);
+            subStaff.staffSubject.push(subject._id);
+            await subStaff.save();
+          }
+          await subject.save();
+        }
+      }
+    }
   } catch (e) {
     res.status(200).send({
       message: e,

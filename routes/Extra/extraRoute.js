@@ -549,5 +549,19 @@ router.patch(
 );
 
 router.patch("/:id/all/profile/photo/query", catchAsync(download_zip_file));
+// for certificate authority -> changes
+router.get(
+  "/new/bonafide/student/:sid/query",
+  catchAsync(Extra.student_bonafide_detail_query)
+);
 
+router.patch(
+  "/new/bonafide/student/:sid/update/query",
+  catchAsync(Extra.student_bonafide_update_detail_query)
+);
+
+router.patch(
+  "/one/student/other/custom/:frid/institute/:id/query",
+  catchAsync(Extra.customOneStudentOtherFeeReceiptQuery)
+);
 module.exports = router;

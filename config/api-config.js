@@ -98,6 +98,7 @@ const academicDepartmentV2 = require("../OptimizeRoute/AcademicDepartment/academ
 const hostelV2 = require("../OptimizeRoute/Hostel/hostelRoute");
 const reportV2 = require("../OptimizeRoute/Reports/reportRoute");
 const guideRouteV2 = require("../OptimizeRoute/Guide/guideRoute");
+const inwardOutwarRouteV2 = require("../OptimizeRoute/InwardOutward/inwardOutwarRoute");
 
 // Api Middleware Func
 
@@ -199,5 +200,6 @@ router.use("/api/v2/report", reportV2);
 router.use("/api/v2/attendance/student", studentAttendanceRouteV2);
 router.use("/api/v2/institute/automate", instituteAutomateRouteV2);
 router.use("/api/v2/guide", guideRouteV2);
+router.use("/api/v2/ward", inwardOutwarRouteV2);
 
 module.exports = router;

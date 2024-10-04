@@ -886,12 +886,12 @@ exports.send_email_authentication_custom = async function (recipientEmail) {
       })
       .then((response) => {
         console.log("Email sent successfully:", response.data);
-        // return response.data;
       })
       .catch((error) => {
         console.error("Error sending email:", error.message);
       });
 
+    return OTP;
     // Log response or return as needed
   } catch (error) {
     console.error("Error sending email:", error.message);

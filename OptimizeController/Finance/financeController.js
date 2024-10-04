@@ -7693,7 +7693,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
 exports.renderOtherFeesCollectQuery = async (req, res) => {
   try {
     const { fid } = req?.params;
-    const { sid, mode, ofid, fee_payment_amount } = req?.body;
+    const { sid, mode, ofid, fee_payment_amount, cid } = req?.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -7716,6 +7716,11 @@ exports.renderOtherFeesCollectQuery = async (req, res) => {
     for (var ref of o_f?.remaining_students) {
       if (`${ref}` === `${stu?._id}`) {
         o_f?.remaining_students?.pull(stu?._id);
+      }
+    }
+    for (let cls of o_f?.students_data) {
+      if (`${cls?._id}` === `${cid}`) {
+        o_f.students_data.pull(cls?._id);
       }
     }
     // o_f.remaining_students.push(stu?._id)
@@ -9410,6 +9415,119 @@ exports.finance_receipt_dublicate_query = async (req, res) => {
       message: "Finance setting save successfully",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOtherFeesNewCollectQuery = async (req, res) => {
+  try {
+    const { fid } = req?.params;
+    const { sid, mode, ofid, fee_payment_amount, cid } = req?.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var finance = await Finance.findById({ _id: fid });
+    var institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
+    var o_f = await OtherFees.findById({ _id: ofid });
+    const stu = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${stu?.user}` });
+    stu.other_fees_paid_price += fee_payment_amount;
+    o_f.paid_students.push(stu?._id);
+    o_f.status = "Paid";
+    if (stu.other_fees_remain_price >= fee_payment_amount) {
+      stu.other_fees_remain_price -= fee_payment_amount;
+    }
+    for (var ref of o_f?.remaining_students) {
+      if (`${ref}` === `${stu?._id}`) {
+        o_f?.remaining_students?.pull(stu?._id);
+      }
+    }
+    for (let cls of o_f?.students_data) {
+      if (`${cls?._id}` === `${cid}`) {
+        o_f.students_data.pull(cls?._id);
+      }
+    }
+    // o_f.remaining_students.push(stu?._id)
+    for (let val of o_f?.fees_heads) {
+      const nums = await FeeMaster.findById({ _id: `${val?.master}` });
+      nums.paid_student.push(stu?._id);
+      nums.paid_student_count += 1;
+      val.paid_amount += fee_payment_amount;
+      await nums.save();
+    }
+    const new_receipt = new FeeReceipt({ ...req.body });
+    const order = new OrderPayment({ ...req?.body });
+    new_receipt.student = stu?._id;
+    new_receipt.fee_structure = o_f?.fee_structure;
+    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.other_fees = o_f?._id;
+    new_receipt.receipt_generated_from = "BY_FINANCE_MANAGER";
+    new_receipt.finance = finance?._id;
+    new_receipt.receipt_status = "Already Generated";
+    order.payment_module_type = "Other Fees";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = o_f._id;
+    order.payment_amount = fee_payment_amount;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_other_fees = o_f._id;
+    order.payment_from = stu._id;
+    order.payment_student = stu?._id;
+    order.payment_student_name = stu?.valid_full_name;
+    order.payment_student_gr = stu?.studentGRNO;
+    order.fee_receipt = new_receipt?._id;
+    await fee_receipt_count_query(
+      institute,
+      new_receipt,
+      order,
+      finance?.show_invoice_pattern,
+      o_f?.bank_account
+    );
+    for (let ele of stu?.other_fees) {
+      if (`${ele?.fees}` === `${o_f?._id}`) {
+        ele.fee_receipt = new_receipt?._id;
+        ele.status = "Paid";
+      }
+    }
+    for (let ele of o_f?.fees_heads) {
+      new_receipt.fee_heads.push({
+        head_id: ele?._id,
+        head_name: ele?.head_name,
+        paid_fee: new_receipt?.fee_payment_amount,
+        applicable_fee: ele?.head_amount,
+        remain_fee:
+          ele?.head_amount >= new_receipt?.fee_payment_amount
+            ? ele?.head_amount - new_receipt?.fee_payment_amount
+            : new_receipt?.fee_payment_amount - ele?.head_amount,
+        fee_structure: o_f?.fee_structure ?? null,
+        master: ele?.master,
+        original_paid: new_receipt?.fee_payment_amount,
+        is_society: ele?.is_society,
+      });
+    }
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    await Promise.all([
+      stu.save(),
+      user.save(),
+      institute.save(),
+      new_receipt.save(),
+      order.save(),
+    ]);
+    await Promise.all([finance.save(), o_f.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Other Fees Collect Query", access: true });
+    await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
   } catch (e) {
     console.log(e);
   }

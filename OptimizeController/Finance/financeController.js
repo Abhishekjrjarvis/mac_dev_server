@@ -6853,6 +6853,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
           o_f.students_data.push({
             student: stu?._id,
             fee_receipt: new_receipt?._id,
+            price: o_f?.payable_amount,
           });
           await fee_receipt_count_query(
             institute,
@@ -6908,6 +6909,7 @@ exports.renderNewOtherFeesQuery = async (req, res) => {
             o_f.remaining_students.push(stu?._id);
             o_f.students_data.push({
               student: stu?._id,
+              price: o_f?.payable_amount,
             });
             const notify = new StudentNotification({});
             notify.notifyContent = `Hi ${stu?.studentFirstName} ${
@@ -6968,6 +6970,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
           o_f.remaining_students.push(stu?._id);
           o_f.students_data.push({
             student: stu?._id,
+            price: o_f?.payable_amount,
           });
           const notify = new StudentNotification({});
           notify.notifyContent = `Hi ${stu?.studentFirstName} ${
@@ -7026,6 +7029,7 @@ Do Not Click on the link below (clicking it may prevent further emails from bein
             o_f.remaining_students.push(stu?._id);
             o_f.students_data.push({
               student: stu?._id,
+              price: o_f?.payable_amount,
             });
             const notify = new StudentNotification({});
             notify.notifyContent = `Hi ${stu?.studentFirstName} ${
@@ -7873,6 +7877,7 @@ exports.renderNewOtherFeesAddStudentQuery = async (req, res) => {
         o_f.remaining_students.push(stu?._id);
         o_f.students_data.push({
           student: stu?._id,
+          price: o_f?.payable_amount,
         });
         const notify = new StudentNotification({});
         notify.notifyContent = `Hi ${stu?.studentFirstName} ${

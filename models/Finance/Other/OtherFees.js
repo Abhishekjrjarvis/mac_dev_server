@@ -125,6 +125,10 @@ const otherFeesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt",
       },
+      price: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
 });

@@ -732,4 +732,9 @@ router.patch(
   catchAsync(Finance.one_all_miscellenous_fee_students)
 );
 
+router.patch(
+  "/new/format/fee/collect/:fid",
+  catchAsync(Finance.new_format_fee_collect)
+);
+
 module.exports = router;

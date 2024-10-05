@@ -9329,10 +9329,15 @@ exports.new_format_fee_collect = async (req, res) => {
       order.save(),
     ]);
     await Promise.all([finance.save(), o_f.save()]);
+    let key = await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
     res
       .status(200)
-      .send({ message: "Explore New Other Fees Collect Query", access: true });
-    await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
+      .send({
+        message: "Explore New Other Fees Collect Query",
+        access: true,
+        key: key,
+        receipt: new_receipt?._id,
+      });
   } catch (e) {
     console.log(e);
   }

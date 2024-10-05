@@ -360,4 +360,10 @@ router.patch(
   "/:fid/all/combined/summary/bank/daybook",
   catchAsync(Filter.render_combined_summary_bank_daybook_heads_wise)
 );
+
+router.patch(
+  "/by/new/admission/fees/statistics/:fid/query",
+  catchAsync(Filter.render_new_admission_fees_statistics_query)
+);
+
 module.exports = router;

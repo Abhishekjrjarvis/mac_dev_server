@@ -778,6 +778,10 @@ const staffSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  inward_outward: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InwardOutwardStaff",
+  },
   inward_outward_signature: {
     type: String,
   },

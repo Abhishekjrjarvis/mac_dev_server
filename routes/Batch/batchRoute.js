@@ -29,7 +29,7 @@ router
 
 router
   .route("/class/uncomplete/:cid")
-  .patch(isLoggedIn, catchAsync(batchController.classUncomplete));
+  .patch(catchAsync(batchController.classUncomplete));
 router
   .route("/:bid/assign/staff/desigantion")
   .patch(
@@ -46,7 +46,7 @@ router
 
 router
   .route("/batch/:bid/complete/uncomplete/action")
-  .patch( catchAsync(batchController.batchCompleteAndUncomplete));
+  .patch(catchAsync(batchController.batchCompleteAndUncomplete));
 
 router
   .route("/subject/:smid/update/course/credit")
@@ -58,17 +58,15 @@ router
   .route("/subject/:did/passing/credit/update")
   .patch(isLoggedIn, catchAsync(batchController.subjectPassingCreditUpdate));
 
-  router
+router
   .route("/department/:did/programme/name/query")
-    .patch(isLoggedIn, catchAsync(batchController.departmentProgrammeNameQuery));
-  
-    router
+  .patch(isLoggedIn, catchAsync(batchController.departmentProgrammeNameQuery));
+
+router
   .route("/remove/:bid/staff/designation")
   .patch(
     isLoggedIn,
     catchAsync(batchController.batchStaffRemoveDesignationQuery)
   );
-
-
 
 module.exports = router;

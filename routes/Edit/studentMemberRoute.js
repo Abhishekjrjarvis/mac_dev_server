@@ -82,4 +82,8 @@ router
 router
   .route("/manually/pull/from/subject")
   .patch(catchAsync(studentMember.studentSubjectMasterPullDataQuery));
+
+router
+  .route("/all/master/subject/manually/insert/data")
+  .patch(catchAsync(studentMember.oneStudentSubjectInsertWithMasterQuery));
 module.exports = router;

@@ -8870,12 +8870,77 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
 ) => {
   try {
     const { ofid } = req?.params;
+    const { from, to, payment_type } = req?.body;
     if (!ofid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
+    var g_year = new Date(`${from}`).getFullYear();
+    var g_day = new Date(`${from}`).getDate();
+    var l_year = new Date(`${to}`).getFullYear();
+    var l_day = new Date(`${to}`).getDate();
+    var g_month = new Date(`${from}`).getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
+    if (g_day < 10) {
+      g_day = `0${g_day}`;
+    }
+    var l_month = new Date(`${to}`).getMonth() + 1;
+    if (l_month < 10) {
+      l_month = `0${l_month}`;
+    }
+    if (l_day < 10) {
+      l_day = `0${l_day}`;
+    }
+    const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+    const date = new Date(new Date(`${l_year}-${l_month}-${l_day}`));
+    date.setDate(date.getDate() + 1);
+    let l_dates = date.getDate();
+    if (l_dates < 10) {
+      l_dates = `0${l_dates}`;
+    }
+    var l_months = l_month;
+    let list1 = ["01", "03", "05", "07", "08", "10", "12"];
+    let list2 = ["04", "06", "09", "11"];
+    let list3 = ["02"];
+    let g_days = l_months?.toString();
+    let l_days = l_months?.toString();
+    if (g_day == 30 && list2?.includes(String(g_days))) {
+      date.setMonth(date.getMonth() + 1);
+      var l_months = date.getMonth();
+      if (l_months < 10) {
+        l_months = `0${l_months}`;
+      }
+    }
+    if (g_day >= 31 && list1?.includes(String(g_days))) {
+      date.setMonth(date.getMonth() + 1);
+      var l_months = date.getMonth();
+      if (l_months < 10) {
+        l_months = `0${l_months}`;
+      }
+    }
+    if (g_day == 30 && l_day == 30) {
+    } else if (g_day == 31 && l_day == 31) {
+    } else {
+      if (l_day == 30 && list2?.includes(String(l_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
+      if (l_day >= 31 && list1?.includes(String(l_days))) {
+        date.setMonth(date.getMonth() + 1);
+        var l_months = date.getMonth();
+        if (l_months < 10) {
+          l_months = `0${l_months}`;
+        }
+      }
+    }
+    const l_date = new Date(`${l_year}-${l_months}-${l_dates}T00:00:00.000Z`);
     var one_of = await OtherFees.findById({ _id: ofid })
       .populate({
         path: "finance",
@@ -8887,8 +8952,92 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
       });
     let list = [...one_of?.paid_students, ...one_of?.remaining_students];
     // one_of?.students
+    let type = [
+      "Payment Gateway / Online",
+      "By Cash",
+      "Payment Gateway - PG",
+      "UPI Transfer",
+      "RTGS/NEFT/IMPS",
+      "Net Banking",
+    ];
+    if (payment_type == "Total") {
+      var all_fees = await FeeReceipt.find({
+        $and: [
+          {
+            fee_transaction_date: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          { student: { $in: list } },
+          { other_fees: one_of?._id },
+          {
+            refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
+          },
+        ],
+      })
+        .select(
+          "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
+        )
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO",
+        });
+    } else {
+      var all_fees = await FeeReceipt.find({
+        $and: [
+          {
+            fee_transaction_date: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+          { student: { $in: list } },
+          { other_fees: one_of?._id },
+          {
+            refund_status: "No Refund",
+          },
+          {
+            visible_status: "Not Hide",
+          },
+          {
+            fee_payment_mode: { $in: type },
+          },
+        ],
+      })
+        .select(
+          "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
+        )
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO student_abc_id",
+        });
+    }
     var all_fees = await FeeReceipt.find({
-      $and: [{ student: { $in: list } }, { other_fees: one_of?._id }],
+      $and: [
+        {
+          fee_transaction_date: {
+            $gte: g_date,
+            $lt: l_date,
+          },
+        },
+        { student: { $in: list } },
+        { other_fees: one_of?._id },
+        {
+          refund_status: "No Refund",
+        },
+        {
+          visible_status: "Not Hide",
+        },
+        {
+          fee_payment_mode: `${payment_type}`,
+        },
+      ],
     })
       .select(
         "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
@@ -8896,17 +9045,19 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO",
+          "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO student_abc_id",
       });
     let excel_list = [];
 
     for (let cls of all_fees) {
       if (cls?.student?.studentFirstName != "") {
-        for (let ele of cls?.student?.other_fees) {
-          if (`${ele?.fee_receipt}` === `${cls?._id}`) {
-            cls.active = "Active";
-          } else {
-            cls.active = "Duplicate";
+        if (cls?.student?.other_fees?.length > 0) {
+          for (let ele of cls?.student?.other_fees) {
+            if (`${ele?.fee_receipt}` === `${cls?._id}`) {
+              cls.active = "Active";
+            } else {
+              cls.active = "Duplicate";
+            }
           }
         }
         const op = await OrderPayment.findOne({
@@ -8927,6 +9078,7 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
           RegistrationID:
             cls?.student?.student_prn_enroll_number ??
             cls?.student?.studentGRNO,
+          "ABC ID": cls?.student?.student_abc_id ?? "#NA",
           Mode: cls?.fee_payment_mode ?? "NA",
           TxnDate: moment(cls?.created_at)?.format("LL") ?? "NA",
           BankUTR:
@@ -8941,7 +9093,7 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
     }
     var valid_back = await json_to_excel_other_fees_subject_application_query(
       excel_list,
-      `${one_of?.bank_account?.finance_bank_account_name}-Duplicate-Combined`,
+      `${one_of?.bank_account?.finance_bank_account_name}-Combined`,
       one_of?.finance?.institute
     );
     if (valid_back?.back) {

@@ -36,7 +36,7 @@ const generateStudentAdmissionForm = async (
     margin: 25,
   });
   let date = new Date();
-  let name = `${date.getTime()}-${studentName}`;
+  let name = `${studentName}-${date.getTime()}`;
   // let name = `${studentName}`;
   // const stream = fs.createWriteStream(`uploads/${studentName}-form.pdf`);
 

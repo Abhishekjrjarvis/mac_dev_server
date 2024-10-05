@@ -216,4 +216,30 @@ router
   .route("/subject/:sid/co/list/query")
   .get(catchAsync(copoController.get_subject_co_list_query));
 
+router
+  .route("/ce/one/experiment/export/:exid/query")
+  .patch(catchAsync(copoController.ct_one_experiment_export_query));
+
+router
+  .route("/ce/one/experiment/import/:exid/query")
+  .patch(catchAsync(copoController.ct_one_experiment_import_query));
+
+router
+  .route("/ce/combined/experiment/export/:ceid/query")
+  .patch(catchAsync(copoController.ct_combined_experiment_export_query));
+router
+  .route("/ce/attendance/export/:ceid/query")
+  .patch(catchAsync(copoController.ct_attendance_assesment_export_query));
+router
+  .route("/ce/assignment/export/:ceid/query")
+  .patch(catchAsync(copoController.ct_assignment_assesment_export_query));
+
+router
+  .route("/ce/total/marks/export/:ceid/query")
+  .patch(catchAsync(copoController.ct_total_assesment_export_query));
+
+// router
+//   .route("/excel/import/subject/:sid/query")
+//   .patch(catchAsync(copoController.oneSubjectExamAllStudentMarksImportQuery));
+
 module.exports = router;

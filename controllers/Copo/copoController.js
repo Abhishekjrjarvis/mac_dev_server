@@ -11,12 +11,14 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const {
   generate_excel_to_json_department_po_query,
   generate_excel_to_json_subject_master_co_query,
+  getj_subject_one_experiment_query,
 } = require("../../Custom/excelToJSON");
 const { simple_object } = require("../../S3Configuration");
 const SubjectInternalEvaluation = require("../../models/InternalEvaluation/SubjectInternalEvaluation");
 const SubjectInternalEvaluationTest = require("../../models/InternalEvaluation/SubjectInternalEvaluationTest");
 const {
   subject_internal_evaluation_marks_student_json_to_excel,
+  subject_continuous_json_to_excel,
 } = require("../../Custom/JSONToExcel");
 const StudentTestSet = require("../../models/MCQ/StudentTestSet");
 const SubjectMasterTestSet = require("../../models/MCQ/SubjectMasterTestSet");
@@ -3326,6 +3328,585 @@ exports.get_subject_co_list_query = async (req, res) => {
       message: "All list of copo in subjects",
       attainment: attainment,
     });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.ct_one_experiment_export_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    if (!exid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const exev = await SubjectContinuousEvaluationExperiment.findById(exid);
+
+    const subject = await Subject.findById(exev?.subject).populate({
+      path: "attendance",
+      match: {
+        attendDate: { $eq: `${moment(exev?.date)?.format("DD/MM/yyyy")}` },
+      },
+    });
+
+    let students = [];
+
+    if (exev?.student_list?.length > 0) {
+      for (let st of exev?.student_list) {
+        const student = await Student.findById(st?.student)
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+
+        let att_marks = 0;
+
+        if (subject?.attendance?.[0]?._id) {
+          for (let dt of subject?.attendance?.[0]?.presentStudent) {
+            if (`${dt?.student}` === `${student?._id}`) {
+              att_marks = 3;
+              break;
+            }
+          }
+        }
+        students.push({
+          "Enrollment / PRN NO ": student?.student_prn_enroll_number ?? "#NA",
+          GRNO: student?.studentGRNO ?? "#NA",
+          ROLLNO: student.studentROLLNO ?? "#NA",
+          Name: `${student?.studentFirstName} ${
+            student?.studentMiddleName ? student?.studentMiddleName : ""
+          } ${student?.studentLastName}`,
+          Attendance_Marks: att_marks ?? 0,
+          Performance_Marks: st?.practical_marks ?? 0,
+          Journal_Marks: st?.journal_marks ?? 0,
+          Total_Marks: att_marks + st?.practical_marks + st?.journal_marks,
+        });
+      }
+    }
+
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_continuous_json_to_excel(
+        exev?.subject,
+        students,
+        "Experiment Student",
+        "ONE_EXPERIMENT",
+        "one-experiment"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+    if (excel_key) {
+      exev.export_collection.push({
+        excel_type: "ONE_EXPERIMENT",
+        excel_file: excel_key,
+        excel_file_name: excel_key,
+      });
+      exev.export_collection_count += 1;
+      await exev.save();
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.ct_one_experiment_import_query = async (req, res) => {
+  try {
+    const { exid } = req.params;
+    const { excel_key } = req.body;
+    if (!exid || !excel_key) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const exev = await SubjectContinuousEvaluationExperiment.findById(exid);
+    exev.import_collection?.push({
+      excel_type: "Mark Import",
+      excel_file: excel_key,
+      status: "Pending",
+    });
+    exev.import_collection_count += 1;
+    await exev.save();
+    res
+      .status(200)
+      .send({ message: "Student Marks import excel is in processing" });
+
+    const subject = await Subject.findById(exev.subject)
+      .populate({
+        path: "subjectMasterName",
+        select: "institute",
+      })
+      .select("subjectMasterName");
+    const file = await simple_object(excel_key);
+    const { data_query } = await getj_subject_one_experiment_query(file);
+    let iteration_count = data_query?.length;
+    let marks_list = [];
+    if (iteration_count > 0) {
+      for (let i = 0; i < iteration_count; i++) {
+        let studt = data_query[i];
+        const student = await Student.findOne({
+          $and: [
+            {
+              studentGRNO: { $eq: `${studt?.GRNO}` },
+            },
+            {
+              institute: { $eq: `${subject?.subjectMasterName?.institute}` },
+            },
+          ],
+        });
+        let obj = {
+          student: `${student?._id}`,
+          attendance_marks: studt?.attendance_marks ?? 0,
+          practical_marks: studt?.practical_marks ?? 0,
+          journal_marks: studt?.journal_marks ?? 0,
+          total_marks: 0,
+        };
+        obj.total_marks =
+          +obj.attendance_marks + +obj.practical_marks + +obj.journal_marks;
+        marks_list.push(obj);
+      }
+    }
+
+    if (marks_list?.length > 0) {
+      if (exev?.student_list?.length > 0) {
+        for (let mt of marks_list) {
+          for (let dt of exev?.student_list) {
+            if (`${dt?.student}` === `${mt?.student}`) {
+              dt.attendance_marks = mt.attendance_marks;
+              dt.practical_marks = mt.practical_marks;
+              dt.journal_marks = mt.journal_marks;
+              dt.total_marks = mt.total_marks;
+              break;
+            }
+          }
+        }
+        await exev.save();
+      } else {
+        exev.student_list = marks_list;
+        await exev.save();
+      }
+      for (let st of exev?.import_collection ?? []) {
+        if (`${st?.excel_file}` === `${excel_key}`) {
+          st.status = "Success";
+          await exev.save();
+          break;
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.ct_combined_experiment_export_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let stu_obj = {};
+
+    const all_exp = await SubjectContinuousEvaluationExperiment.find({
+      continuous_evaluation: ct_ev,
+    });
+
+    if (all_exp?.length > 0) {
+      for (let exp of all_exp) {
+        if (exp?.student_list?.length > 0) {
+          for (let stu of exp?.student_list) {
+            if (stu_obj[stu?.student]) {
+              stu_obj[stu?.student]["mark"] += stu?.total_marks;
+              stu_obj[stu?.student]["outof"] += exp?.outof;
+            } else {
+              stu_obj[stu?.student] = {
+                mark: stu?.total_marks,
+                outof: exp?.outof,
+              };
+            }
+          }
+        }
+      }
+    }
+
+    let students = [];
+    for (let ob in stu_obj) {
+      const student = await Student.findById(ob)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+        )
+        .lean()
+        .exec();
+      let ot = stu_obj[ob];
+      let per = 0;
+      if (ot?.mark > 0) {
+        per = Math.ceil((ot?.mark / ot?.outof) * 100);
+        per = +per;
+        per = Math.ceil((per * ct_ev?.experiment_outof) / 100);
+        per = +per;
+      }
+      students.push({
+        "Enrollment / PRN NO ": student?.student_prn_enroll_number ?? "#NA",
+        GRNO: student?.studentGRNO ?? "#NA",
+        ROLLNO: student.studentROLLNO ?? "#NA",
+        Name: `${student?.studentFirstName} ${
+          student?.studentMiddleName ? student?.studentMiddleName : ""
+        } ${student?.studentLastName}`,
+        Total_Marks: per ?? 0,
+      });
+    }
+
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_continuous_json_to_excel(
+        ct_ev?.subject,
+        students,
+        "Experiment Student",
+        "ALL_EXPERIMENT",
+        "all-experiment"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+    if (excel_key) {
+      ct_ev.export_collection.push({
+        excel_type: "ALL_EXPERIMENT",
+        excel_file: excel_key,
+        excel_file_name: excel_key,
+      });
+      ct_ev.export_collection_count += 1;
+      await ct_ev.save();
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+exports.ct_attendance_assesment_export_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.attendance_subject) {
+      const subjects = await Subject.findById(
+        ct_ev?.attendance_subject
+      ).populate({
+        path: "attendance",
+      });
+      let student_list = [];
+
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+        )
+        .lean()
+        .exec();
+
+      for (let stu of student_list) {
+        let obj = {
+          subjectWise: {
+            presentCount: 0,
+            totalCount: 0,
+            totalPercentage: 0,
+          },
+          attendance_mark: 0,
+        };
+        for (let att of subjects?.attendance) {
+          for (let pre of att?.presentStudent) {
+            if (String(stu._id) === String(pre.student)) {
+              obj.subjectWise.presentCount += 1;
+              break;
+            }
+          }
+          obj.subjectWise.totalCount += 1;
+        }
+        if (obj.subjectWise.totalCount > 0) {
+          obj.subjectWise.totalPercentage = Math.ceil(
+            (obj.subjectWise.presentCount * 100) / obj.subjectWise.totalCount
+          );
+
+          obj.subjectWise.totalPercentage = +obj.subjectWise.totalPercentage;
+
+          if (ct_ev?.attendance_grade_marks?.length > 0) {
+            for (let dbt of ct_ev?.attendance_grade_marks) {
+              if (
+                obj.subjectWise.totalPercentage >= dbt?.start_range &&
+                obj.subjectWise.totalPercentage <= dbt?.end_range
+              ) {
+                obj.attendance_mark = +dbt.grade_marks;
+              }
+            }
+          } else {
+            obj.attendance_mark = Math.ceil(
+              (obj.subjectWise.totalPercentage * ct_ev.attendance_outof) / 100
+            );
+            obj.attendance_mark = +obj.attendance_mark;
+          }
+        }
+        students.push({
+          "Enrollment / PRN NO ": stu?.student_prn_enroll_number ?? "#NA",
+          GRNO: stu?.studentGRNO ?? "#NA",
+          ROLLNO: stu?.studentROLLNO ?? "#NA",
+          Name: `${stu?.studentFirstName} ${
+            stu?.studentMiddleName ? stu?.studentMiddleName : ""
+          } ${stu?.studentLastName}`,
+          Total_Marks: obj.attendance_mark,
+        });
+      }
+    }
+
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_continuous_json_to_excel(
+        ct_ev?.subject,
+        students,
+        "Attendance Student",
+        "CONTINUOUS_ATTENDANCE",
+        "constinuous-attendance"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+    if (excel_key) {
+      ct_ev.export_collection.push({
+        excel_type: "CONTINUOUS_ATTENDANCE",
+        excel_file: excel_key,
+        excel_file_name: excel_key,
+      });
+      ct_ev.export_collection_count += 1;
+      await ct_ev.save();
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+exports.ct_assignment_assesment_export_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.assignment_subject) {
+      const subjects = await Subject.findById(ct_ev?.assignment_subject);
+
+      if (subjects?.assignments?.length > 0) {
+        let student_list = [];
+        student_list = await Student.find({
+          _id: { $in: ct_ev.student_list },
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+        for (let stu of student_list) {
+          let obj = {
+            assignment_mark: 0,
+            assignment_total_mark: 0,
+          };
+
+          const stu_assignment = await StudentAssignment.find({
+            $and: [
+              {
+                assignment: {
+                  $in: subjects?.assignments,
+                },
+              },
+              {
+                student: {
+                  $eq: `${stu?._id}`,
+                },
+              },
+            ],
+          });
+
+          if (stu_assignment?.length > 0) {
+            for (let ass of stu_assignment) {
+              obj.assignment_mark += ass?.assignment_obtain_mark;
+              obj.assignment_total_mark += ass?.assignment_total_mark;
+            }
+          }
+          if (obj.assignment_total_mark > 0 && obj.assignment_mark > 0) {
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * 100) / obj.assignment_total_mark
+            );
+            obj.assignment_mark = +obj.assignment_mark;
+
+            obj.assignment_mark = Math.ceil(
+              (obj.assignment_mark * ct_ev.assignment_outof) / 100
+            );
+            obj.assignment_mark = +obj.assignment_mark;
+          }
+
+          students.push({
+            "Enrollment / PRN NO ": stu?.student_prn_enroll_number ?? "#NA",
+            GRNO: stu?.studentGRNO ?? "#NA",
+            ROLLNO: stu?.studentROLLNO ?? "#NA",
+            Name: `${stu?.studentFirstName} ${
+              stu?.studentMiddleName ? stu?.studentMiddleName : ""
+            } ${stu?.studentLastName}`,
+            Total_Marks: obj.assignment_mark,
+          });
+        }
+      }
+    }
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_continuous_json_to_excel(
+        ct_ev?.subject,
+        students,
+        "Assignment Student",
+        "CONTINUOUS_ASSIGNMENT",
+        "constinuous-assignment"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+    if (excel_key) {
+      ct_ev.export_collection.push({
+        excel_type: "CONTINUOUS_ASSIGNMENT",
+        excel_file: excel_key,
+        excel_file_name: excel_key,
+      });
+      ct_ev.export_collection_count += 1;
+      await ct_ev.save();
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+exports.ct_total_assesment_export_query = async (req, res) => {
+  try {
+    const { ceid } = req.params;
+    if (!ceid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const ct_ev = await SubjectContinuousEvaluation.findById(ceid);
+    let students = [];
+    if (ct_ev?.student_data?.length > 0) {
+      let student_list = [];
+      student_list = await Student.find({
+        _id: { $in: ct_ev.student_list },
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO student_prn_enroll_number"
+        )
+        .lean()
+        .exec();
+
+      for (let stu of student_list) {
+        let obj = {
+          total_mark: 0,
+          total_mark_outof: 0,
+          column: 0,
+        };
+
+        for (let odt of ct_ev?.student_data) {
+          if (`${stu?._id}` === `${odt?.student}`) {
+            if (ct_ev?.experiment_toggle) {
+              obj.total_mark += odt?.all_exp;
+              obj.total_mark_outof += ct_ev?.experiment_outof;
+              obj.column += 1;
+            }
+            if (ct_ev?.attendance_toggle) {
+              obj.total_mark += odt?.attendance;
+              obj.total_mark_outof += ct_ev?.attendance_outof;
+
+              obj.column += 1;
+            }
+            if (ct_ev?.cls_test_toggle) {
+              obj.total_mark += odt?.cls_test;
+              obj.total_mark_outof += ct_ev?.cls_test_outof;
+
+              obj.column += 1;
+            }
+            if (ct_ev?.assignment_toggle) {
+              obj.total_mark += odt?.assingment;
+              obj.total_mark_outof += ct_ev?.assignment_outof;
+
+              obj.column += 1;
+            }
+            break;
+          }
+        }
+        obj.total_mark = Math.ceil(
+          (obj.total_mark / obj.total_mark_outof) * 100
+        );
+        obj.total_mark = Math.ceil((obj.total_mark * ct_ev.total_outof) / 100);
+        obj.total_mark = +obj.total_mark;
+        students.push({
+          "Enrollment / PRN NO ": stu?.student_prn_enroll_number ?? "#NA",
+          GRNO: stu?.studentGRNO ?? "#NA",
+          ROLLNO: stu?.studentROLLNO ?? "#NA",
+          Name: `${stu?.studentFirstName} ${
+            stu?.studentMiddleName ? stu?.studentMiddleName : ""
+          } ${stu?.studentLastName}`,
+          Total_Marks: obj.total_mark,
+        });
+      }
+    }
+    let excel_key = "";
+    if (students?.length > 0) {
+      excel_key = await subject_continuous_json_to_excel(
+        ct_ev?.subject,
+        students,
+        "Student",
+        "CONTINUOUS_TOTAL",
+        "constinuous-total"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+    if (excel_key) {
+      ct_ev.export_collection.push({
+        excel_type: "CONTINUOUS_TOTAL",
+        excel_file: excel_key,
+        excel_file_name: excel_key,
+      });
+      ct_ev.export_collection_count += 1;
+      await ct_ev.save();
+    }
   } catch (e) {
     res.status(200).send({
       message: e,

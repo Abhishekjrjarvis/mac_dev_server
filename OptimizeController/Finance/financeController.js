@@ -7238,38 +7238,71 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
       });
 
     var finance = await Finance.findById({ _id: fid });
-    var all_of = await OtherFees.find({
-      $and: [{ _id: { $in: finance?.other_fees } }, { other_fees_type: type }],
-    })
-      .sort({ created_at: -1 })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
-      )
-      .populate({
-        path: "bank_account",
-        select:
-          "finance_bank_account_number finance_bank_name finance_bank_account_name",
+    if (type) {
+      var all_of = await OtherFees.find({
+        $and: [
+          { _id: { $in: finance?.other_fees } },
+          { other_fees_type: type },
+        ],
       })
-      .populate({
-        path: "fee_receipt",
-        select: "receipt_file",
-      })
-      .populate({
-        path: "fee_structure",
-      });
+        .sort({ created_at: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
+        )
+        .populate({
+          path: "bank_account",
+          select:
+            "finance_bank_account_number finance_bank_name finance_bank_account_name",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "receipt_file",
+        })
+        .populate({
+          path: "fee_structure",
+        });
 
-    for (let ele of all_of) {
-      ele.paid_students_count =
-        ele?.paid_students?.length + ele?.fee_receipt_student?.length;
-      ele.remaining_students_count = ele?.student_count;
+      for (let ele of all_of) {
+        ele.paid_students_count =
+          ele?.paid_students?.length + ele?.fee_receipt_student?.length;
+        ele.remaining_students_count = ele?.student_count;
+      }
+    } else {
+      var all_of = await OtherFees.find({
+        $and: [{ _id: { $in: finance?.other_fees } }],
+      })
+        .sort({ created_at: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "other_fees_name fee_receipt_student other_fees_type payable_amount student_count student_name students_list paid_students_count remaining_students_count paid_students fees_heads"
+        )
+        .populate({
+          path: "bank_account",
+          select:
+            "finance_bank_account_number finance_bank_name finance_bank_account_name",
+        })
+        .populate({
+          path: "fee_receipt",
+          select: "receipt_file",
+        })
+        .populate({
+          path: "fee_structure",
+        });
+
+      for (let ele of all_of) {
+        ele.paid_students_count =
+          ele?.paid_students?.length + ele?.fee_receipt_student?.length;
+        ele.remaining_students_count = ele?.student_count;
+      }
+      res.status(200).send({
+        message: "Explore All Other Fees Query",
+        access: true,
+        all_of: all_of,
+      });
     }
-    res.status(200).send({
-      message: "Explore All Other Fees Query",
-      access: true,
-      all_of: all_of,
-    });
   } catch (e) {
     console.log(e);
   }

@@ -355,4 +355,9 @@ router.get(
 router.get("/all/feess", catchAsync(Filter.fees_data));
 
 router.patch("/dob/query/:id", catchAsync(Filter.dob_query));
+
+router.patch(
+  "/:fid/all/combined/summary/bank/daybook",
+  catchAsync(Filter.render_combined_summary_bank_daybook_heads_wise)
+);
 module.exports = router;

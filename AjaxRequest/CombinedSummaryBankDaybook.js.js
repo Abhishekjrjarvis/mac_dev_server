@@ -1965,7 +1965,7 @@ const hostel_daybook = async (
         ins_info: "",
         range: "",
         one_staff: {},
-        date_wise: date_wise ?? [],
+        date_wise: [],
       };
     }
   } catch (e) {

@@ -78,4 +78,11 @@ router
   .route("/outward/remove/:oid/query")
   .delete(catchAsync(inwardOutwardController.outward_remove_query));
 
+router
+  .route("/outward/approved/:ioid/list/query")
+  .get(catchAsync(inwardOutwardController.outward_approved_list_query));
+router
+  .route("/inward/approved/:ioid/list/query")
+  .get(catchAsync(inwardOutwardController.inward_approved_list_query));
+
 module.exports = router;

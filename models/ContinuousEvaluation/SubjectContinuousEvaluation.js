@@ -217,6 +217,22 @@ const subjectContinuousEvaluationSchema = new mongoose.Schema({
       },
     },
   ],
+  import_collection: [
+    {
+      excel_type: {
+        type: String,
+      },
+      excel_file: { type: String },
+      created_at: { type: Date, default: Date.now },
+      status: {
+        type: String,
+      },
+    },
+  ],
+  import_collection_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model(

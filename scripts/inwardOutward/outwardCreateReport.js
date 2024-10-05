@@ -24,7 +24,7 @@ const outwardCreateReport = async (outwardId, instituteId) => {
   const date = new Date();
   let ot_name = `Outward`;
   let pdf_name = `${instituteData?.name}-${ot_name}-${date.getTime()}`;
-  //   let pdf_name = `${ot_name}`;
+  // let pdf_name = `${ot_name}`;
 
   const stream = fs.createWriteStream(`./uploads/${pdf_name}-Report.pdf`);
   doc.pipe(stream);
@@ -42,38 +42,60 @@ const outwardCreateReport = async (outwardId, instituteId) => {
     .stroke();
   doc.moveDown(1);
 
-  doc
-    .fontSize(11)
-    .font("Times-Bold")
-    .fillColor("#121212")
-    .text(`No. ${outward_data?.outward_number ?? ""}`, {
-      width: pageWidth,
-      align: "left",
-    });
+  doc.fontSize(10).font("Times-Roman").fillColor("#121212").text(`No. :`);
+  if (outward_data?.outward_number) {
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(`${outward_data?.outward_number ?? ""}`, {
+        indent: doc.widthOfString(`No. :`) + 4,
+      });
+  }
 
   doc.moveUp(1);
   doc
-    .fontSize(11)
-    .font("Times-Bold")
+    .fontSize(10)
+    .font("Times-Roman")
     .fillColor("#121212")
-    .text(`Date : ${moment(outward_data?.created_at)?.format("DD/MM/yyyy")}`, {
-      width: pageWidth - 40,
+    .text(`Date :`, {
+      width: pageWidth - 90,
       align: "right",
     });
+  if (outward_data?.created_at) {
+    doc.moveUp(1);
 
-  doc
-    .fontSize(11)
-    .font("Times-Bold")
-    .fillColor("#121212")
-    .text(`Subject : ${outward_data?.subject ?? ""}`, {
-      align: "left",
-    });
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(`${moment(outward_data?.created_at)?.format("DD/MM/yyyy")}`, {
+        width: pageWidth - 40,
+        align: "right",
+      });
+  }
+  doc.moveDown(0.4);
+
+  doc.fontSize(10).font("Times-Roman").fillColor("#121212").text(`Subject :`);
+  if (outward_data?.subject) {
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(`${outward_data?.subject ?? ""}`, {
+        indent: doc.widthOfString(`Subject :`) + 4,
+        align: "left",
+      });
+  }
 
   doc.moveDown(1);
+
   doc
-    .fontSize(11)
-    .font("Times-Bold")
-    .fillColor("#121212")
+    .fontSize(10)
+    .font("Times-Roman")
+    .fillColor("#2e2e2e")
     .text(`${outward_data?.body ?? ""}`, {
       align: "left",
     });
@@ -118,7 +140,7 @@ const outwardCreateReport = async (outwardId, instituteId) => {
           });
         }
         doc
-          .font("Times-Bold")
+          .font("Times-Roman")
           .text(
             `${dft?.staff?.staffFirstName ?? ""} ${
               dft?.staff?.staffMiddleName ?? ""
@@ -130,7 +152,7 @@ const outwardCreateReport = async (outwardId, instituteId) => {
             }
           );
         doc
-          .font("Times-Bold")
+          .font("Times-Roman")
           .text(`${dft?.designation ?? ""}`, approval_position[i], yAxix + 65, {
             align: "center",
           });
@@ -141,19 +163,29 @@ const outwardCreateReport = async (outwardId, instituteId) => {
   doc.moveDown(1);
 
   doc
-    .fontSize(11)
-    .font("Times-Bold")
+    .fontSize(10)
+    .font("Times-Roman")
     .fillColor("#121212")
-    .text(
-      `Prepare By : ${outward_data?.prepare_by?.staffFirstName ?? ""} ${
-        outward_data?.prepare_by?.staffMiddleName ?? ""
-      } ${outward_data?.prepare_by?.staffLastName ?? ""}`,
-      20,
-      doc.y,
-      {
-        align: "left",
-      }
-    );
+    .text(`Prepare By :`, 20, doc.y, {
+      align: "left",
+    });
+  if (outward_data?.prepare_by?.staffFirstName) {
+    doc.moveUp(1);
+    doc
+      .fontSize(10)
+      .font("Times-Roman")
+      .fillColor("#2e2e2e")
+      .text(
+        `${outward_data?.prepare_by?.staffFirstName ?? ""} ${
+          outward_data?.prepare_by?.staffMiddleName ?? ""
+        } ${outward_data?.prepare_by?.staffLastName ?? ""}`,
+        74,
+        doc.y,
+        {
+          align: "left",
+        }
+      );
+  }
 
   doc.moveDown(1);
 

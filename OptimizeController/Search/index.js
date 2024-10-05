@@ -892,7 +892,7 @@ exports.searchStaff = async (req, res) => {
       if (req.query.date) {
         const staff = await Staff.find(search)
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16 current_designation"
           )
           .populate({
             path: "user",
@@ -916,7 +916,7 @@ exports.searchStaff = async (req, res) => {
       } else {
         const staff = await Staff.find(search)
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16 current_designation"
           )
           .populate({
             path: "user",
@@ -943,7 +943,7 @@ exports.searchStaff = async (req, res) => {
         ],
       })
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave salary_structure form_16 current_designation"
         )
         .populate({
           path: "user",

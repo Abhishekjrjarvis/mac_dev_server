@@ -248,6 +248,8 @@ exports.outward_creation_query = async (req, res) => {
     if (approvals_for?.length > 0) {
       let prep_by = await Staff.findById(prepare_by);
       let which_one = isInward ? "Inward" : "Outward";
+      let first_name = outward?.subject ?? outward?.name ?? "";
+
       for (let dt of approvals_for) {
         const staff_ou = await InwardOutwardStaff.findOne({
           staff: `${dt?.staff}`,
@@ -261,17 +263,17 @@ exports.outward_creation_query = async (req, res) => {
             const notify = new StudentNotification({
               inoutward: outward?._id,
             });
-            notify.notifyContent = `New ${which_one} Approval by - ${
+            notify.notifyContent = `${first_name} ${which_one} approval requested by - ${
               prep_by?.staffFirstName ?? ""
             } ${prep_by?.staffMiddleName ?? ""} ${
               prep_by?.staffLastName ?? ""
             }.`;
-            notify.notify_hi_content = `New ${which_one} Approval by - ${
+            notify.notify_hi_content = `${first_name} ${which_one} approval requested by - ${
               prep_by?.staffFirstName ?? ""
             } ${prep_by?.staffMiddleName ?? ""} ${
               prep_by?.staffLastName ?? ""
             }.`;
-            notify.notify_mr_content = `New ${which_one} Approval by - ${
+            notify.notify_mr_content = `${first_name} ${which_one} approval requested by - ${
               prep_by?.staffFirstName ?? ""
             } ${prep_by?.staffMiddleName ?? ""} ${
               prep_by?.staffLastName ?? ""
@@ -290,7 +292,7 @@ exports.outward_creation_query = async (req, res) => {
               invokeMemberTabNotification(
                 "Student Activity",
                 notify,
-                `New ${which_one} Approval by - ${
+                `${first_name} ${which_one} approval requested by - ${
                   prep_by?.staffFirstName ?? ""
                 } ${prep_by?.staffMiddleName ?? ""} ${
                   prep_by?.staffLastName ?? ""
@@ -305,6 +307,11 @@ exports.outward_creation_query = async (req, res) => {
         }
       }
     }
+
+    // await outwardCreateReport(
+    //   "66ff78762c5f09dca7aa8ec2",
+    //   "651ba22de39dbdf817dd520c"
+    // );
   } catch (e) {
     console.log(e);
   }
@@ -476,7 +483,7 @@ exports.staff_outward_recieve_pending_list_query = async (req, res) => {
         })
 
         .select(
-          "outward_type subject body generated_report prepare_by outward_status created_at model_type name number cancle_by_staff"
+          "outward_type subject prepare_by outward_status created_at model_type name number outward_number"
         );
     } else {
       outward = await OutwardCreate.find({
@@ -493,7 +500,7 @@ exports.staff_outward_recieve_pending_list_query = async (req, res) => {
         })
 
         .select(
-          "outward_type subject body generated_report prepare_by outward_status created_at model_type name number cancle_by_staff"
+          "outward_type subject prepare_by outward_status created_at model_type name number outward_number"
         )
         .sort({
           created_at: -1,
@@ -558,7 +565,7 @@ exports.staff_outward_recieve_approved_list_query = async (req, res) => {
         })
 
         .select(
-          "outward_type subject body generated_report prepare_by outward_status created_at model_type name number"
+          "outward_type subject generated_report prepare_by outward_status created_at model_type name number outward_number"
         );
     } else {
       outward = await OutwardCreate.find({
@@ -575,7 +582,7 @@ exports.staff_outward_recieve_approved_list_query = async (req, res) => {
         })
 
         .select(
-          "outward_type subject body generated_report prepare_by outward_status created_at model_type name number"
+          "outward_type subject generated_report prepare_by outward_status created_at model_type name number outward_number"
         )
         .sort({
           created_at: -1,
@@ -632,16 +639,9 @@ exports.staff_outward_sent_pending_list_query = async (req, res) => {
             ],
           },
         ],
-      })
-        .populate({
-          path: "approvals_for.staff",
-          select:
-            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
-        })
-
-        .select(
-          "outward_type subject generated_report outward_status approvals_for model_type name number date created_at"
-        );
+      }).select(
+        "outward_type subject outward_status model_type name number date created_at outward_number"
+      );
     } else {
       outward = await OutwardCreate.find({
         $and: [
@@ -650,14 +650,9 @@ exports.staff_outward_sent_pending_list_query = async (req, res) => {
           },
         ],
       })
-        .populate({
-          path: "approvals_for.staff",
-          select:
-            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
-        })
 
         .select(
-          "outward_type subject generated_report outward_status approvals_for model_type name number date created_at"
+          "outward_type subject outward_status model_type name number date created_at outward_number"
         )
         .sort({
           created_at: -1,
@@ -713,16 +708,9 @@ exports.staff_outward_sent_approved_list_query = async (req, res) => {
             ],
           },
         ],
-      })
-        .populate({
-          path: "approvals_for.staff",
-          select:
-            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
-        })
-
-        .select(
-          "outward_type subject generated_report outward_status approvals_for model_type name number date created_at"
-        );
+      }).select(
+        "outward_type subject outward_status generated_report model_type name number date created_at outward_number"
+      );
     } else {
       outward = await OutwardCreate.find({
         $and: [
@@ -731,14 +719,8 @@ exports.staff_outward_sent_approved_list_query = async (req, res) => {
           },
         ],
       })
-        .populate({
-          path: "approvals_for.staff",
-          select:
-            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
-        })
-
         .select(
-          "outward_type subject generated_report outward_status approvals_for model_type name number date created_at"
+          "outward_type subject outward_status generated_report model_type name number date created_at outward_number"
         )
         .sort({
           created_at: -1,
@@ -805,9 +787,7 @@ exports.outward_list_query = async (req, res) => {
             "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
         })
 
-        .select(
-          "outward_type subject body image attachment generated_report prepare_by outward_status"
-        );
+        .select("outward_type subject prepare_by outward_number created_at");
     } else {
       outward = await OutwardCreate.find({
         $and: [
@@ -828,10 +808,10 @@ exports.outward_list_query = async (req, res) => {
             "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
         })
 
-        .select(
-          "outward_type subject body image attachment generated_report prepare_by outward_status"
-        )
-        .sort("-1")
+        .select("outward_type subject prepare_by outward_number created_at")
+        .sort({
+          created_at: -1,
+        })
         .skip(dropItem)
         .limit(itemPerPage);
     }
@@ -894,7 +874,7 @@ exports.inward_list_query = async (req, res) => {
         })
 
         .select(
-          "outward_type attachment generated_report prepare_by outward_status model_type name number date"
+          "outward_type prepare_by outward_status name number created_at"
         );
     } else {
       outward = await OutwardCreate.find({
@@ -916,10 +896,190 @@ exports.inward_list_query = async (req, res) => {
             "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
         })
 
+        .select("outward_type prepare_by outward_status name number created_at")
+        .sort({
+          created_at: -1,
+        })
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "One Guide Mentee List",
+      access: true,
+      outward: outward,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.outward_approved_list_query = async (req, res) => {
+  try {
+    const { ioid } = req.params;
+    if (!ioid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    let outward = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      outward = await OutwardCreate.find({
+        $and: [
+          {
+            inward_outward: { $eq: `${ioid}` },
+          },
+          {
+            model_type: { $eq: "OUTWARD" },
+          },
+          {
+            outward_status: { $eq: "Approved" },
+          },
+          {
+            $or: [
+              {
+                subject: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                body: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                outward_type: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "prepare_by",
+          select:
+            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
+        })
+
         .select(
-          "outward_type attachment generated_report prepare_by outward_status model_type name number date"
+          "outward_type subject prepare_by outward_number created_at generated_report"
+        );
+    } else {
+      outward = await OutwardCreate.find({
+        $and: [
+          {
+            inward_outward: { $eq: `${ioid}` },
+          },
+          {
+            model_type: { $eq: "OUTWARD" },
+          },
+          {
+            outward_status: { $eq: "Approved" },
+          },
+        ],
+      })
+        .populate({
+          path: "prepare_by",
+          select:
+            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
+        })
+
+        .select(
+          "outward_type subject prepare_by outward_number created_at generated_report"
         )
-        .sort("-1")
+        .sort({
+          created_at: -1,
+        })
+        .skip(dropItem)
+        .limit(itemPerPage);
+    }
+
+    res.status(200).send({
+      message: "One Guide Mentee List",
+      access: true,
+      outward: outward,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.inward_approved_list_query = async (req, res) => {
+  try {
+    const { ioid } = req.params;
+    if (!ioid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    let outward = [];
+
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      outward = await OutwardCreate.find({
+        $and: [
+          {
+            inward_outward: { $eq: `${ioid}` },
+          },
+          {
+            model_type: { $eq: "INWARD" },
+          },
+          {
+            outward_status: { $eq: "Approved" },
+          },
+          {
+            $or: [
+              {
+                subject: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                body: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                outward_type: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .populate({
+          path: "prepare_by",
+          select:
+            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
+        })
+
+        .select(
+          "outward_type prepare_by outward_status name number created_at generated_report"
+        );
+    } else {
+      outward = await OutwardCreate.find({
+        $and: [
+          {
+            inward_outward: { $eq: `${ioid}` },
+          },
+          {
+            model_type: { $eq: "INWARD" },
+          },
+          {
+            outward_status: { $eq: "Approved" },
+          },
+        ],
+      })
+        .populate({
+          path: "prepare_by",
+          select:
+            "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto",
+        })
+
+        .select(
+          "outward_type prepare_by outward_status name number created_at generated_report"
+        )
+        .sort({
+          created_at: -1,
+        })
         .skip(dropItem)
         .limit(itemPerPage);
     }

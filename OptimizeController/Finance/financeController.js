@@ -7269,6 +7269,11 @@ exports.renderAllOtherFeesQuery = async (req, res) => {
           ele?.paid_students?.length + ele?.fee_receipt_student?.length;
         ele.remaining_students_count = ele?.student_count;
       }
+      res.status(200).send({
+        message: "Explore All Other Fees Query",
+        access: true,
+        all_of: all_of,
+      });
     } else {
       var all_of = await OtherFees.find({
         $and: [{ _id: { $in: finance?.other_fees } }],
@@ -9330,14 +9335,12 @@ exports.new_format_fee_collect = async (req, res) => {
     ]);
     await Promise.all([finance.save(), o_f.save()]);
     let key = await studentOtherFeeReceipt(new_receipt?._id, institute?._id);
-    res
-      .status(200)
-      .send({
-        message: "Explore New Other Fees Collect Query",
-        access: true,
-        key: key,
-        receipt: new_receipt?._id,
-      });
+    res.status(200).send({
+      message: "Explore New Other Fees Collect Query",
+      access: true,
+      key: key,
+      receipt: new_receipt?._id,
+    });
   } catch (e) {
     console.log(e);
   }

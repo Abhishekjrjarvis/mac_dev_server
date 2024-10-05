@@ -778,6 +778,9 @@ const staffSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  inward_outward_signature: {
+    type: String,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

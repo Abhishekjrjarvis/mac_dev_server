@@ -9780,12 +9780,10 @@ exports.add_location_premises_query = async (req, res) => {
     const { id } = req?.params;
     const { latitude, longitude, place_name, premise_area } = req?.body;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const ins = await InstituteAdmin.findById({ _id: id }).select(
       "latitude longitude place_name premise_area"
@@ -9799,6 +9797,106 @@ exports.add_location_premises_query = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Institute Premise", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.new_staff_checklist_section_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { flow } = req?.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "INSTITUTE") {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const ifs = await InstituteStaffForm.findOne({ institute: id })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+          },
+        });
+      var i = 0;
+      var nums = ifs?.form_section?.filter((ele) => {
+        if (`${ele?.section_key}` === `basic_details`) return ele;
+      });
+      let sample = [
+        {
+          form_checklist_name: "Staff Signature",
+          form_checklist_key: "inward_outward_signature",
+          form_checklist_visibility: true,
+          form_checklist_placeholder: "Upload Staff Signature",
+          form_checklist_lable: "Upload Staff Signature",
+          form_checklist_typo: "CROPIMAGE",
+          form_checklist_required: true,
+        },
+      ];
+      var numss = [];
+      for (let ele of sample) {
+        var fc = new FormChecklist({
+          form_checklist_name: ele?.form_checklist_name,
+          form_checklist_key: ele?.form_checklist_key,
+          form_checklist_visibility: ele?.form_checklist_visibility,
+          form_checklist_placeholder: ele?.form_checklist_placeholder,
+          form_checklist_lable: ele?.form_checklist_lable,
+          form_checklist_typo: ele?.form_checklist_typo,
+          form_checklist_required: ele?.form_checklist_required,
+          // form_common_key: ele?.form_common_key,
+          // form_checklist_enable: ele?.form_checklist_enable,
+          width: ele?.width,
+        });
+        if (
+          ele?.form_checklist_typo_option_pl &&
+          ele?.form_checklist_typo_option_pl?.length > 0
+        ) {
+          fc.form_checklist_typo_option_pl = [
+            ...ele?.form_checklist_typo_option_pl,
+          ];
+        }
+        fc.form = ifs?._id;
+        fc.form_section = nums[0]?._id;
+        await fc.save();
+        numss.push(fc);
+      }
+      // console.log(nums[0])
+      nums[0].form_checklist.push(...numss);
+      await ifs.save();
+      console.log(i);
+      i += 1;
+      res.status(200).send({
+        message: "Explore One Section Insertion",
+        flow,
+        access: true,
+        nums,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_student_scholarship_query = async (req, res) => {
+  try {
+    const all_student = await Student.find({}).select(
+      "studentFirstName studentMiddleName studentLastName studentFatherName student_scholarship_name"
+    );
+
+    let i = 0;
+    for (let cls of all_student) {
+      cls.student_scholarship_name = `${cls?.studentFirstName?.trim()} ${
+        cls?.studentMiddleName?.trim() ?? cls?.studentFatherName?.trim()
+      } ${cls?.studentLastName?.trim()}`;
+      await cls.save();
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "DONE" });
   } catch (e) {
     console.log(e);
   }

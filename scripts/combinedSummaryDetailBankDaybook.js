@@ -2,12 +2,12 @@ const PDFDocument = require("pdfkit-table");
 const fs = require("fs");
 const { uploadDocsFile } = require("../S3Configuration");
 const util = require("util");
-const combinedSummaryBankDaybookData = require("../AjaxRequest/combinedSummaryBankDaybookData");
+const combinedSummaryDetailBankDaybookData = require("../AjaxRequest/combinedSummaryDetailBankDaybookData");
 const BankAccount = require("../models/Finance/BankAccount");
 const Finance = require("../models/Finance");
 const instituteReportHeader = require("./subject/instituteReportHeader");
 const unlinkFile = util.promisify(fs.unlink);
-const combinedSummaryBankDaybook = async (
+const combinedSummaryDetailBankDaybook = async (
   fid,
   from,
   to,
@@ -21,7 +21,7 @@ const combinedSummaryBankDaybook = async (
     size: "A4",
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
-  const result = await combinedSummaryBankDaybookData(
+  const result = await combinedSummaryDetailBankDaybookData(
     fid,
     from,
     to,
@@ -38,12 +38,12 @@ const combinedSummaryBankDaybook = async (
   let date = new Date();
   let stu_name = `${instituteData?.name}`;
   // const stream = fs.createWriteStream(
-  //   `./uploads/${stu_name}-combined-summary-bank-daybook.pdf`
+  //   `./uploads/${stu_name}-combined-summary-detail-bank-daybook.pdf`
   // );
 
   let name = `${stu_name}-${date.getTime()}`;
   const stream = fs.createWriteStream(
-    `./uploads/${name}-combined-summary-bank-daybook.pdf`
+    `./uploads/${name}-combined-summary-detail-bank-daybook.pdf`
   );
 
   doc.pipe(stream);
@@ -528,14 +528,14 @@ const combinedSummaryBankDaybook = async (
     const finance = await Finance.findById({ _id: fid });
     const bank_acc = await BankAccount.findById({ _id: bank });
     let file = {
-      path: `uploads/${name}-combined-summary-bank-daybook.pdf`,
-      filename: `${name}-combined-summary-bank-daybook.pdf`,
+      path: `uploads/${name}-combined-summary-detail-bank-daybook.pdf`,
+      filename: `${name}-combined-summary-detail-bank-daybook.pdf`,
       mimetype: "application/pdf",
     };
     const results = await uploadDocsFile(file);
     bank_acc.day_book.push({
       excel_file: results?.Key,
-      excel_file_name: `${name}-combined-summary-bank-daybook.pdf`,
+      excel_file_name: `${name}-combined-summary-detail-bank-daybook.pdf`,
       from: from,
       to: to,
       payment_type: payment_type,
@@ -543,7 +543,7 @@ const combinedSummaryBankDaybook = async (
     });
     finance.day_book.push({
       excel_file: results?.Key,
-      excel_file_name: `${name}-combined-summary-bank-daybook.pdf`,
+      excel_file_name: `${name}-combined-summary-detail-bank-daybook.pdf`,
       from: from,
       to: to,
       payment_type: payment_type,
@@ -554,7 +554,7 @@ const combinedSummaryBankDaybook = async (
     await Promise.all([bank_acc.save(), finance.save()]);
   });
 
-  return `${name}-combined-summary-bank-daybook.pdf`;
+  return `${name}-combined-summary-detail-bank-daybook.pdf`;
   //   console.log(data);
 };
-module.exports = combinedSummaryBankDaybook;
+module.exports = combinedSummaryDetailBankDaybook;

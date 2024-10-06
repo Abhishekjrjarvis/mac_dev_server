@@ -1,6 +1,8 @@
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
-const { email_sms_designation_application } = require("../../WhatsAppSMS/payload");
+const {
+  email_sms_designation_application,
+} = require("../../WhatsAppSMS/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const Admission = require("../../models/Admission/Admission");
 const NewApplication = require("../../models/Admission/NewApplication");
@@ -12,7 +14,9 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Student = require("../../models/Student");
 const User = require("../../models/User");
-
+const Subject = require("../../models/Subject");
+const Batch = require("../../models/Batch");
+const Class = require("../../models/Class");
 exports.renderStudentFormQuery = async (req, res) => {
   try {
     const { did } = req.params;
@@ -54,28 +58,32 @@ exports.renderFormUpdateQuery = async (req, res) => {
 
 exports.renderAddApplicationQuery = async (req, res) => {
   try {
-    const { did } = req?.params
-    const { apps, flow } = req?.body
-    if (!did) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const depart = await Department.findById({ _id: did })
+    const { did } = req?.params;
+    const { apps, flow } = req?.body;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did });
     if (flow === "ADD") {
       for (let ele of apps) {
-        depart.filter_application.push(ele)
+        depart.filter_application.push(ele);
       }
-    }
-    else if (flow === "REMOVE") {
+    } else if (flow === "REMOVE") {
       for (let ele of apps) {
-        depart.filter_application.pull(ele)
+        depart.filter_application.pull(ele);
       }
     }
-    await depart.save()
-    res.status(200).send({ message: `${flow} Application In Department`, access: true})
+    await depart.save();
+    res
+      .status(200)
+      .send({ message: `${flow} Application In Department`, access: true });
+  } catch (e) {
+    console.log();
   }
-  catch (e) {
-    console.log()
-  }
-}
+};
 
 exports.retieveDepartmentAllApplication = async (req, res) => {
   try {
@@ -122,14 +130,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var na = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) na.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  na.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -147,11 +157,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(na.map((item) => item._id))];
-            var all_rec = []
+            var all_rec = [];
             for (let stu of ref?.receievedApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_rec.push(stu)
+                  all_rec.push(stu);
                 }
               }
             }
@@ -164,14 +174,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_sel.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_sel } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_sel },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var nb = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) nb.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  nb.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -189,11 +201,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(nb.map((item) => item._id))];
-            var all_sel = []
+            var all_sel = [];
             for (let stu of ref?.selectedApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_sel.push(stu)
+                  all_sel.push(stu);
                 }
               }
             }
@@ -206,14 +218,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_fee.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_fee } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_fee },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var n = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) n.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  n.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -231,11 +245,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(n.map((item) => item._id))];
-            var all_fee = []
+            var all_fee = [];
             for (let stu of ref?.FeeCollectionApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_fee.push(stu)
+                  all_fee.push(stu);
                 }
               }
             }
@@ -248,14 +262,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_conf.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_conf } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_conf },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var n = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) n.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  n.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -273,11 +289,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(n.map((item) => item._id))];
-            var all_conf = []
+            var all_conf = [];
             for (let stu of ref?.confirmedApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_conf.push(stu)
+                  all_conf.push(stu);
                 }
               }
             }
@@ -290,14 +306,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_rev.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_rev } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_rev },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var n = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) n.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  n.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -315,11 +333,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(n.map((item) => item._id))];
-            var all_rev = []
+            var all_rev = [];
             for (let stu of ref?.reviewApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_rev.push(stu)
+                  all_rev.push(stu);
                 }
               }
             }
@@ -332,14 +350,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_all.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_all } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_all },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var n = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) n.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  n.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -357,11 +377,11 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(n.map((item) => item._id))];
-            var all_allot = []
+            var all_allot = [];
             for (let stu of ref?.allottedApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_allot.push(stu)
+                  all_allot.push(stu);
                 }
               }
             }
@@ -374,14 +394,16 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
                 numss_can.push(ele?.student);
               }
             }
-            const all_student = await Student.find({ _id: { $in: numss_can } })
-              .select(
-                "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
-              )
+            const all_student = await Student.find({
+              _id: { $in: numss_can },
+            }).select(
+              "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId student_optional_subject major_subject nested_subject"
+            );
             var n = [];
             for (let val of all_student) {
               for (let ele of val?.student_optional_subject) {
-                if (depart?.merged_subject_master?.includes(`${ele}`)) n.push(val);
+                if (depart?.merged_subject_master?.includes(`${ele}`))
+                  n.push(val);
               }
               for (let val of all_student) {
                 for (let ele of val?.major_subject) {
@@ -399,20 +421,18 @@ exports.retieveDepartmentAllApplication = async (req, res) => {
               }
             }
             const unique = [...new Set(n.map((item) => item._id))];
-            var all_can = []
+            var all_can = [];
             for (let stu of ref?.cancelApplication) {
               for (let cls of unique) {
                 if (`${cls}` === `${stu?.student}`) {
-                  all_can.push(stu)
+                  all_can.push(stu);
                 }
               }
             }
             ref.cancelCount = all_can?.length ?? 0;
           }
-
         }
-      }
-      else {
+      } else {
         for (var ref of ongoing) {
           ref.selectCount = ref?.selectedApplication?.length;
           ref.confirmCount = ref?.confirmedApplication?.length;
@@ -452,7 +472,7 @@ exports.render_application_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -495,67 +515,66 @@ exports.render_application_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-      const unique = [...new Set(n.map((item) => item._id))];
-      var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.receievedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.receievedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.receievedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.receievedApplication];
       }
-    res.status(200).send({
-      message: "Explore All Receieved Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+      res.status(200).send({
+        message: "Explore All Receieved Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("receievedApplication")
         .populate({
@@ -572,66 +591,66 @@ exports.render_application_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.receievedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.receievedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.receievedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.receievedApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Receieved Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Receieved Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -652,7 +671,7 @@ exports.render_selected_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -687,15 +706,15 @@ exports.render_selected_tab_query = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
-                path: "fee_structure hostel_fee_structure",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-                populate: {
-                  path: "category_master",
-                  select: "category_name",
-                },
+                path: "category_master",
+                select: "category_name",
               },
+            },
           },
         });
       for (let ele of apply?.selectedApplication) {
@@ -704,67 +723,66 @@ exports.render_selected_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
+      for (let val of all_student) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
+            n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
+          }
+        }
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
+          }
+        }
+      }
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.selectedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.selectedApplication];
+      }
+      res.status(200).send({
+        message: "Explore All Receieved Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
       });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
-      for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-    if (depart?.department_status === "Academic") {
-      for (let stu of apply?.selectedApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student?._id}`) {
-            all.push(stu)
-          }
-        }
-      }
-    }
-    else {
-      all = [...apply?.selectedApplication]
-    }
-    res.status(200).send({
-      message: "Explore All Receieved Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("selectedApplication")
         .populate({
@@ -773,15 +791,15 @@ exports.render_selected_tab_query = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+            populate: {
+              path: "fee_structure hostel_fee_structure",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
-                path: "fee_structure hostel_fee_structure",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
-                populate: {
-                  path: "category_master",
-                  select: "category_name",
-                },
+                path: "category_master",
+                select: "category_name",
               },
+            },
           },
         });
       for (let ele of apply?.selectedApplication) {
@@ -790,66 +808,66 @@ exports.render_selected_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
       var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-      const unique = [...new Set(n.map((item) => item._id))];
-      var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.selectedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.selectedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.selectedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.selectedApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Selected Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Selected Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -870,7 +888,7 @@ exports.render_fees_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -922,67 +940,66 @@ exports.render_fees_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.FeeCollectionApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.FeeCollectionApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.FeeCollectionApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.FeeCollectionApplication];
       }
-    res.status(200).send({
-      message: "Explore All Receieved Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+      res.status(200).send({
+        message: "Explore All Receieved Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("FeeCollectionApplication")
         .populate({
@@ -997,66 +1014,66 @@ exports.render_fees_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
+      for (let val of all_student) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
+            n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
+          }
+        }
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
+          }
+        }
+      }
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.FeeCollectionApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.FeeCollectionApplication];
+      }
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Fees Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
       });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
-      for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-    if (depart?.department_status === "Academic") {
-      for (let stu of apply?.FeeCollectionApplication) {
-        for (let cls of unique) {
-          if (`${cls}` === `${stu?.student?._id}`) {
-            all.push(stu)
-          }
-        }
-      }
-    }
-    else {
-      all = [...apply?.FeeCollectionApplication]
-    }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Fees Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -1077,7 +1094,7 @@ exports.render_confirm_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1112,15 +1129,15 @@ exports.render_confirm_tab_query = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.confirmedApplication) {
@@ -1129,67 +1146,66 @@ exports.render_confirm_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.confirmedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.confirmedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.confirmedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.confirmedApplication];
       }
-    res.status(200).send({
-      message: "Explore All Receieved Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+      res.status(200).send({
+        message: "Explore All Receieved Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("confirmedApplication")
         .populate({
@@ -1215,15 +1231,15 @@ exports.render_confirm_tab_query = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.confirmedApplication) {
@@ -1232,66 +1248,66 @@ exports.render_confirm_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.confirmedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.confirmedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.confirmedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.confirmedApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Confirmed Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Confirmed Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -1312,7 +1328,7 @@ exports.render_review_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1326,34 +1342,34 @@ exports.render_review_tab_query = async (req, res) => {
         .select("reviewApplication")
         .populate({
           path: "reviewApplication",
-            match: {
-              $or: [
-                { studentFirstName: { $regex: `${search}`, $options: "i" } },
-                {
-                  studentMiddleName: { $regex: `${search}`, $options: "i" },
-                },
-                {
-                  studentLastName: { $regex: `${search}`, $options: "i" },
-                },
-                {
-                  valid_full_name: { $regex: `${search}`, $options: "i" },
-                },
-                {
-                  form_no: { $regex: `${search}`, $options: "i" },
-                },
-              ],
-            },
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
+          match: {
+            $or: [
+              { studentFirstName: { $regex: `${search}`, $options: "i" } },
+              {
+                studentMiddleName: { $regex: `${search}`, $options: "i" },
               },
+              {
+                studentLastName: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                valid_full_name: { $regex: `${search}`, $options: "i" },
+              },
+              {
+                form_no: { $regex: `${search}`, $options: "i" },
+              },
+            ],
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
+          populate: {
+            path: "fee_structure hostel_fee_structure fee_receipt",
+            select:
+              "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+            // populate: {
+            //   path: "category_master",
+            //   select: "category_name",
+            // },
+          },
         });
       for (let ele of apply?.reviewApplication) {
         if (ele._id !== null) {
@@ -1361,135 +1377,135 @@ exports.render_review_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-      const unique = [...new Set(n.map((item) => item._id))];
-      var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.reviewApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.reviewApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.reviewApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.reviewApplication];
       }
-    res.status(200).send({
-      message: "Explore All Review Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
-      var apply = await NewApplication.findById({ _id: aid })
-        .select("reviewApplication")
+      res.status(200).send({
+        message: "Explore All Review Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
+      var apply = await NewApplication.findById({ _id: aid }).select(
+        "reviewApplication"
+      );
       for (let ele of apply?.reviewApplication) {
         if (ele._id !== null) {
           numss.push(ele?._id);
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.reviewApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.reviewApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.reviewApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.reviewApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Review Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Review Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -1510,7 +1526,7 @@ exports.render_allotted_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1545,15 +1561,15 @@ exports.render_allotted_tab_query = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.allottedApplication) {
@@ -1562,67 +1578,66 @@ exports.render_allotted_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-      const unique = [...new Set(n.map((item) => item._id))];
-      var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.allottedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.allottedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.allottedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.allottedApplication];
       }
-    res.status(200).send({
-      message: "Explore All Allotted Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+      res.status(200).send({
+        message: "Explore All Allotted Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("allottedApplication")
         .populate({
@@ -1631,15 +1646,15 @@ exports.render_allotted_tab_query = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.allottedApplication) {
@@ -1648,66 +1663,66 @@ exports.render_allotted_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.allottedApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.allottedApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.allottedApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.allottedApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Allotted Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Allotted Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -1728,7 +1743,7 @@ exports.render_cancelled_tab_query = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
+    const { search } = req?.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -1763,15 +1778,15 @@ exports.render_cancelled_tab_query = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.cancelApplication) {
@@ -1780,67 +1795,66 @@ exports.render_cancelled_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.cancelApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.cancelApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.cancelApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.cancelApplication];
       }
-    res.status(200).send({
-      message: "Explore All Cancelled Application Students Master Query",
-      access: true,
-      student: all?.length > 0 ? all : [],
-      student_count: all?.length ?? 0,
-    });
-    }
-    else {
+      res.status(200).send({
+        message: "Explore All Cancelled Application Students Master Query",
+        access: true,
+        student: all?.length > 0 ? all : [],
+        student_count: all?.length ?? 0,
+      });
+    } else {
       var apply = await NewApplication.findById({ _id: aid })
         .select("cancelApplication")
         .populate({
@@ -1849,15 +1863,15 @@ exports.render_cancelled_tab_query = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto application_print studentGender studentPhoneNumber studentParentsPhoneNumber user valid_full_name form_no",
-              populate: {
-                path: "fee_structure hostel_fee_structure fee_receipt",
-                select:
-                  "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
-                // populate: {
-                //   path: "category_master",
-                //   select: "category_name",
-                // },
-              },
+            populate: {
+              path: "fee_structure hostel_fee_structure fee_receipt",
+              select:
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month receipt_file",
+              // populate: {
+              //   path: "category_master",
+              //   select: "category_name",
+              // },
+            },
           },
         });
       for (let ele of apply?.cancelApplication) {
@@ -1866,66 +1880,66 @@ exports.render_cancelled_tab_query = async (req, res) => {
         }
       }
       const all_student = await Student.find({ _id: { $in: numss } })
-      .select(
-        "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName username",
-      })
-      .populate({
-        path: "student_optional_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "major_subject",
-        select: "subjectName",
-      })
-      .populate({
-        path: "nested_subject",
-        select: "subjectName",
-      });
-    var n = [];
-    for (let val of all_student) {
-      for (let ele of val?.student_optional_subject) {
-        if (depart?.merged_subject_master?.includes(`${ele?._id}`)) n.push(val);
-      }
+        .select(
+          "studentFirstName studentMiddleName studentFatherName studentLastName studentProfilePhoto photoId studentGender studentPhoneNumber studentEmail studentROLLNO studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .populate({
+          path: "student_optional_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "major_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "nested_subject",
+          select: "subjectName",
+        });
+      var n = [];
       for (let val of all_student) {
-        for (let ele of val?.major_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+        for (let ele of val?.student_optional_subject) {
+          if (depart?.merged_subject_master?.includes(`${ele?._id}`))
             n.push(val);
+        }
+        for (let val of all_student) {
+          for (let ele of val?.major_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
+            }
           }
         }
-      }
-      for (let val of all_student) {
-        for (let ele of val?.nested_subject) {
-          if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
-            n.push(val);
-          }
-        }
-      }
-    }
-    const unique = [...new Set(n.map((item) => item._id))];
-    var all = []
-      if (depart?.department_status === "Academic") {
-        for (let stu of apply?.cancelApplication) {
-          for (let cls of unique) {
-            if (`${cls}` === `${stu?.student?._id}`) {
-              all.push(stu)
+        for (let val of all_student) {
+          for (let ele of val?.nested_subject) {
+            if (depart?.merged_subject_master?.includes(`${ele?._id}`)) {
+              n.push(val);
             }
           }
         }
       }
-      else {
-        all = [...apply?.cancelApplication]
+      const unique = [...new Set(n.map((item) => item._id))];
+      var all = [];
+      if (depart?.department_status === "Academic") {
+        for (let stu of apply?.cancelApplication) {
+          for (let cls of unique) {
+            if (`${cls}` === `${stu?.student?._id}`) {
+              all.push(stu);
+            }
+          }
+        }
+      } else {
+        all = [...apply?.cancelApplication];
       }
-    const all_students = await nested_document_limit(page, limit, all);
-    res.status(200).send({
-      message: "Explore All Cancelled Application Students Master Query",
-      access: true,
-      student: all_students?.length > 0 ? all_students : [],
-      student_count: all?.length,
-    });
+      const all_students = await nested_document_limit(page, limit, all);
+      res.status(200).send({
+        message: "Explore All Cancelled Application Students Master Query",
+        access: true,
+        student: all_students?.length > 0 ? all_students : [],
+        student_count: all?.length,
+      });
     }
     // await Student.find({ _id: { $in: unique } })
     //   .select(
@@ -2140,3 +2154,122 @@ exports.retrieveDepartmentCancelApplication = async (req, res) => {
   }
 };
 
+exports.custom_batch_data_correction = async (req, res) => {
+  try {
+    const { did } = req?.params;
+    if (!did)
+      return res
+        .status(200)
+        .send({ message: "Their is a need to fixed", access: false });
+
+    const dep = await Department.findById({ _id: did }).select("batches");
+
+    const all_class = await Class.find({
+      $and: [
+        { department: did },
+        {
+          batch: {
+            $in: ["669e07e4ee30ba0b12e68d89"],
+            // $in: ["6538cc57e79fb543afc4f461"],
+          },
+        },
+      ],
+    }).select("multiple_batches classTitle batch");
+
+    // let nums = [];
+    // for (let cls of all_class) {
+    //   if (cls?.multiple_batches?.length > 0) {
+    //     nums.push(...cls?.multiple_batches);
+    //   }
+    // }
+
+    // let previous_batches = [
+    //   "653a5ce22fc2206530d68a8d",
+    //   "653a5ce82fc2206530d68aa6",
+    //   "653a5cc72fc2206530d68a2e",
+    //   "653a5ccd2fc2206530d68a34",
+    //   "653a5cd22fc2206530d68a48",
+    // ];
+
+    let nums = [];
+    let batch_remove_class_select = [];
+    let batch_remove_cls = [];
+    // for (let cls of all_class) {
+    //   if (cls?.multiple_batches?.length > 0) {
+    //     let cty = [...cls?.multiple_batches];
+    //     for (let ot of cty) {
+    //       if (previous_batches?.includes(`${ot}`)) {
+    //         batch_remove_cls.push({
+    //           cls: cls?._id,
+    //           ot: ot,
+    //         });
+    //         cls?.multiple_batches.pull(ot);
+    //         await cls.save();
+    //         const batch_internal = await Batch.findById(ot);
+    //         if (batch_internal?._id) {
+    //           if (`${batch_internal?.class_batch_select}` === `${cls?._id}`) {
+    //             batch_remove_class_select.push({
+    //               ct: cls?._id,
+    //               bt_internal: batch_internal?._id,
+    //             });
+    //             batch_internal.class_batch_select = null;
+    //             await batch_internal.save();
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    // let dft_subject = [
+    //   {
+    //     cls: "669e07e5ee30ba0b12e68d8e",
+    //     ot: "653a5ce22fc2206530d68a8d",
+    //   },
+    //   {
+    //     cls: "669e07e5ee30ba0b12e68d8e",
+    //     ot: "653a5ce82fc2206530d68aa6",
+    //   },
+    //   {
+    //     cls: "669e07fbee30ba0b12e68ee1",
+    //     ot: "653a5cc72fc2206530d68a2e",
+    //   },
+    //   {
+    //     cls: "669e07fbee30ba0b12e68ee1",
+    //     ot: "653a5ccd2fc2206530d68a34",
+    //   },
+    //   {
+    //     cls: "669e07fbee30ba0b12e68ee1",
+    //     ot: "653a5cd22fc2206530d68a48",
+    //   },
+    // ];
+    // if (dft_subject?.length > 0) {
+    //   for (let ot of dft_subject) {
+    //     const sub_all = await Subject.find({
+    //       class: `${ot?.cls}`,
+    //     });
+    //     if (sub_all?.length) {
+    //       for (let sub of sub_all) {
+    //         if (sub?.selected_batch_query) {
+    //           if (`${sub?.selected_batch_query}` === `${ot?.ot}`) {
+    //             sub.selected_batch_query = null;
+    //             await sub.save();
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
+
+    res.status(200).send({
+      message: "Explore",
+      nums,
+      batch_remove_class_select,
+      batch_remove_cls,
+    });
+
+    // const all_batch = await Batch.find({ _id: { $in: ?.batches } })
+  } catch (e) {
+    console.log(e);
+  }
+};

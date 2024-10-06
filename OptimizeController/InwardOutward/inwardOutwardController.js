@@ -1294,7 +1294,7 @@ exports.outward_update_query = async (req, res) => {
       });
     }
 
-    await OutwardCreate.findByIdAndUpdate(iod, req.body);
+    await OutwardCreate.findByIdAndUpdate(oid, req.body);
     return res.status(200).send({
       message: "Outward updated successfully",
     });
@@ -1311,7 +1311,7 @@ exports.outward_remove_query = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    const outward = await OutwardCreate.findById(iod);
+    const outward = await OutwardCreate.findById(oid);
     if (outward?.inward_outward) {
       const inout = await InwardOutward.findById(outward?.inward_outward);
       inout.outward.pull(outward?._id);
@@ -1329,7 +1329,7 @@ exports.outward_remove_query = async (req, res) => {
     } else {
     }
     if (outward?.approvals_for?.length > 0) {
-      for (let dt of approvals_for) {
+      for (let dt of outward?.approvals_for) {
         const staff_ou = await InwardOutwardStaff.findOne({
           staff: `${dt?.staff}`,
         });
@@ -1337,6 +1337,7 @@ exports.outward_remove_query = async (req, res) => {
         await staff_ou.save();
       }
     }
+    await OutwardCreate.findByIdAndDelete(oid);
     return res.status(200).send({
       message: "Outward updated successfully",
     });

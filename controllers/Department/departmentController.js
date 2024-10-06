@@ -2,6 +2,8 @@ const Admission = require("../../models/Admission/Admission");
 const NewApplication = require("../../models/Admission/NewApplication");
 const SubjectGroup = require("../../models/Admission/Optional/SubjectGroup");
 const SubjectGroupSelect = require("../../models/Admission/Optional/SubjectGroupSelect");
+const Batch = require("../../models/Batch");
+const Class = require("../../models/Class");
 const Department = require("../../models/Department");
 const DepartmentStudentForm = require("../../models/Form/DepartmentStudentForm");
 const FormChecklist = require("../../models/Form/FormChecklist");
@@ -9,6 +11,7 @@ const InstituteApplicationForm = require("../../models/Form/InstituteApplication
 const InstituteStudentForm = require("../../models/Form/InstituteStudentForm");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Student = require("../../models/Student");
+const Subject = require("../../models/Subject");
 
 exports.renderStudentFormQuery = async (req, res) => {
   try {

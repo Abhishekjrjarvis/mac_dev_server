@@ -510,7 +510,7 @@ router.patch(
   "/custom/check/generate/admission/:aid/all/pay/receipt",
   catchAsync(Extra.customGenerateCheckAllPayReceiptQuery)
 );
-router.get("/dummy/pdf/generate", catchAsync(Extra.generateDummyPdfQuery));
+router.patch("/dummy/pdf/generate", catchAsync(Extra.generateDummyPdfQuery));
 
 router.patch(
   "/insert/department/status",

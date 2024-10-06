@@ -18,7 +18,7 @@ const User = require("../../models/User");
 
 const Subject = require("../../models/Subject");
 const Batch = require("../../models/Batch");
-const Class = require("../../models/Class");
+
 exports.renderStudentFormQuery = async (req, res) => {
   try {
     const { did } = req.params;

@@ -7,6 +7,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const Admission = require("../../models/Admission/Admission");
 const NewApplication = require("../../models/Admission/NewApplication");
 const Status = require("../../models/Admission/status");
+const Class = require("../../models/Class");
 const Department = require("../../models/Department");
 const Finance = require("../../models/Finance");
 const FeeStructure = require("../../models/Finance/FeesStructure");
@@ -14,6 +15,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Student = require("../../models/Student");
 const User = require("../../models/User");
+
 const Subject = require("../../models/Subject");
 const Batch = require("../../models/Batch");
 const Class = require("../../models/Class");
@@ -2176,6 +2178,7 @@ exports.custom_batch_data_correction = async (req, res) => {
       ],
     }).select("multiple_batches classTitle batch");
 
+
     // let nums = [];
     // for (let cls of all_class) {
     //   if (cls?.multiple_batches?.length > 0) {
@@ -2191,9 +2194,38 @@ exports.custom_batch_data_correction = async (req, res) => {
     //   "653a5cd22fc2206530d68a48",
     // ];
 
+//     let previous_batches = [
+//       "65380c631fd08661b6c77493",
+//       "65380c6c1fd08661b6c774ca",
+//       "65380c731fd08661b6c774f1",
+//       "65380c7d1fd08661b6c7750a",
+//       "65380c831fd08661b6c77510",
+//       "65380cb81fd08661b6c7759a",
+//       "65380cc41fd08661b6c775df",
+//       "6538169e1fd08661b6c791fc",
+//       "653816a41fd08661b6c79202",
+//       "653816ab1fd08661b6c79208",
+//       "653816b31fd08661b6c7920e",
+//       "653816bb1fd08661b6c79214",
+//       "653816c81fd08661b6c79254",
+//       "653a59b5e79fb543afca316e",
+//       "653816dc1fd08661b6c792ed",
+//       "653816e21fd08661b6c79313",
+//       "653816e81fd08661b6c79338",
+//       "653816ee1fd08661b6c79358",
+//       "653816f71fd08661b6c7935e",
+//       "6538171b1fd08661b6c7939c",
+//       "653817211fd08661b6c793c1",
+//       "653817281fd08661b6c793e8",
+//       "6538172d1fd08661b6c7940a",
+//       "653817331fd08661b6c79434",
+//     ];
+
+
     let nums = [];
     let batch_remove_class_select = [];
     let batch_remove_cls = [];
+
     // for (let cls of all_class) {
     //   if (cls?.multiple_batches?.length > 0) {
     //     let cty = [...cls?.multiple_batches];
@@ -2260,6 +2292,7 @@ exports.custom_batch_data_correction = async (req, res) => {
     //     }
     //   }
     // }
+
 
     res.status(200).send({
       message: "Explore",

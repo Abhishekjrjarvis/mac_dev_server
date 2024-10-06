@@ -142,12 +142,10 @@ router.delete(
   catchAsync(Auth.renderOneInstituteAllStudentQuery)
 );
 
-
 router.patch(
   "/remove/student/to/un/approve/catalog/:cid/query",
   catchAsync(Auth.renderAllStudentToUnApprovedCatalogQuery)
 );
-
 
 router.delete(
   "/remove/platform/one/institute/:id/all/unapproved/student/query",
@@ -157,15 +155,16 @@ router.delete(
 // Update Device Token At User Id
 router.post("/todevice/token", catchAsync(Auth.fetchDeviceToken));
 
-router.patch("/update/pass", catchAsync(gen_pass))
+router.patch("/update/pass", catchAsync(gen_pass));
 
 router.patch(
   "/send/all/login/message/query",
   catchAsync(Auth.sendAllStudentLoginMessage)
 );
 
-router.patch("/update/qr", catchAsync(Auth.all_ins_qr_code))
+router.patch("/update/qr", catchAsync(Auth.all_ins_qr_code));
 
+router.patch("/all/new/parents", catchAsync(Auth.execute_account_process));
 
 // router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));
 

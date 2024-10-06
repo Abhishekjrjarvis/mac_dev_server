@@ -212,6 +212,12 @@ const feeReceiptSchema = new mongoose.Schema({
   // bank_wise_txn_value: {
   normal: { type: Number, default: 0 },
   society: { type: Number, default: 0 },
+  grno: { type: String },
+  class: { type: String },
+  fee_type: { type: String },
+  roll_no: { type: String },
+  caste_category: { type: String },
+  qviple_pay_id: { type: String },
   // },
 });
 

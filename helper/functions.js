@@ -488,19 +488,207 @@ exports.new_chat_username_unique = async (LName) => {
   return combined_list;
 };
 
-exports.send_email_student_message_query = (email, message) => {
+exports.send_email_student_message_query = (
+  email,
+  message,
+  instituteName,
+  studentName
+) => {
   const subject = "Qviple Student Message";
-  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
-  const encodeURL = encodeURI(url);
+  const bodyhtml = `<!DOCTYPE html>
+  <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+  
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="x-apple-disable-message-reformatting">
+      <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+      <meta name="color-scheme" content="light">
+      <meta name="supported-color-schemes" content="light">
+  
+      <!--[if !mso]><!-->
+      <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+  
+      <style type="text/css">
+          @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+      </style>
+      <!--<![endif]-->
+  
+      <!--[if mso]>
+      <style>
+          * {
+              font-family: sans-serif !important;
+          }
+      </style>
+      <![endif]-->
+  
+      <title></title>
+  
+      <!--[if gte mso 9]>
+      <xml>
+          <o:OfficeDocumentSettings>
+              <o:AllowPNG/>
+              <o:PixelsPerInch>96</o:PixelsPerInch>
+          </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->
+  
+      <style>
+          :root {
+              color-scheme: light;
+              supported-color-schemes: light;
+          }
+  
+          html, body {
+              margin: 0 auto !important;
+              padding: 0 !important;
+              height: 100% !important;
+              width: 100% !important;
+              overflow-wrap: break-word;
+              word-break: break-all;
+          }
+  
+          ul, ol {
+              padding: 0;
+              margin: 0;
+          }
+  
+          li {
+              margin-bottom: 0;
+          }
+  
+          .paragraph {
+              font-size: 15px;
+              font-family: 'Open Sans', sans-serif;
+              color: #5f5f5f;
+          }
+  
+          .heading1 {
+              font-size: 32px;
+              font-family: 'Open Sans', sans-serif;
+              color: #000000;
+          }
+  
+          .heading2 {
+              font-size: 26px;
+              font-family: 'Open Sans', sans-serif;
+              color: #000000;
+          }
+  
+          .heading3 {
+              font-size: 19px;
+              font-family: 'Open Sans', sans-serif;
+              color: #000000;
+          }
+  
+          p a, li a {
+              color: #5457FF;
+              text-decoration: none;
+          }
+  
+          @media only screen and (max-width: 900px) {
+              .contentMainTable, .single-column, .multi-column, .imageBlockWrapper {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+          }
+      </style>
+  
+      <!--[if mso | IE]>
+      <style>
+          .button-eDjHYThLl2LLTvxBdpbI1 { padding: 16px 32px; };
+          .button-eDjHYThLl2LLTvxBdpbI1 a { margin: -16px -32px; };
+      </style>
+      <![endif]-->
+  </head>
+  
+  <body width="100%" style="margin: 0; padding: 0 !important; background-color: #F5F6F8;">
+      <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #F5F6F8;">
+          <!--[if mso | IE]>
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F5F6F8;">
+          <tbody>
+              <tr>
+                  <td>
+                  <![endif]-->
+                      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="900" style="margin: auto;" class="contentMainTable">
+                          <!-- Image Block -->
+                          <tr>
+                              <td style="background-color:#ffffff; padding: 0;" align="center">
+                                  <table align="center" width="900" class="imageBlockWrapper" style="width:900px; border-spacing: 0; border-collapse: collapse;" role="presentation">
+                                      <tbody>
+                                          <tr>
+                                              <td style="padding:0">
+                                                  <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Your_paragraph_text_(1)2023-06-02T11_19_32.png" width="900" alt="" style="border-radius: 0; display: block; height: auto; width: 100%; max-width: 100%; border: 0;">
+                                              </td>
+                                          </tr>
+                                      </tbody>
+                                  </table>
+                              </td>
+                          </tr>
+                          <!-- Paragraph Block -->
+                          <tr>
+                              <td valign="top" style="padding: 32px; background-color: #ffffff;">
+                                  <p class="paragraph" style="font-family: 'Open Sans', sans-serif; font-size: 15px; line-height: 1.5; color: #5f5f5f;">
+                                      Hello <span style="font-weight: bold">${studentName}</span>,<br>
+                                      This is the ERP System of <span style="font-weight: bold">${instituteName}</span>.<br><br>
+                                      <span style="font-weight: bold">${message?.message_title}:-</span><br>
+                                      ${message?.message}
+                                  </p>
+                              </td>
+                          </tr>
+                      </table>
+                  <!--[if mso | IE]>
+                  </td>
+              </tr>
+          </tbody>
+          </table>
+          <![endif]-->
+      </center>
+  </body>
+  
+  </html>`;
+
+  const formData = {
+    to: email,
+    from: "connect@qviple.com",
+    subject: "Qviple Student Message",
+    encodingType: "0",
+    from_name: "Qviple",
+    bodyhtml: bodyhtml,
+  };
+
+  const apiUrl = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}`;
+
   axios
-    .post(encodeURL)
-    .then((res) => {
-      console.log("Sended Successfully");
+    .post(apiUrl, querystring.stringify(formData), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     })
-    .catch((e) => {
-      console.log("SMS API Bug", e.message);
+    .then((response) => {
+      console.log("Email sent successfully:", response.data);
+      // return response.data;
+    })
+    .catch((error) => {
+      console.error("Error sending email:", error.message);
     });
+  // const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  // const encodeURL = encodeURI(url);
+  // axios
+  //   .post(encodeURL)
+  //   .then((res) => {
+  //     console.log("Sended Successfully");
+  //   })
+  //   .catch((e) => {
+  //     console.log("SMS API Bug", e.message);
+  //   });
 };
+
+// console.log(
+//   send_email_student_message_query("deepu51196@gmail.com", "Dynamic")
+// );
 
 exports.send_email_authentication_custom = async function (recipientEmail) {
   // Create the bodyhtml part of the email
@@ -698,12 +886,12 @@ exports.send_email_authentication_custom = async function (recipientEmail) {
       })
       .then((response) => {
         console.log("Email sent successfully:", response.data);
-        // return response.data;
       })
       .catch((error) => {
         console.error("Error sending email:", error.message);
       });
 
+    return OTP;
     // Log response or return as needed
   } catch (error) {
     console.error("Error sending email:", error.message);

@@ -1250,6 +1250,12 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  previous_gr: {
+    type: String,
+  },
+  new_gr: {
+    type: String,
+                                          },
   student_bonafide: {
     reason: String,
     message: String,
@@ -1261,12 +1267,20 @@ const studentSchema = new mongoose.Schema({
     update_date: Date,
   },
 
+
   inward_create: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InwardCreate",
     },
   ],
+
+  student_scholarship_name: {
+    type: String,
+  },
+  student_expand_DOB: {
+    type: Date,
+  },
 });
 const Student = mongoose.model("Student", studentSchema);
 

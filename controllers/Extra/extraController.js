@@ -130,6 +130,7 @@ const NestedCard = require("../../models/Admission/NestedCard");
 const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
+const combinedSummaryBankDaybook = require("../../scripts/combinedSummaryBankDaybook");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5078,7 +5079,8 @@ exports.customGenerateCheckAllPayReceiptQuery = async (req, res) => {
 exports.generateDummyPdfQuery = async (req, res) => {
   try {
     // await staffLeaveRequest();
-    await combinedBankDaybook();
+    // await combinedBankDaybook();
+    await combinedSummaryBankDaybook();
     res.status(200).send({
       message: "Dummy pdf generate",
     });

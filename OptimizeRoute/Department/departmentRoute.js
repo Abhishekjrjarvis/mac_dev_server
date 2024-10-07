@@ -65,7 +65,6 @@ router.post(
   "/:sid/student/:aid/cancel/app",
   catchAsync(Depart.retrieveDepartmentCancelApplication)
 );
-
 router.patch(
   "/:did/all/batch/data/correction/query",
   catchAsync(Depart.custom_batch_data_correction)

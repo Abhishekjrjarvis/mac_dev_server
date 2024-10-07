@@ -6,11 +6,12 @@ const subjectDataRequest = require("../../AjaxRequest/subject/subjectDataRequest
 const { uploadDocsFile } = require("../../S3Configuration");
 const Subject = require("../../models/Subject");
 const instituteReportHeader = require("./instituteReportHeader");
+const instituteReportData = require("../../AjaxRequest/instituteReportData");
 
-const subjectTeachingPlanReport = async (
-  teaching_list,
-  co_po_map,
-  subjectId,
+const inwardCreateReport = async (
+  outwardData,
+  outwardId,
+  instituteId,
   type
 ) => {
   const doc = new PDFDocument({
@@ -19,13 +20,14 @@ const subjectTeachingPlanReport = async (
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
   const result = await subjectDataRequest(subjectId);
-  const instituteData = result?.dt;
+  const ins_data = await instituteReportData(instituteId);
+  const instituteData = ins_data?.dt;
   const subject_data = result?.subject_data;
 
   const date = new Date();
   let ot_name = `${subject_data?.subject?.subjectName}-${type}`;
-  let pdf_name = `${ot_name}-${date.getTime()}`;
-  // let pdf_name = `${ot_name}`;
+  // let pdf_name = `${ot_name}-${date.getTime()}`;
+  let pdf_name = `${ot_name}`;
 
   const stream = fs.createWriteStream(`./uploads/${pdf_name}-Report.pdf`);
   doc.pipe(stream);
@@ -345,10 +347,6 @@ const subjectTeachingPlanReport = async (
     for (let i = 0; i < teaching_list?.length; i++) {
       let tech = teaching_list[i];
       if (i === 0) {
-        let dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -358,10 +356,6 @@ const subjectTeachingPlanReport = async (
             align: "center",
           });
         doc.moveDown(0.5);
-        dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
         let header = [
           {
             label: "Lecture No.",
@@ -460,10 +454,7 @@ const subjectTeachingPlanReport = async (
             align: "center",
           });
         doc.moveDown(0.5);
-        dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
+
         let header = [
           {
             label: "Lecture No.",
@@ -531,65 +522,14 @@ const subjectTeachingPlanReport = async (
           prepareHeader: () => doc.font("Times-Bold").fontSize(10),
           hideHeader: true,
           prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-            // dbt = pageHeight - 40;
-            // let ct_height = doc.y + rectRow?.y;
-            // let cY = rectCell.y;
-            // doc.table.rectRow;
-            // if (rectRow?.y >= dbt) {
-            //   console.log(i, row, "rectRow", "->", rectRow);
-            //   console.log(i, "rectCell", "->", rectCell);
-            //   rectRow.y = 20;
-            //   rectCell.y = 20;
-            //   // cY = 20;
-            //   // doc.table.rectRow.y = 20;
-            //   //   console.log(doc.y, "->", "rectRow", rectRow);
-            //   //   console.log("rectCell", rectCell);
-            //   //   doc.addPage();
-            //   //   // doc.addPage();
-            //   //   // doc.y = 20;
-            //   //   // rectRow.y = 20;
-            //   //   // rectCell.y = 20;
-            //   //   // doc.addPage();
-            //   //   // console.log(
-            //   //   //   "i -> ",
-            //   //   //   i,
-            //   //   //   "dbt ->",
-            //   //   //   dbt,
-            //   //   //   "Y ->",
-            //   //   //   rectCell?.y,
-            //   //   //   "page height->",
-            //   //   //   pageHeight,
-            //   //   //   "X ->",
-            //   //   //   rectCell?.x,
-            //   //   //   "width ->",
-            //   //   //   rectCell?.width,
-            //   //   //   "height ->",
-            //   //   //   rectCell?.height
-            //   //   // );
-            //   //   // rectCell.y = 20;
-            // }
-
             if (indexColumn === 0) {
               doc.font("Times-Bold").fontSize(10);
             } else {
               doc.font("Times-Roman").fontSize(10);
             }
-
-            // console.log(
-            //   "i -> ",
-            //   i,
-            //   ": ->",
-            //   rectCell?.y,
-            //   "-> DBT: ",
-            //   dbt,
-            //   "Cell Height",
-            //   rectCell?.height
-            // );
-
             doc
               .rect(
                 rectCell?.x ?? 0,
-                // cY ?? 0,
                 rectCell?.y ?? 0,
                 rectCell?.width ?? 0,
                 rectCell?.height ?? 0
@@ -598,6 +538,7 @@ const subjectTeachingPlanReport = async (
               .fillAndStroke("red", "gray")
               .fillColor("black", 1);
           },
+          // addPage: true,
         });
       }
     }
@@ -668,7 +609,7 @@ const subjectTeachingPlanReport = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
-    // console.log("created");
+    console.log("created");
     let file = {
       path: `uploads/${pdf_name}-Report.pdf`,
       filename: `${pdf_name}-Report.pdf`,
@@ -687,4 +628,4 @@ const subjectTeachingPlanReport = async (
   });
   return `${pdf_name}-Report.pdf`;
 };
-module.exports = subjectTeachingPlanReport;
+module.exports = inwardCreateReport;

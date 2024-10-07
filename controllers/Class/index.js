@@ -7,6 +7,7 @@ const { handle_undefined } = require("../../Handler/customError");
 const Batch = require("../../models/Batch");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { cls_json_to_excel } = require("../../Custom/JSONToExcel");
+const Department = require("../../models/Department");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
@@ -251,6 +252,28 @@ exports.renderNewStudentQuery = async (req, res) => {
       await ref.save();
     }
     await one_batch.save();
+
+    const arr_batch = await Batch.findById({ _id: bid }).populate({
+      path: "class_student_query",
+      select: "studentROLLNO",
+    });
+    let arr = [];
+    if (arr_batch?.class_student_query?.length > 0) {
+      for (let st of arr_batch?.class_student_query) {
+        arr.push({
+          student: st?._id,
+          roll: +st?.studentROLLNO,
+        });
+      }
+      arr = arr?.sort((a, b) => a?.roll - b?.roll);
+      let dt = [];
+      for (let ft of arr) {
+        dt.push(ft?.student);
+      }
+      arr_batch.class_student_query = dt;
+      await arr_batch.save();
+    }
+
     res.status(200).send({
       message: "Explore New Student In One Batch Query",
       access: true,
@@ -750,6 +773,77 @@ exports.cls_catalog_export_query = async (req, res) => {
     return res.status(200).send({
       message: "All student zip with catalog.",
       excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// for batch wise student sort
+
+exports.custom_sort_batch_wise_student_in_class_internal_batch_query = async (
+  req,
+  res
+) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const depart = await Department.find({
+      institute: { $eq: `${id}` },
+    }).select("departmentSelectBatch");
+
+    let i = 0;
+    if (depart?.length > 0) {
+      for (let dt of depart) {
+        const cls = await Class.find({
+          batch: {
+            $eq: `${dt?.departmentSelectBatch}`,
+          },
+        }).select("multiple_batches");
+
+        if (cls?.length > 0) {
+          for (let ct of cls) {
+            if (ct?.multiple_batches?.length > 0) {
+              for (let bt of ct?.multiple_batches) {
+                ++i;
+                console.log("-> ", i);
+                const arr_batch = await Batch.findById(bt).populate({
+                  path: "class_student_query",
+                  select: "studentROLLNO",
+                });
+                if (arr_batch?.class_student_query?.length > 0) {
+                  let arr = [];
+
+                  for (let st of arr_batch?.class_student_query) {
+                    arr.push({
+                      student: st?._id,
+                      roll: +st?.studentROLLNO,
+                    });
+                  }
+                  arr = arr?.sort((a, b) => a?.roll - b?.roll);
+                  let dt = [];
+                  for (let ft of arr) {
+                    dt.push(ft?.student);
+                  }
+                  arr_batch.class_student_query = dt;
+                  await arr_batch.save();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Custom Sort all student with roll number wise",
+      access: true,
+      depart,
     });
   } catch (e) {
     console.log(e);

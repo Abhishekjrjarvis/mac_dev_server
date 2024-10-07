@@ -731,6 +731,10 @@ router.patch(
   "/one/:ofid/all/miscellenous/fee/message",
   catchAsync(Finance.one_all_miscellenous_fee_students)
 );
+router.patch(
+  "/regenerate/admission/fee/receipt/:frid/query",
+  catchAsync(Finance.finance_admission_fee_receipt_generate_query)
+);
 
 router.patch(
   "/new/format/fee/collect/:fid",

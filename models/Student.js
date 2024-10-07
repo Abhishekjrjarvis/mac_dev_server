@@ -1255,7 +1255,26 @@ const studentSchema = new mongoose.Schema({
   },
   new_gr: {
     type: String,
+                                          },
+  student_bonafide: {
+    reason: String,
+    message: String,
+    attachment: String,
+    is_letterhead: String,
+    grnumber: String,
+    certificate_number: String,
+    print_content: String,
+    update_date: Date,
   },
+
+
+  inward_create: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InwardCreate",
+    },
+  ],
+
   student_scholarship_name: {
     type: String,
   },

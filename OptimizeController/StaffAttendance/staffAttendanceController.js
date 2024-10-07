@@ -1,4 +1,3 @@
-
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const {
   attendance_today_date,
@@ -1120,6 +1119,145 @@ exports.staffTeachingPlanCustomCriteriaQuery = async (req, res) => {
   }
 };
 
+exports.staff_self_in_attendance_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, sid, m_time } = req.body;
 
+    if (!id || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
 
+    let split_date = date?.split("/");
+    const dt = new Date(`${split_date[2]}-${split_date[1]}-${split_date[0]}`);
 
+    let attendance = await StaffAttendenceDate.findOne({
+      $and: [
+        {
+          institute: { $eq: `${id}` },
+        },
+        {
+          staffAttendDate: {
+            $eq: `${date}`,
+          },
+        },
+      ],
+    });
+    if (attendance?._id) {
+      attendance.presentTotal += 1;
+      attendance.presentStaff.push({
+        staff: sid,
+        inTime: m_time,
+        status: "Present",
+      });
+      await attendance.save();
+      res.status(201).send({ message: "Staff Attendance in successfully." });
+    } else {
+      attendance = new StaffAttendenceDate({
+        staffAttendDate: date,
+        institute: id,
+        staffAttendDateFormat: dt,
+        presentTotal: 1,
+        presentStaff: [
+          {
+            staff: sid,
+            inTime: m_time,
+            status: "Present",
+          },
+        ],
+      });
+      await attendance.save();
+      res.status(201).send({ message: "Staff Attendance in successfully." });
+      const institute = await InstituteAdmin.findById(id);
+      institute.staffAttendance.push(attendance?._id);
+      await institute.save();
+    }
+    const staff = await Staff.findById(sid);
+    staff.attendDates.push(attendance._id);
+    await staff.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staff_self_out_attendance_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, sid, m_time } = req.body;
+
+    if (!id || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let attendance = await StaffAttendenceDate.findOne({
+      $and: [
+        {
+          institute: { $eq: `${id}` },
+        },
+        {
+          staffAttendDate: {
+            $eq: `${date}`,
+          },
+        },
+      ],
+    });
+    if (attendance?._id && attendance.presentStaff?.length > 0) {
+      for (let dt of attendance.presentStaff) {
+        if (`${dt?.staff}` === `${sid}`) {
+          dt.outTime = m_time;
+          break;
+        }
+      }
+      await attendance.save();
+    }
+    res.status(201).send({ message: "Staff Attendance out successfully." });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staff_self_attendance_date_logs_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, sid } = req.query;
+
+    if (!id || !sid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let self_losg = null;
+
+    let attendance = await StaffAttendenceDate.findOne({
+      $and: [
+        {
+          institute: { $eq: `${id}` },
+        },
+        {
+          staffAttendDate: {
+            $eq: `${date}`,
+          },
+        },
+      ],
+    });
+
+    if (attendance?._id && attendance.presentStaff?.length > 0) {
+      for (let dt of attendance.presentStaff) {
+        if (`${dt?.staff}` === `${sid}`) {
+          self_losg = dt;
+          break;
+        }
+      }
+    }
+    res.status(201).send({
+      message: "Staff Attendance out successfully.",
+      access: true,
+      self_losg,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

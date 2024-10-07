@@ -109,7 +109,7 @@ const studentNotificationSchema = new mongoose.Schema({
   },
   student_message: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "StudentMessage"
+    ref: "StudentMessage",
   },
   student_feedback: {
     type: mongoose.Schema.Types.ObjectId,
@@ -142,6 +142,10 @@ const studentNotificationSchema = new mongoose.Schema({
   testset: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectMasterTestSet",
+  },
+  inoutward: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "OutwardCreate",
   },
 });
 

@@ -9357,18 +9357,18 @@ exports.miscellenous_fee = async (req, res) => {
 
     const fees = await OtherFees.findById({ _id: ofid });
 
-    const all_receipt = await FeeReceipt.find({ other_fees: fees?._id });
+    // const all_receipt = await FeeReceipt.find({ other_fees: fees?._id });
 
     let nums = [];
-    for (let cls of all_receipt) {
-      if (cls?.student) {
-        fees.students_data.push({
-          student: cls?.student,
-          price: cls?.fee_payment_amount,
-          fee_receipt: cls?._id,
-        });
-      }
-    }
+    // for (let cls of all_receipt) {
+    //   if (cls?.student) {
+    //     // fees.students_data.push({
+    //     //   student: cls?.student,
+    //     //   price: cls?.fee_payment_amount,
+    //     //   fee_receipt: cls?._id,
+    //     // });
+    //   }
+    // }
 
     for (let cls of fees?.remaining_students) {
       fees.students_data.push({

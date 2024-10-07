@@ -366,4 +366,9 @@ router.patch(
   catchAsync(Filter.render_new_admission_fees_statistics_query)
 );
 
+router.patch(
+  "/by/academic/universal/student/statistics/:bid/query",
+  catchAsync(Filter.renderStudentAcademicStatisticsUniversalQuery)
+);
+
 module.exports = router;

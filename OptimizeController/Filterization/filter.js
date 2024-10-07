@@ -23854,6 +23854,482 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
     }
     finance.admission_fees_statistics_filter.loading = false;
     await finance.save();
+    res
+      .status(200)
+      .send({
+        message: "Explore Finance Admission Fees Statistics",
+        access: true,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    const { did } = req?.query
+    const batch_query = await Batch.findById({ _id: bid });
+
+    const classes = await Class.find({
+      batch: { $in: batch_query?.merged_batches },
+    });
+    var excel_list = [];
+    for (var val of classes) {
+      var all_student = await Student.find({ studentClass: val?._id }).select(
+        "studentGender studentCastCategory studentCast studentReligion student student_ph studentGRNO studentROLLNO valid_full_name studentProfilePhoto photoId"
+      );
+      var general_m = 0;
+      var general_f = 0;
+      var obc_m = 0;
+      var obc_f = 0;
+      var sc_m = 0;
+      var sc_f = 0;
+      var st_m = 0;
+      var st_f = 0;
+      var hindu_m = 0;
+      var hindu_f = 0;
+      var muslim_m = 0;
+      var muslim_f = 0;
+      var sikh_m = 0;
+      var sikh_f = 0;
+      var christian_m = 0;
+      var christian_f = 0;
+      var jain_m = 0;
+      var jain_f = 0;
+      var parsi_m = 0;
+      var parsi_f = 0;
+      var budh_m = 0;
+      var budh_f = 0;
+      var jews_m = 0;
+      var jews_f = 0;
+      var ph_m = 0;
+      var ph_f = 0;
+      var general_m_arr = [];
+      var general_f_arr = [];
+      var boy_arr = [];
+      var girl_arr = [];
+      var obc_m_arr = [];
+      var obc_f_arr = [];
+      var sc_m_arr = [];
+      var sc_f_arr = [];
+      var st_m_arr = [];
+      var st_f_arr = [];
+      var hindu_m_arr = [];
+      var hindu_f_arr = [];
+      var muslim_m_arr = [];
+      var muslim_f_arr = [];
+      var sikh_m_arr = [];
+      var sikh_f_arr = [];
+      var christian_m_arr = [];
+      var christian_f_arr = [];
+      var jain_m_arr = [];
+      var jain_f_arr = [];
+      var parsi_m_arr = [];
+      var parsi_f_arr = [];
+      var budh_m_arr = [];
+      var budh_f_arr = [];
+      var jews_m_arr = [];
+      var jews_f_arr = [];
+      var ph_m_arr = [];
+      var ph_f_arr = [];
+      var dt_m = 0;
+      var dt_f = 0;
+      var dt_m_arr = [];
+      var dt_f_arr = [];
+      var sbc_m = 0;
+      var sbc_f = 0;
+      var sbc_m_arr = [];
+      var sbc_f_arr = [];
+      var ews_m = 0;
+      var ews_f = 0;
+      var ews_m_arr = [];
+      var ews_f_arr = [];
+      var maratha_m = 0;
+      var maratha_f = 0;
+      var maratha_m_arr = [];
+      var maratha_f_arr = [];
+      var jk_m = 0;
+      var jk_f = 0;
+      var jk_m_arr = [];
+      var jk_f_arr = [];
+      var goins_m = 0;
+      var goins_f = 0;
+      var goins_m_arr = [];
+      var goins_f_arr = [];
+      var nt_m = 0;
+      var nt_f = 0;
+      var nt_m_arr = [];
+      var nt_f_arr = [];
+      for (var ele of all_student) {
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "general"
+        ) {
+          general_m += 1;
+          general_m_arr.push(ele);
+        } else {
+          general_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "general"
+        ) {
+          general_f += 1;
+          general_f_arr.push(ele);
+        } else {
+          general_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "obc"
+        ) {
+          obc_m += 1;
+          obc_m_arr.push(ele);
+        } else {
+          obc_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "obc"
+        ) {
+          obc_f += 1;
+          obc_f_arr.push(ele);
+        } else {
+          obc_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "sc"
+        ) {
+          sc_m += 1;
+          sc_m_arr.push(ele);
+        } else {
+          sc_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "sc"
+        ) {
+          sc_f += 1;
+          sc_f_arr.push(ele);
+        } else {
+          sc_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentCastCategory?.toLowerCase() === "st"
+        ) {
+          st_m += 1;
+          st_m_arr.push(ele);
+        } else {
+          st_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentCastCategory?.toLowerCase() === "st"
+        ) {
+          st_f += 1;
+          st_f_arr.push(ele);
+        } else {
+          st_f += 0;
+        }
+        if (
+          (ele?.studentGender?.toLowerCase() === "male" &&
+            ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-d"
+        ) {
+          nt_m += 1;
+          nt_m_arr.push(ele);
+        } else {
+          nt_m += 0;
+        }
+        if (
+          (ele?.studentGender?.toLowerCase() === "female" &&
+            ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
+          ele?.studentCastCategory?.toLowerCase() === "nt-d"
+        ) {
+          nt_f += 1;
+          nt_f_arr.push(ele);
+        } else {
+          nt_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "hindu"
+        ) {
+          hindu_m += 1;
+          hindu_m_arr.push(ele);
+        } else {
+          hindu_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "hindu"
+        ) {
+          hindu_f += 1;
+          hindu_f_arr.push(ele);
+        } else {
+          hindu_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "muslim"
+        ) {
+          muslim_m += 1;
+          muslim_m_arr.push(ele);
+        } else {
+          muslim_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "muslim"
+        ) {
+          muslim_f += 1;
+          muslim_f_arr.push(ele);
+        } else {
+          muslim_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "sikh"
+        ) {
+          sikh_m += 1;
+          sikh_m_arr.push(ele);
+        } else {
+          sikh_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "sikh"
+        ) {
+          sikh_f += 1;
+          sikh_f_arr.push(ele);
+        } else {
+          sikh_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "christian"
+        ) {
+          christian_m += 1;
+          christian_m_arr.push(ele);
+        } else {
+          christian_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "christian"
+        ) {
+          christian_f += 1;
+          christian_f_arr.push(ele);
+        } else {
+          christian_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "jainism"
+        ) {
+          jain_m += 1;
+          jain_m_arr.push(ele);
+        } else {
+          jain_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "jainism"
+        ) {
+          jain_f += 1;
+          jain_f_arr.push(ele);
+        } else {
+          jain_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "parsi"
+        ) {
+          parsi_m += 1;
+          parsi_m_arr.push(ele);
+        } else {
+          parsi_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "parsi"
+        ) {
+          parsi_f += 1;
+          parsi_f_arr.push(ele);
+        } else {
+          parsi_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "buddhism"
+        ) {
+          budh_m += 1;
+          budh_m_arr.push(ele);
+        } else {
+          budh_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "buddhism"
+        ) {
+          budh_f += 1;
+          budh_f_arr.push(ele);
+        } else {
+          budh_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.studentReligion?.toLowerCase() === "jews"
+        ) {
+          jews_m += 1;
+          jews_m_arr.push(ele);
+        } else {
+          jews_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.studentReligion?.toLowerCase() === "jews"
+        ) {
+          jews_f += 1;
+          jews_f_arr.push(ele);
+        } else {
+          jews_f += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "male" &&
+          ele?.student_ph?.toLowerCase() === "yes"
+        ) {
+          ph_m += 1;
+          ph_m_arr.push(ele);
+        } else {
+          ph_m += 0;
+        }
+        if (
+          ele?.studentGender?.toLowerCase() === "female" &&
+          ele?.student_ph?.toLowerCase() === "yes"
+        ) {
+          ph_f += 1;
+          ph_f_arr.push(ele);
+        } else {
+          ph_f += 0;
+        }
+        if (ele?.studentGender?.toLowerCase() === "male") {
+          boy_arr.push(ele);
+        }
+        if (ele?.studentGender?.toLowerCase() === "female") {
+          girl_arr.push(ele);
+        }
+      }
+      excel_list.push({
+        className: `${val?.className}-${val?.classTitle}`,
+        strength: val?.ApproveStudent?.length,
+        boy: val?.boyCount,
+        boy_arr: boy_arr,
+        girl: val?.girlCount,
+        girl_arr: girl_arr,
+        general_m: general_m,
+        general_f: general_f,
+        obc_m: obc_m,
+        obc_f: obc_f,
+        sc_m: sc_m,
+        sc_f: sc_f,
+        st_m: st_m,
+        st_f: st_f,
+        hindu_m: hindu_m,
+        hindu_f: hindu_f,
+        muslim_m: muslim_m,
+        muslim_f: muslim_f,
+        sikh_m: sikh_m,
+        sikh_f: sikh_f,
+        christian_m: christian_m,
+        christian_f: christian_f,
+        jain_m: jain_m,
+        jain_f: jain_f,
+        parsi_m: parsi_m,
+        parsi_f: parsi_f,
+        budh_m: budh_m,
+        budh_f: budh_f,
+        jews_m: jews_m,
+        jews_f: jews_f,
+        ph_m: ph_m,
+        ph_f: ph_f,
+        general_m_arr: general_m_arr,
+        general_f_arr: general_f_arr,
+        obc_m_arr: obc_m_arr,
+        obc_f_arr: obc_f_arr,
+        sc_m_arr: sc_m_arr,
+        sc_f_arr: sc_f_arr,
+        st_m_arr: st_m_arr,
+        st_f_arr: st_f_arr,
+        hindu_m_arr: hindu_m_arr,
+        hindu_f_arr: hindu_f_arr,
+        muslim_m_arr: muslim_m_arr,
+        muslim_f_arr: muslim_f_arr,
+        sikh_m_arr: sikh_m_arr,
+        sikh_f_arr: sikh_f_arr,
+        christian_m_arr: christian_m_arr,
+        christian_f_arr: christian_f_arr,
+        jain_m_arr: jain_m_arr,
+        jain_f_arr: jain_f_arr,
+        parsi_m_arr: parsi_m_arr,
+        parsi_f_arr: parsi_f_arr,
+        budh_m_arr: budh_m_arr,
+        budh_f_arr: budh_f_arr,
+        jews_m_arr: jews_m_arr,
+        jews_f_arr: jews_f_arr,
+        ph_m_arr: ph_m_arr,
+        ph_f_arr: ph_f_arr,
+        dt_m: dt_m,
+        dt_f: dt_f,
+        dt_m_arr: dt_m_arr,
+        dt_f_arr: dt_f_arr,
+        sbc_m: sbc_m,
+        sbc_f: sbc_f,
+        sbc_m_arr: sbc_m_arr,
+        sbc_f_arr: sbc_f_arr,
+        ews_m: ews_m,
+        ews_f: ews_f,
+        ews_m_arr: ews_m_arr,
+        ews_f_arr: ews_f_arr,
+        maratha_m: maratha_m,
+        maratha_f: maratha_f,
+        maratha_m_arr: maratha_m_arr,
+        maratha_f_arr: maratha_f_arr,
+        jk_m: jk_m,
+        jk_f: jk_f,
+        jk_m_arr: jk_m_arr,
+        jk_f_arr: jk_f_arr,
+        goins_m: goins_m,
+        goins_f: goins_f,
+        goins_m_arr: goins_m_arr,
+        goins_f_arr: goins_f_arr,
+        nt_m: nt_m,
+        nt_f: nt_f,
+        nt_m_arr: nt_m_arr,
+        nt_f_arr: nt_f_arr,
+      });
+    }
+    if (excel_list?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Student Statistics Query",
+        access: true,
+        excel_list: excel_list,
+        count: excel_list?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Student Statistics Query",
+        access: false,
+        excel_list: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

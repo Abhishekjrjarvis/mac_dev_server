@@ -81,6 +81,7 @@ const hostelBankDaybook = require("../../scripts/hostelBankDaybook");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 const Staff = require("../../models/Staff");
 const combinedSummaryBankDaybookData = require("../../AjaxRequest/combinedSummaryBankDaybookData");
+const combinedSummaryBankDaybook = require("../../scripts/combinedSummaryBankDaybook");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -23450,7 +23451,7 @@ exports.render_combined_summary_bank_daybook_heads_wise = async (req, res) => {
         access: false,
       });
 
-    let key = await combinedSummaryBankDaybookData(
+    let key = await combinedSummaryBankDaybook(
       fid,
       from,
       to,

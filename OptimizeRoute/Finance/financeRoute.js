@@ -741,4 +741,9 @@ router.patch(
   catchAsync(Finance.new_format_fee_collect)
 );
 
+router.patch(
+  "/miscellenous/fee/:ofid/query",
+  catchAsync(Finance.miscellenous_fee)
+);
+
 module.exports = router;

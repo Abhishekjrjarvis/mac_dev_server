@@ -9346,6 +9346,43 @@ exports.new_format_fee_collect = async (req, res) => {
   }
 };
 
+exports.miscellenous_fee = async (req, res) => {
+  try {
+    const { ofid } = req?.params;
+    if (!ofid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const fees = await OtherFees.findById({ _id: ofid });
+
+    const all_receipt = await FeeReceipt.find({ other_fees: fees?._id });
+
+    let nums = [];
+    for (let cls of all_receipt) {
+      if (cls?.student) {
+        fees.students_data.push({
+          student: cls?.student,
+          price: cls?.fee_payment_amount,
+          fee_receipt: cls?._id,
+        });
+      }
+    }
+
+    for (let cls of fees?.remaining_students) {
+      fees.students_data.push({
+        student: cls,
+        price: fees?.payable_amount,
+      });
+    }
+    await fees.save();
+    res.status(200).send({ message: "Explore One Fees Data", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderExistingOtherFeesNonExistingQuery = async (req, res) => {
 //   try {
 //     const { fid } = req?.params

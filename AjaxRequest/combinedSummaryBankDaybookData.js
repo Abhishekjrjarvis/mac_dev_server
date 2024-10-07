@@ -1965,7 +1965,7 @@ const hostel_daybook = async (
         ins_info: "",
         range: "",
         one_staff: {},
-        date_wise: date_wise ?? [],
+        date_wise: [],
       };
     }
   } catch (e) {
@@ -3231,15 +3231,15 @@ const combinedSummaryBankDaybookData = async (
   payment_type = "",
   staff = ""
 ) => {
-  const ft = dataObj;
-  // const ft = await render_combined_daybook_heads_wise(
-  //   fid,
-  //   from,
-  //   to,
-  //   bank,
-  //   payment_type,
-  //   staff
-  // );
+  // const ft = dataObj;
+  const ft = await render_combined_daybook_heads_wise(
+    fid,
+    from,
+    to,
+    bank,
+    payment_type,
+    staff
+  );
   return { ft };
 };
 module.exports = combinedSummaryBankDaybookData;

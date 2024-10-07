@@ -23444,7 +23444,7 @@ const miscellanous_daybook = async (
 exports.render_combined_summary_bank_daybook_heads_wise = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { from, to, bank, payment_type, flow, hid, staff } = req.body;
+    const { from, to, bank, payment_type, hid, staff } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -23457,13 +23457,11 @@ exports.render_combined_summary_bank_daybook_heads_wise = async (req, res) => {
       to,
       bank,
       payment_type,
-      flow,
       staff
     );
     res.status(200).send({
       message: "Explore New Combined DayBook",
       access: true,
-      flow: flow ?? "",
       key: key ?? "",
     });
 

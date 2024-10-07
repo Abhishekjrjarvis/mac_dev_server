@@ -18819,9 +18819,7 @@ exports.update_fees_card_query = async (req, res) => {
         });
         for (let ele of nest_app?.remaining_array) {
           let total = 0;
-          if (
-            ele?.status == "Not Paid"
-          ) {
+          if (ele?.status == "Not Paid") {
             // total += ele?.remainAmount;
             if (nums?.includes(`${cls?.applicable_card}`)) {
             } else {
@@ -18838,6 +18836,50 @@ exports.update_fees_card_query = async (req, res) => {
       i += 1;
     }
     res.status(200).send({ message: "Explore All Card", access: true, nums });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.duplicate_fees_data = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
+
+    const all_fees = await RemainingList.find({ institute: id })
+      .populate({
+        path: "applicable_card government_card",
+      })
+      .populate({
+        path: "student",
+        select: "valid_full_name studentGRNO",
+      });
+
+    let nums = [];
+    let numss = [];
+    let i = 0;
+    for (let cls of all_fees) {
+      if (
+        cls?.applicable_card?.applicable_fee ==
+          cls?.applicable_card?.remaining_fee &&
+        cls?.card_type == "Promote" &&
+        cls?.fee_receipts?.length <= 0
+      ) {
+        // nums.push(cls?.student?.valid_full_name);
+        if (nums?.includes(`${cls?.student?.valid_full_name}`)) {
+          numss.push(cls?.student?.valid_full_name);
+        } else {
+          nums.push(cls?.student?.valid_full_name);
+        }
+      }
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "BUG", access: true, nums, numss });
   } catch (e) {
     console.log(e);
   }

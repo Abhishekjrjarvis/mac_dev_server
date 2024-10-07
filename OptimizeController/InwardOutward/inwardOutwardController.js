@@ -12,32 +12,32 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 exports.custom_institute_generate_inward_outward_query = async (req, res) => {
   try {
-    const institute = await InstituteAdmin.findById("651ba22de39dbdf817dd520c");
-    if (institute?.inward_outward) {
-    } else {
-      const inou = new InwardOutward({
-        institute: institute?._id,
-      });
-      institute.inward_outward = inou?._id;
-      await Promise.all([inou.save(), institute.save()]);
-    }
-
-    // const institute = await InstituteAdmin.find({
-    //   status: "Approved",
-    // });
-
-    // if (institute?.length > 0) {
-    //   for (let inst of institute) {
-    //     if (inst?.inward_outward) {
-    //     } else {
-    //       const inou = new InwardOutward({
-    //         institute: inst?._id,
-    //       });
-    //       inst.inward_outward = inou?._id;
-    //       await Promise.all([inou.save(), inst.save()]);
-    //     }
-    //   }
+    // const institute = await InstituteAdmin.findById("651ba22de39dbdf817dd520c");
+    // if (institute?.inward_outward) {
+    // } else {
+    //   const inou = new InwardOutward({
+    //     institute: institute?._id,
+    //   });
+    //   institute.inward_outward = inou?._id;
+    //   await Promise.all([inou.save(), institute.save()]);
     // }
+
+    const institute = await InstituteAdmin.find({
+      status: "Approved",
+    });
+
+    if (institute?.length > 0) {
+      for (let inst of institute) {
+        if (inst?.inward_outward) {
+        } else {
+          const inou = new InwardOutward({
+            institute: inst?._id,
+          });
+          inst.inward_outward = inou?._id;
+          await Promise.all([inou.save(), inst.save()]);
+        }
+      }
+    }
     res.status(200).send({
       message: "All institute check inward outward reltaed things",
       access: true,
@@ -49,34 +49,36 @@ exports.custom_institute_generate_inward_outward_query = async (req, res) => {
 
 exports.custom_staff_generate_inward_outward_query = async (req, res) => {
   try {
-    const staff = await Staff.findById("651bea1b08e427c667ee25ae");
-    if (staff?.inward_outward) {
-    } else {
-      const inou = new InwardOutwardStaff({
-        institute: staff?.institute,
-        staff: staff?._id,
-      });
-      staff.inward_outward = inou?._id;
-      await Promise.all([inou.save(), staff.save()]);
-    }
-
-    // const staff = await Staff.find({
-    //   staffStatus: "Approved",
-    // });
-
-    // if (staff?.length > 0) {
-    //   for (let inst of staff) {
-    //     if (inst?.inward_outward) {
-    //     } else {
-    //       const inou = new InwardOutwardStaff({
-    //         institute: inst?.institute,
-    //         staff: inst?._id,
-    //       });
-    //       inst.inward_outward = inou?._id;
-    //       await Promise.all([inou.save(), inst.save()]);
-    //     }
-    //   }
+    // const staff = await Staff.findById("651bea1b08e427c667ee25ae");
+    // if (staff?.inward_outward) {
+    // } else {
+    //   const inou = new InwardOutwardStaff({
+    //     institute: staff?.institute,
+    //     staff: staff?._id,
+    //   });
+    //   staff.inward_outward = inou?._id;
+    //   await Promise.all([inou.save(), staff.save()]);
     // }
+
+    const staff = await Staff.find({
+      staffStatus: "Approved",
+    });
+    let i = 0;
+    if (staff?.length > 0) {
+      for (let inst of staff) {
+        if (inst?.inward_outward) {
+        } else {
+          ++i;
+          const inou = new InwardOutwardStaff({
+            institute: inst?.institute,
+            staff: inst?._id,
+          });
+          inst.inward_outward = inou?._id;
+          await Promise.all([inou.save(), inst.save()]);
+          console.log(i);
+        }
+      }
+    }
     res.status(200).send({
       message: "All staff check inward outward reltaed things",
       access: true,

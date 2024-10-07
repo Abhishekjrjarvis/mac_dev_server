@@ -428,6 +428,48 @@ const generateStudentAdmissionForm = async (
                   }
                 }
                 doc.font("Times-Bold").text("Signature of Parent", 440, doc.y);
+              } else if (itr?.type === "STUDENT_PARENTS") {
+                let dty = doc.y;
+                if (oneProfile?.student_parents_signature) {
+                  let p_sig = await dynamicImages(
+                    "CUSTOM",
+                    oneProfile?.student_parents_signature
+                  );
+                  if (p_sig) {
+                    doc.image(p_sig, 30, dty, {
+                      width: 160,
+                      height: 60,
+                      align: "right",
+                    });
+                    doc.moveDown(1);
+                  }
+                }
+                doc
+                  .font("Times-Bold")
+                  .text("Signature of Parent", 55, dty + 70);
+
+                if (oneProfile?.student_signature) {
+                  let p_sig = await dynamicImages(
+                    "CUSTOM",
+                    oneProfile?.student_signature
+                  );
+                  if (p_sig) {
+                    doc.image(p_sig, pageWidth - 185, dty, {
+                      width: 160,
+                      height: 60,
+                      align: "right",
+                    });
+                    doc.moveDown(1);
+                  }
+                }
+                doc
+                  .font("Times-Bold")
+                  .text("Signature of Candidate", 440, dty + 70);
+
+                doc.moveDown(6);
+                doc.font("Times-Bold").text("Clerk", 55);
+                doc.moveUp(1);
+                doc.font("Times-Bold").text("Principal", 470, doc.y);
               } else {
               }
             }

@@ -80,6 +80,7 @@ const miscellaneousBankDaybook = require("../../scripts/miscellaneousBankDaybook
 const hostelBankDaybook = require("../../scripts/hostelBankDaybook");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 const Staff = require("../../models/Staff");
+const combinedSummaryBankDaybookData = require("../../AjaxRequest/combinedSummaryBankDaybookData");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -23448,63 +23449,80 @@ exports.render_combined_summary_bank_daybook_heads_wise = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const banks = await BankAccount.find({ finance: fid });
-    let hbank;
-    let hostel;
-    for (let ele of banks) {
-      if (`${ele?.hostel}`) {
-        hbank = ele?._id;
-        hostel = ele?.hostel;
-      }
-    }
-    let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
-    let data_2 = await hostel_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      hostel,
-      fid,
-      staff
-    );
-    let data_3 = await miscellanous_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      fid,
-      staff
-    );
-    let combine = [data_1, data_2, data_3];
-    let combines = [];
-    for (let cls of combine) {
-      combines.push({
-        date_wise: cls?.date_wise,
-      });
-    }
-    const valid_bank = await BankAccount.findById({ _id: bank }).select(
-      "-day_book"
-    );
-    if (staff) {
-      var staff_obj = await Staff.findById({ _id: `${staff}` }).select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
-      );
-    }
-    // const key = "Name";
 
-    //   const arrayUniqueByKey = [
-    //     ...new Map(head_list.map((item) => [item[key], item])).values(),
-    //   ];
+    let key = await combinedSummaryBankDaybookData(
+      fid,
+      from,
+      to,
+      bank,
+      payment_type,
+      flow,
+      staff
+    );
     res.status(200).send({
-      message: "Combined Daybook",
+      message: "Explore New Combined DayBook",
       access: true,
-      combines,
-      day_range_from: from,
-      day_range_to: to,
-      ins_info: data_1?.ins_info,
-      account_info: valid_bank ?? "",
-      one_staff: staff ? staff_obj : "",
+      flow: flow ?? "",
+      key: key ?? "",
     });
+
+    // const banks = await BankAccount.find({ finance: fid });
+    // let hbank;
+    // let hostel;
+    // for (let ele of banks) {
+    //   if (`${ele?.hostel}`) {
+    //     hbank = ele?._id;
+    //     hostel = ele?.hostel;
+    //   }
+    // }
+    // let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
+    // let data_2 = await hostel_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   hostel,
+    //   fid,
+    //   staff
+    // );
+    // let data_3 = await miscellanous_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   fid,
+    //   staff
+    // );
+    // let combine = [data_1, data_2, data_3];
+    // let combines = [];
+    // for (let cls of combine) {
+    //   combines.push({
+    //     date_wise: cls?.date_wise,
+    //   });
+    // }
+    // const valid_bank = await BankAccount.findById({ _id: bank }).select(
+    //   "-day_book"
+    // );
+    // if (staff) {
+    //   var staff_obj = await Staff.findById({ _id: `${staff}` }).select(
+    //     "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+    //   );
+    // }
+    // // const key = "Name";
+
+    // //   const arrayUniqueByKey = [
+    // //     ...new Map(head_list.map((item) => [item[key], item])).values(),
+    // //   ];
+    // res.status(200).send({
+    //   message: "Combined Daybook",
+    //   access: true,
+    //   combines,
+    //   day_range_from: from,
+    //   day_range_to: to,
+    //   ins_info: data_1?.ins_info,
+    //   account_info: valid_bank ?? "",
+    //   one_staff: staff ? staff_obj : "",
+    // });
   } catch (e) {
     console.log(e);
   }
@@ -23854,12 +23872,10 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
     }
     finance.admission_fees_statistics_filter.loading = false;
     await finance.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore Finance Admission Fees Statistics",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore Finance Admission Fees Statistics",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -23868,7 +23884,7 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
 exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
   try {
     const { bid } = req.params;
-    const { did } = req?.query
+    const { did } = req?.query;
     const batch_query = await Batch.findById({ _id: bid });
 
     const classes = await Class.find({

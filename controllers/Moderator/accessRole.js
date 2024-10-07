@@ -293,6 +293,15 @@ exports.all_access_role_finance = () => {
         accessStaff: "",
       },
     },
+    MISCELLENOUS_NEW_FEES: {
+      role: "MISCELLENOUS_NEW_FEES",
+      permission: {
+        allow: true,
+        bound: ["MISCELLENOUS"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
     DAYBOOK_AUTHORITY: {
       role: "DAYBOOK_AUTHORITY",
       permission: {

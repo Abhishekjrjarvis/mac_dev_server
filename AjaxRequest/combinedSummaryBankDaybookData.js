@@ -6,7 +6,7 @@ const Hostel = require("../models/Hostel/hostel");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const Staff = require("../models/Staff");
-
+const moment = require("moment");
 const getDaysArray = function (start, end) {
   const arr = [];
   for (

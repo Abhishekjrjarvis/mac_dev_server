@@ -20,7 +20,7 @@ const combinedBankDaybook = async (
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
-    margins: { top: 20, bottom: 20, left: 20, right: 20 },
+    margins: { top: 20, bottom: 10, left: 20, right: 20 },
   });
   const result = await combinedDaybookData(
     fid,
@@ -222,7 +222,7 @@ const combinedBankDaybook = async (
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
           align: "center",
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Main Heads",
@@ -231,7 +231,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Cash",
@@ -240,7 +240,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -250,7 +250,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -260,7 +260,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -270,7 +270,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -363,7 +363,7 @@ const combinedBankDaybook = async (
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
           align: "center",
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Main Heads",
@@ -372,7 +372,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Cash",
@@ -381,7 +381,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -391,7 +391,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -401,7 +401,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -483,7 +483,7 @@ const combinedBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Amount",

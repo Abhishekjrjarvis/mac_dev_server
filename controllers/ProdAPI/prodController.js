@@ -12,12 +12,17 @@ const RemainingList = require("../../models/Admission/RemainingList");
 const Department = require("../../models/Department");
 const { universal_random_password } = require("../../Custom/universalId");
 const bcrypt = require("bcryptjs");
-const { generate_excel_to_json_accession_query } = require("../../Custom/excelToJSON");
+const {
+  generate_excel_to_json_accession_query,
+} = require("../../Custom/excelToJSON");
 const { simple_object } = require("../../S3Configuration");
 const Book = require("../../models/Library/Book");
-const { universal_random_password_student_code } = require("../../Generator/RandomPass");
+const {
+  universal_random_password_student_code,
+} = require("../../Generator/RandomPass");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const ErrorPayment = require("../../models/Acid/ErrorPayment");
+const { handle_undefined } = require("../../Handler/customError");
 // const OrderPayment = require("../../models/RazorPay/orderPayment");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -394,91 +399,91 @@ exports.auto_query = async (req, res) => {
   }
 };
 
-
-
-
 exports.renderClassArrayQuery = async (req, res) => {
   try {
-    const { cid } = req?.params
+    const { cid } = req?.params;
 
+    var classes = await Class.findById({ _id: cid });
 
-    var classes = await Class.findById({ _id: cid })
-
-    const all_student = await Student.find({ studentClass: cid })
-    .select("studentFirstName studentMiddleName studentLastName studentGender")
+    const all_student = await Student.find({ studentClass: cid }).select(
+      "studentFirstName studentMiddleName studentLastName studentGender"
+    );
 
     var boy_arr = all_student?.filter((val) => {
-      if(val?.studentGender?.toLowerCase() === "male") return val
-    })
+      if (val?.studentGender?.toLowerCase() === "male") return val;
+    });
 
     var g_arr = all_student?.filter((val) => {
-      if(val?.studentGender?.toLowerCase() === "female") return val
-    })
+      if (val?.studentGender?.toLowerCase() === "female") return val;
+    });
 
     var n_arr = all_student?.filter((val) => {
-      if(val?.studentGender?.toLowerCase() === "other") return val
-    })
-
+      if (val?.studentGender?.toLowerCase() === "other") return val;
+    });
 
     for (var val of all_student) {
-      classes.ApproveStudent.push(val?._id)
+      classes.ApproveStudent.push(val?._id);
     }
 
-    await classes.save()
+    await classes.save();
 
-    res.status(200).send({ message: "Explore One Student Class", access: true, boy_arr, b_count: boy_arr?.length, g_arr, g_count: g_arr?.length, n_arr, n_count: n_arr?.length})
-
+    res.status(200).send({
+      message: "Explore One Student Class",
+      access: true,
+      boy_arr,
+      b_count: boy_arr?.length,
+      g_arr,
+      g_count: g_arr?.length,
+      n_arr,
+      n_count: n_arr?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllUserPasswordQuery = async (req, res) => {
   try {
-    var all_user = await User.find({})
-    .select("user_normal_password user_universal_password")
-    var i = 0
+    var all_user = await User.find({}).select(
+      "user_normal_password user_universal_password"
+    );
+    var i = 0;
     for (var val of all_user) {
       if (val?.user_universal_password) {
-        
-      }
-      else {
-        console.log(i)
-        const code = "qviple@161028520"
+      } else {
+        console.log(i);
+        const code = "qviple@161028520";
         const new_user_pass = bcrypt.genSaltSync(12);
         const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
-        val.user_normal_password = `${code}`
-        val.user_universal_password = `${hash_user_pass}`
-        await val.save()
-        i += 1
+        val.user_normal_password = `${code}`;
+        val.user_universal_password = `${hash_user_pass}`;
+        await val.save();
+        i += 1;
       }
     }
-    res.status(200).send({ message: "DONE" })
+    res.status(200).send({ message: "DONE" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 const new_accession = async (acc) => {
   try {
     if (acc?.length > 0) {
-      var i = 0
+      var i = 0;
       for (var val of acc) {
-        console.log(i)
-        const old_book = await Book.findOne({ accession_number: `` })
-        old_book.accession_number = `${val?.accession_number}`
-        await old_book.save()
-        i+= 1
+        console.log(i);
+        const old_book = await Book.findOne({ accession_number: `` });
+        old_book.accession_number = `${val?.accession_number}`;
+        await old_book.save();
+        i += 1;
       }
-      console.log("DONE")
+      console.log("DONE");
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
   try {
@@ -493,13 +498,13 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
     // } else {
     //   console.log("false");
     // }
-    var old_book = await Book.find({ department: "6527a0b16e3e6e615a0ee53a" })
-      for (var val = 1; val <= old_book?.length; val ++) {
-        old_book[val].accession_number = `D-${val+1}`
-        await old_book[val].save()
-        console.log(val)
-      }
-      console.log("DONE")
+    var old_book = await Book.find({ department: "6527a0b16e3e6e615a0ee53a" });
+    for (var val = 1; val <= old_book?.length; val++) {
+      old_book[val].accession_number = `D-${val + 1}`;
+      await old_book[val].save();
+      console.log(val);
+    }
+    console.log("DONE");
   } catch (e) {
     console.log(e);
   }
@@ -507,69 +512,66 @@ exports.renderExcelToJSONEmailReplaceQuery = async (req, res) => {
 
 exports.renderAllStudentQuery = async (req, res) => {
   try {
-    const { cid } = req?.params
-    var classes = await Class.findById({ _id: cid })
+    const { cid } = req?.params;
+    var classes = await Class.findById({ _id: cid });
 
-    var all_student = await Student.find({ studentClass: `${classes?._id}` })
-    var  i =0
+    var all_student = await Student.find({ studentClass: `${classes?._id}` });
+    var i = 0;
     for (var val of all_student) {
-      classes.ApproveStudent.push(val?._id)
-      console.log(i)
-      i += 1
+      classes.ApproveStudent.push(val?._id);
+      console.log(i);
+      i += 1;
     }
     // await classes.save()
-    res.status(200).send({ message: "All Student Inserted", classes: classes?.ApproveStudent?.length})
+    res.status(200).send({
+      message: "All Student Inserted",
+      classes: classes?.ApproveStudent?.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_student_code_insertion_query = async (req, res) => {
   try {
-    const all_student = await Student.find({})
-    .select("qviple_student_pay_id")
-    var i = 0
+    const all_student = await Student.find({}).select("qviple_student_pay_id");
+    var i = 0;
     for (let ele of all_student) {
-      let nums = universal_random_password_student_code()
-      ele.qviple_student_pay_id = nums
-      await ele.save()
-      console.log(i)
-      i+=1
+      let nums = universal_random_password_student_code();
+      ele.qviple_student_pay_id = nums;
+      await ele.save();
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
+    res.status(200).send({ message: "All Student Qviple Pay Code Inserted" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.delete_payment = async (req, res) => {
   try {
-    const all = await FeeReceipt.find({ invoice_count: "648381-7-2024-1675" })
-    var i =0
+    const all = await FeeReceipt.find({ invoice_count: "648381-7-2024-1675" });
+    var i = 0;
     for (let ele of all) {
       // if (ele?.fee_receipt) {
-        await FeeReceipt.findByIdAndDelete(ele?._id)
+      await FeeReceipt.findByIdAndDelete(ele?._id);
       // }
       // await OrderPayment.findByIdAndDelete(ele?._id)
-      console.log(i)
-      i+= 1
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "All Student Qviple Pay Code Inserted"})
+    res.status(200).send({ message: "All Student Qviple Pay Code Inserted" });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.new_chat_username = async (req, res) => {
   try {
-    
-    const all_user = await User.find({})
-      .select("userLegalName username_chat")
-    
-    var i = 0
+    const all_user = await User.find({}).select("userLegalName username_chat");
+
+    var i = 0;
     for (let ele of all_user) {
       const u_1 = Math.floor(Math.random() * 9);
       const u_2 = Math.floor(Math.random() * 9);
@@ -580,20 +582,66 @@ exports.new_chat_username = async (req, res) => {
       const u_7 = Math.floor(Math.random() * 9);
 
       const new_query = `${u_1}${u_2}${u_3}${u_4}${u_5}${u_6}${u_7}`;
-      let splitted = ele?.userLegalName?.split(" ")
-      let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`
-      ele.username_chat = combined_list
-      await ele.save()
-      console.log(i)
-      i+= 1
+      let splitted = ele?.userLegalName?.split(" ");
+      let combined_list = `${splitted[0]?.toUpperCase()}_${new_query}`;
+      ele.username_chat = combined_list;
+      await ele.save();
+      console.log(i);
+      i += 1;
     }
-    res.status(200).send({ message: "Explore All User With New Chat", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore All User With New Chat", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
+exports.correction_student_name_query = async (req, res) => {
+  try {
+    const all_student = await Student.find({}).select(
+      "studentFirstName studentMiddleName studentLastName studentFatherName scholar_name valid_full_name"
+    );
+
+    let i = 0;
+    for (let cls of all_student) {
+      let f_name = await handle_undefined(cls?.studentFirstName);
+      let m_name = await handle_undefined(cls?.studentMiddleName);
+      let l_name = await handle_undefined(cls?.studentLastName);
+      let fa_name = await handle_undefined(cls?.studentFatherName);
+      if (f_name) {
+        cls.studentFirstName = f_name ? f_name?.trim() : "";
+      }
+      if (m_name == "undefined" || fa_name == "undefined") {
+        cls.studentMiddleName = "";
+        cls.studentFatherName = "";
+      }
+      if (l_name) {
+        cls.studentLastName = l_name ? l_name?.trim() : "";
+      }
+      cls.valid_full_name = `${cls?.studentFirstName} ${
+        cls?.studentMiddleName ?? cls?.studentFatherName
+      } ${cls?.studentLastName}`;
+      cls.scholar_name = `${cls?.studentFirstName?.toLowerCase()}${cls?.studentMiddleName?.toLowerCase()}${cls?.studentLastName?.toLowerCase()}`;
+      cls.student_scholarship_name = `${cls?.studentFirstName?.toLowerCase()}${cls?.studentMiddleName?.toLowerCase()}${cls?.studentLastName?.toLowerCase()}`;
+      console.log(
+        i,
+        m_name || fa_name,
+        cls?.studentFirstName,
+        cls?.studentMiddleName,
+        cls?.studentLastName
+      );
+      i += 1;
+      await cls.save();
+    }
+    res.status(200).send({
+      message: "Explore All Student Name Correction Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // exports.delete_payment = async (req, res) => {
 //   try {

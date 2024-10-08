@@ -1109,4 +1109,14 @@ router.patch(
   "/:fid/all/receipts/mode/change",
   catchAsync(Admission.payment_mode_change_query)
 );
+
+router.patch(
+  "/update/fees/:id/query",
+  catchAsync(Admission.update_fees_card_query)
+);
+
+router.patch(
+  "/duplicate/all/fees/query/:id",
+  catchAsync(Admission.duplicate_fees_data)
+);
 module.exports = router;

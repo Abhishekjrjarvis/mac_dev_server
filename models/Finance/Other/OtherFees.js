@@ -115,6 +115,22 @@ const otherFeesSchema = new mongoose.Schema({
       ref: "FeeReceipt",
     },
   ],
+  students_data: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      price: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("OtherFees", otherFeesSchema);

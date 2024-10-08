@@ -90,7 +90,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const { mod_id, user_mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId qviple_id blockStatus edit_form_allow profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status iqac_module iqac_module_status staff_form_setting certificate_leaving_form_student is_dublicate_bonafide insAffiliated insEditableText_one insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile leave_certificate_selection"
+      "insName name insAbout photoId qviple_id blockStatus edit_form_allow profile_modification leave_config random_institute_code merchant_options staff_leave_config certificate_fund_charges certificate_issued_count name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo last_login original_copy gr_initials online_amount_edit_access moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart hostelDepart hostelStatus lms_depart lms_status storeStatus storeDepart student_form_setting landing_control payroll_module payroll_module_status iqac_module iqac_module_status staff_form_setting certificate_leaving_form_student is_dublicate_bonafide insAffiliated insEditableText_one latitude longitude place_name premise_area insEditableText_two affliatedLogo authority authority_signature autority_stamp_profile leave_certificate_selection"
     );
     // const encrypt = await encryptionPayload(institute);
     if (req?.query?.mod_id) {
@@ -144,7 +144,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { user_mod_id } = req?.query;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config edit_form_allow insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy authority authority_signature autority_stamp_profile is_dublicate_bonafide"
+        "insName status photoId insProfilePhoto qviple_id hostelDepart leave_config edit_form_allow insEditableText_one insEditableText_two profile_modification merchant_options name_case_format_query alias_pronounciation un_approved_student_count affliatedLogo random_institute_code last_login gr_initials online_amount_edit_access sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by block_institute blockedBy authority authority_signature autority_stamp_profile is_dublicate_bonafide latitude longitude place_name premise_area"
       )
       .populate({
         path: "request_at",
@@ -4725,6 +4725,11 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
 exports.retrieveClass = async (req, res) => {
   try {
     const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     const classes = await Class.findById({ _id: cid })
       .select(
         "className classTitle classCode classStartDate classStatus classHeadTitle studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
@@ -9425,43 +9430,30 @@ exports.retrieveApproveUnApproveStudentListQuery = async (req, res) => {
 exports.new_checklist_section_query = async (req, res) => {
   try {
     const { id } = req?.params;
+    const { flow } = req?.query;
     if (!id)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    const institute = await InstituteAdmin.findById({ _id: id });
-    // const ifs = await InstituteStudentForm.findOne({ institute: id })
-    const ads_admin = await Admission.findOne({ institute: id });
-    // const all_ifs = await DepartmentStudentForm.find({
-    //   department: { $in: institute?.depart },
-    // })
-      const all_app = await NewApplication.find({
-        $and: [
-          { _id: { $in: ads_admin?.newApplication } },
-          { applicationStatus: "Ongoing" },
-          { applicationTypeStatus: "Normal Application" },
-        ],
-      });
-      const all_ifs = await InstituteApplicationForm.find({
-        application: { $in: all_app },
-      })
-      .select("form_section")
-      .populate({
-        path: "form_section",
-        populate: {
-          path: "form_checklist",
+    if (flow === "INSTITUTE") {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const ifs = await InstituteStudentForm.findOne({ institute: id })
+        .select("form_section")
+        .populate({
+          path: "form_section",
           populate: {
-            path: "nested_form_checklist",
+            path: "form_checklist",
             populate: {
-              path: "nested_form_checklist_nested",
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested",
+              },
             },
           },
-        },
-      });
-    var i = 0;
-    for (let ifs of all_ifs) {
+        });
+      var i = 0;
       var nums = ifs?.form_section?.filter((ele) => {
         if (`${ele?.section_key}` === `basic_details`) return ele;
       });
@@ -9486,11 +9478,11 @@ exports.new_checklist_section_query = async (req, res) => {
         //   form_common_key: "student_sponser",
         // },
         {
-          form_checklist_name: "ABC ID",
-          form_checklist_key: "student_abc_id",
+          form_checklist_name: "Scholarship Name",
+          form_checklist_key: "student_scholarship_name",
           form_checklist_visibility: true,
-          form_checklist_placeholder: "Enter ABC ID",
-          form_checklist_lable: "ABC ID",
+          form_checklist_placeholder: "Enter Scholarship Name",
+          form_checklist_lable: "Scholarship Name",
           form_checklist_typo: "TEXT",
           form_checklist_required: false,
         },
@@ -9528,10 +9520,211 @@ exports.new_checklist_section_query = async (req, res) => {
       await ifs.save();
       console.log(i);
       i += 1;
+      res.status(200).send({
+        message: "Explore One Section Insertion",
+        flow,
+        access: true,
+        nums,
+      });
+    } else if (flow === "DEPARTMENT") {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const all_ifs = await DepartmentStudentForm.find({
+        department: { $in: institute?.depart },
+      })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+            populate: {
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested",
+              },
+            },
+          },
+        });
+      var i = 0;
+      for (let ifs of all_ifs) {
+        var nums = ifs?.form_section?.filter((ele) => {
+          if (`${ele?.section_key}` === `basic_details`) return ele;
+        });
+        let sample = [
+          // {
+          //   form_checklist_name: "Are You Sponsored Candidate",
+          //   form_checklist_key: "student_sponser",
+          //   form_checklist_visibility: true,
+          //   form_checklist_placeholder: "Are You Sponsored Candidate",
+          //   form_checklist_lable: "Are You Sponsored Candidate",
+          //   form_checklist_typo: "SELECT",
+          //   form_checklist_typo_option_pl: ["Yes", "No"],
+          //   form_checklist_enable: "true",
+          // },
+          // {
+          //   form_checklist_name: "Upload Proforma P & Q",
+          //   form_checklist_key: "student_sponser_upload",
+          //   form_checklist_visibility: true,
+          //   form_checklist_placeholder: "Upload Proforma P & Q",
+          //   form_checklist_lable: "Upload Proforma P & Q",
+          //   form_checklist_typo: "FILE",
+          //   form_common_key: "student_sponser",
+          // },
+          {
+            form_checklist_name: "Scholarship Name",
+            form_checklist_key: "student_scholarship_name",
+            form_checklist_visibility: true,
+            form_checklist_placeholder: "Enter Scholarship Name",
+            form_checklist_lable: "Scholarship Name",
+            form_checklist_typo: "TEXT",
+            form_checklist_required: false,
+          },
+        ];
+        var numss = [];
+        for (let ele of sample) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_required: ele?.form_checklist_required,
+            // form_common_key: ele?.form_common_key,
+            // form_checklist_enable: ele?.form_checklist_enable,
+            width: ele?.width,
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            fc.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
+          }
+          // fc.department_form = ifs?._id;
+          fc.application_form = ifs?._id;
+          fc.form_section = nums[0]?._id;
+          await fc.save();
+          numss.push(fc);
+        }
+        // console.log(nums[0])
+        nums[0].form_checklist.push(...numss);
+        await ifs.save();
+        console.log(i);
+        i += 1;
+      }
+      res.status(200).send({
+        message: "Explore One Section Insertion",
+        flow,
+        access: true,
+        nums,
+      });
+    } else if (flow === "APPLICATION") {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      // const ifs = await InstituteStudentForm.findOne({ institute: id })
+      const ads_admin = await Admission.findOne({ institute: id });
+      // const all_ifs = await DepartmentStudentForm.find({
+      //   department: { $in: institute?.depart },
+      // })
+      const all_app = await NewApplication.find({
+        $and: [
+          { _id: { $in: ads_admin?.newApplication } },
+          { applicationStatus: "Ongoing" },
+          { applicationTypeStatus: "Normal Application" },
+        ],
+      });
+      const all_ifs = await InstituteApplicationForm.find({
+        application: { $in: all_app },
+      })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+            populate: {
+              path: "nested_form_checklist",
+              populate: {
+                path: "nested_form_checklist_nested",
+              },
+            },
+          },
+        });
+      var i = 0;
+      for (let ifs of all_ifs) {
+        var nums = ifs?.form_section?.filter((ele) => {
+          if (`${ele?.section_key}` === `basic_details`) return ele;
+        });
+        let sample = [
+          // {
+          //   form_checklist_name: "Are You Sponsored Candidate",
+          //   form_checklist_key: "student_sponser",
+          //   form_checklist_visibility: true,
+          //   form_checklist_placeholder: "Are You Sponsored Candidate",
+          //   form_checklist_lable: "Are You Sponsored Candidate",
+          //   form_checklist_typo: "SELECT",
+          //   form_checklist_typo_option_pl: ["Yes", "No"],
+          //   form_checklist_enable: "true",
+          // },
+          // {
+          //   form_checklist_name: "Upload Proforma P & Q",
+          //   form_checklist_key: "student_sponser_upload",
+          //   form_checklist_visibility: true,
+          //   form_checklist_placeholder: "Upload Proforma P & Q",
+          //   form_checklist_lable: "Upload Proforma P & Q",
+          //   form_checklist_typo: "FILE",
+          //   form_common_key: "student_sponser",
+          // },
+          {
+            form_checklist_name: "Scholarship Name",
+            form_checklist_key: "student_scholarship_name",
+            form_checklist_visibility: true,
+            form_checklist_placeholder: "Enter Scholarship Name",
+            form_checklist_lable: "Scholarship Name",
+            form_checklist_typo: "TEXT",
+            form_checklist_required: false,
+          },
+        ];
+        var numss = [];
+        for (let ele of sample) {
+          var fc = new FormChecklist({
+            form_checklist_name: ele?.form_checklist_name,
+            form_checklist_key: ele?.form_checklist_key,
+            form_checklist_visibility: ele?.form_checklist_visibility,
+            form_checklist_placeholder: ele?.form_checklist_placeholder,
+            form_checklist_lable: ele?.form_checklist_lable,
+            form_checklist_typo: ele?.form_checklist_typo,
+            form_checklist_required: ele?.form_checklist_required,
+            // form_common_key: ele?.form_common_key,
+            // form_checklist_enable: ele?.form_checklist_enable,
+            width: ele?.width,
+          });
+          if (
+            ele?.form_checklist_typo_option_pl &&
+            ele?.form_checklist_typo_option_pl?.length > 0
+          ) {
+            fc.form_checklist_typo_option_pl = [
+              ...ele?.form_checklist_typo_option_pl,
+            ];
+          }
+          // fc.department_form = ifs?._id;
+          fc.application_form = ifs?._id;
+          fc.form_section = nums[0]?._id;
+          await fc.save();
+          numss.push(fc);
+        }
+        // console.log(nums[0])
+        nums[0].form_checklist.push(...numss);
+        await ifs.save();
+        console.log(i);
+        i += 1;
+      }
+      res.status(200).send({
+        message: "Explore One Section Insertion",
+        flow,
+        access: true,
+        nums,
+      });
     }
-    res
-      .status(200)
-      .send({ message: "Explore One Section Insertion", access: true, nums });
   } catch (e) {
     console.log(e);
   }
@@ -9577,6 +9770,133 @@ exports.add_student_roll_coll_wise_query = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Add Student Roll Coll Wise", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.add_location_premises_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { latitude, longitude, place_name, premise_area } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id }).select(
+      "latitude longitude place_name premise_area"
+    );
+
+    ins.latitude = latitude ? latitude : ins?.latitude;
+    ins.longitude = longitude ? longitude : ins?.longitude;
+    ins.place_name = place_name ? place_name : ins?.place_name;
+    ins.premise_area = premise_area ? premise_area : ins?.premise_area;
+    await ins.save();
+    res
+      .status(200)
+      .send({ message: "Explore Institute Premise", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.new_staff_checklist_section_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    const { flow } = req?.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "INSTITUTE") {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const ifs = await InstituteStaffForm.findOne({ institute: id })
+        .select("form_section")
+        .populate({
+          path: "form_section",
+          populate: {
+            path: "form_checklist",
+          },
+        });
+      var i = 0;
+      var nums = ifs?.form_section?.filter((ele) => {
+        if (`${ele?.section_key}` === `basic_details`) return ele;
+      });
+      let sample = [
+        {
+          form_checklist_name: "Staff Signature",
+          form_checklist_key: "inward_outward_signature",
+          form_checklist_visibility: true,
+          form_checklist_placeholder: "Upload Staff Signature",
+          form_checklist_lable: "Upload Staff Signature",
+          form_checklist_typo: "CROPIMAGE",
+          form_checklist_required: true,
+        },
+      ];
+      var numss = [];
+      for (let ele of sample) {
+        var fc = new FormChecklist({
+          form_checklist_name: ele?.form_checklist_name,
+          form_checklist_key: ele?.form_checklist_key,
+          form_checklist_visibility: ele?.form_checklist_visibility,
+          form_checklist_placeholder: ele?.form_checklist_placeholder,
+          form_checklist_lable: ele?.form_checklist_lable,
+          form_checklist_typo: ele?.form_checklist_typo,
+          form_checklist_required: ele?.form_checklist_required,
+          // form_common_key: ele?.form_common_key,
+          // form_checklist_enable: ele?.form_checklist_enable,
+          width: ele?.width,
+        });
+        if (
+          ele?.form_checklist_typo_option_pl &&
+          ele?.form_checklist_typo_option_pl?.length > 0
+        ) {
+          fc.form_checklist_typo_option_pl = [
+            ...ele?.form_checklist_typo_option_pl,
+          ];
+        }
+        fc.form = ifs?._id;
+        fc.form_section = nums[0]?._id;
+        await fc.save();
+        numss.push(fc);
+      }
+      // console.log(nums[0])
+      nums[0].form_checklist.push(...numss);
+      await ifs.save();
+      console.log(i);
+      i += 1;
+      res.status(200).send({
+        message: "Explore One Section Insertion",
+        flow,
+        access: true,
+        nums,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.all_student_scholarship_query = async (req, res) => {
+  try {
+    const all_student = await Student.find({}).select(
+      "studentFirstName studentMiddleName studentLastName studentFatherName student_scholarship_name"
+    );
+
+    let i = 0;
+    for (let cls of all_student) {
+      cls.student_scholarship_name = `${cls?.studentFirstName?.trim()} ${
+        cls?.studentMiddleName?.trim() ?? cls?.studentFatherName?.trim()
+      } ${cls?.studentLastName?.trim()}`;
+      await cls.save();
+      console.log(i);
+      i += 1;
+    }
+    res.status(200).send({ message: "DONE" });
   } catch (e) {
     console.log(e);
   }

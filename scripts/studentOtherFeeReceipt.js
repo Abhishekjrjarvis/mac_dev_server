@@ -3088,6 +3088,7 @@ const studentOtherFeeReceipt = async (receiptId, instituteId) => {
     await fee_receipt.save();
   });
 
+  return `${name}-other-fees-receipt.pdf`;
   //   console.log(data);
 };
 module.exports = studentOtherFeeReceipt;

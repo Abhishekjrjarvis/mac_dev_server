@@ -589,7 +589,7 @@ exports.generate_excel_to_json_roll_no_query = async (file) => {
     const w_query = xlsx.read(file.Body, {
       dateNF: "yyyy-mm-dd",
     });
-    const w_sheet = w_query.Sheets["ROLL"];
+    const w_sheet = w_query.Sheets["GR Replace"];
 
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];

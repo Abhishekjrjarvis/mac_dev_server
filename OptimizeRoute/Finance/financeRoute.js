@@ -718,8 +718,32 @@ router.patch(
 );
 
 router.patch(
+  "/show/:fid/miscellenous/fee/message",
+  catchAsync(Finance.get_miscellenous_fee_message)
+);
+
+router.patch(
+  "/edit/:sid/miscellenous/fee/message",
+  catchAsync(Finance.edit_miscellenous_fee_message)
+);
+
+router.patch(
+  "/one/:ofid/all/miscellenous/fee/message",
+  catchAsync(Finance.one_all_miscellenous_fee_students)
+);
+router.patch(
   "/regenerate/admission/fee/receipt/:frid/query",
   catchAsync(Finance.finance_admission_fee_receipt_generate_query)
+);
+
+router.patch(
+  "/new/format/fee/collect/:fid",
+  catchAsync(Finance.new_format_fee_collect)
+);
+
+router.patch(
+  "/miscellenous/fee/:ofid/query",
+  catchAsync(Finance.miscellenous_fee)
 );
 
 module.exports = router;

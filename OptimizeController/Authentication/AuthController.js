@@ -1309,10 +1309,6 @@ module.exports.authentication = async (req, res) => {
       }
     } else {
       if (user) {
-        // const checkUserPass = bcrypt.compareSync(
-        //   insPassword,
-        //   user?.userPassword
-        // );
         if (user?.userPassword) {
           var checkUserPass = bcrypt.compareSync(
             insPassword,
@@ -5969,3 +5965,144 @@ Note: Stay tuned for further updates.`;
 //     console.log(e);
 //   }
 // };
+
+const student_parents_account_creation = async (
+  id,
+  email,
+  userLegalName,
+  userGender,
+  username,
+  sid
+) => {
+  try {
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const existAdmin = await Admin.findOne({ adminUserName: username });
+    const existInstitute = await InstituteAdmin.findOne({ name: username });
+    const existUser = await User.findOne({ username: username });
+    if (existAdmin) {
+      console.log("Exist Admin");
+    } else if (existInstitute) {
+      console.log("Exist Institute");
+    } else {
+      if (existUser) {
+        console.log("Exist User");
+      } else {
+        id?.length === 10 ? parseInt(id) : 0;
+        if (id) {
+          var valid_user = await User.findOne({ userPhoneNumber: id });
+        }
+        if (email) {
+          var valid_user = await User.findOne({ userEmail: email });
+        }
+        if (valid_user?._id) {
+          valid_user.linked_student.push(sid);
+          await valid_user.save();
+        } else {
+          const uqid = universal_random_password();
+          var user = new User({
+            userLegalName: userLegalName,
+            userGender: userGender ?? "Male",
+            username: username?.trim(),
+            userStatus: "Approved",
+            userPhoneNumber: id ? id : 0,
+            photoId: "0",
+            userEmail: email ? email : "",
+            coverId: "2",
+            remindLater: rDate,
+            next_date: c_date,
+          });
+          var qvipleId = new QvipleId({});
+          qvipleId.user = user?._id;
+          qvipleId.qviple_id = `${uqid}`;
+          const code = "qviple@161028520";
+          const new_user_pass = bcrypt.genSaltSync(12);
+          const hash_user_pass = bcrypt.hashSync(code, new_user_pass);
+          user.user_normal_password = `${code}`;
+          user.user_universal_password = `${hash_user_pass}`;
+          admins.users.push(user);
+          admins.userCount += 1;
+          user.username_chat = await new_chat_username_unique(
+            user?.userLegalName
+          );
+          var uInstitute = await InstituteAdmin.findOne({
+            isUniversal: "Universal",
+          }).select("id userFollowersList followersCount posts");
+          if (uInstitute?.posts?.length >= 1) {
+            const post = await Post.find({
+              _id: { $in: uInstitute?.posts },
+              postStatus: "Anyone",
+            }).select("_id postStatus");
+            for (let cls of post) {
+              user.userPosts.push(cls?._id);
+            }
+          }
+          user.ageRestrict = "No";
+          if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+          } else {
+            uInstitute.userFollowersList.push(user._id);
+            uInstitute.followersCount += 1;
+            user.userInstituteFollowing.push(uInstitute._id);
+            user.followingUICount += 1;
+            await uInstitute.save();
+            const posts = await Post.find({ author: `${uInstitute._id}` });
+            for (let cls of posts) {
+              cls.authorFollowersCount = uInstitute?.followersCount;
+              await cls.save();
+            }
+          }
+          user.linked_student.push(sid);
+          await Promise.all([admins.save(), user.save(), qvipleId.save()]);
+        }
+      }
+    }
+  } catch (e) {
+    console.log(`Error`, e);
+  }
+};
+
+exports.execute_account_process = async (req, res) => {
+  try {
+    const all_student = await Student.find({}).select(
+      "studentParentsName studentParentsPhoneNumber studentParentsEmail"
+    );
+    let i = 0;
+    for (let cls of all_student) {
+      if (cls?.studentParentsName && cls?.studentParentsPhoneNumber) {
+        let names = cls?.studentParentsName?.split(" ");
+        const valid = await filter_unique_username(names?.[0], "");
+        if (!valid?.exist) {
+          await student_parents_account_creation(
+            `${cls?.studentParentsPhoneNumber}`,
+            "",
+            cls?.studentParentsName,
+            "Male",
+            valid?.username,
+            cls?._id
+          );
+          console.log(i, valid?.username);
+          i += 1;
+        }
+      } else if (cls?.studentParentsName && cls?.studentParentsEmail) {
+        let names = cls?.studentParentsName?.split(" ");
+        const valid = await filter_unique_username(names?.[0], "");
+        if (!valid?.exist) {
+          await student_parents_account_creation(
+            "",
+            `${cls?.studentParentsEmail}`,
+            cls?.studentParentsName,
+            "Male",
+            valid?.username,
+            cls?._id
+          );
+          console.log(i, valid?.username);
+          i += 1;
+        }
+      }
+    }
+    res
+      .status(200)
+      .send({ message: "Explore All Parents Account Creation", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};

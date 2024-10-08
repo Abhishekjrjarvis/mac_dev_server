@@ -839,4 +839,19 @@ router.patch(
   catchAsync(Institute.add_student_roll_coll_wise_query)
 );
 
+router.patch(
+  "/add/:id/location/premises/query",
+  catchAsync(Institute.add_location_premises_query)
+);
+
+router.patch(
+  "/insert/:id/new/section/staff",
+  catchAsync(Institute.new_staff_checklist_section_query)
+);
+
+router.patch(
+  "/all/student/scholarship",
+  catchAsync(Institute.all_student_scholarship_query)
+);
+
 module.exports = router;

@@ -13,13 +13,12 @@ const combinedSummaryBankDaybook = async (
   to,
   bank,
   payment_type,
-  flow,
   staff
 ) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
-    margins: { top: 20, bottom: 20, left: 20, right: 20 },
+    margins: { top: 20, bottom: 10, left: 20, right: 20 },
   });
   const result = await combinedSummaryBankDaybookData(
     fid,
@@ -34,7 +33,7 @@ const combinedSummaryBankDaybook = async (
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.combines;
   const account_other = result?.ft;
-
+  // console.log("daybook", daybook);
   let date = new Date();
   let stu_name = `${instituteData?.name}`;
   // const stream = fs.createWriteStream(
@@ -172,7 +171,7 @@ const combinedSummaryBankDaybook = async (
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
           align: "center",
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Date",
@@ -181,7 +180,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Cash",
@@ -190,7 +189,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -200,7 +199,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -210,7 +209,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -220,7 +219,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -313,7 +312,7 @@ const combinedSummaryBankDaybook = async (
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
           align: "center",
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Date",
@@ -322,7 +321,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Cash",
@@ -331,7 +330,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -341,7 +340,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -351,7 +350,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
           align: "right",
         },
         {
@@ -433,7 +432,7 @@ const combinedSummaryBankDaybook = async (
           render: null,
           headerColor: "#b4b4b4",
           headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
+          padding: [10, 10],
         },
         {
           label: "Amount",
@@ -548,7 +547,6 @@ const combinedSummaryBankDaybook = async (
       to: to,
       payment_type: payment_type,
       bank: bank,
-      flow: flow ?? "",
     });
     await unlinkFile(file.path);
     await Promise.all([bank_acc.save(), finance.save()]);

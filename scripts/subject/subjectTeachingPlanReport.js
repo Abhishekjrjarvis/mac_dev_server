@@ -16,7 +16,7 @@ const subjectTeachingPlanReport = async (
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A4",
-    margins: { top: 20, bottom: 20, left: 20, right: 20 },
+    margins: { top: 20, bottom: 0, left: 20, right: 20 },
   });
   const result = await subjectDataRequest(subjectId);
   const instituteData = result?.dt;
@@ -41,7 +41,6 @@ const subjectTeachingPlanReport = async (
     .font("Times-Bold")
     .fillColor("#121212")
     .text(`TEACHING PLAN`, {
-      width: pageWidth,
       align: "center",
     });
   doc.moveDown(1);
@@ -65,19 +64,7 @@ const subjectTeachingPlanReport = async (
     );
 
   doc.moveUp(1);
-  doc
-    .fontSize(11)
-    .font("Times-Bold")
-    .fillColor("#121212")
-    .text(
-      `Academic Year : ${subject_data?.subject?.class?.batch?.batchName ?? ""}`,
-      {
-        width: (pageWidth / 3) * 1.5,
-        align: "right",
-      }
-    );
 
-  doc.moveUp(1);
   doc
     .fontSize(11)
     .font("Times-Bold")
@@ -115,13 +102,29 @@ const subjectTeachingPlanReport = async (
       width: pageWidth - 40,
       align: "right",
     });
+  doc
+    .fontSize(11)
+    .font("Times-Bold")
+    .fillColor("#121212")
+    .text(
+      `Academic Year : ${subject_data?.subject?.class?.batch?.batchName ?? ""}`,
+      // {
+      //   width: (pageWidth / 4) * 1.5,
+      //   align: "right",
+      // }
+      {
+        align: "left",
+      }
+    );
 
+  doc.moveUp(1);
   doc
     .fontSize(11)
     .font("Times-Bold")
     .fillColor("#121212")
     .text(`Credits : ${subject_data?.subject?.course_credit ?? ""}`, {
-      align: "left",
+      width: (pageWidth / 4) * 1.5,
+      align: "right",
     });
 
   doc.moveUp(1);
@@ -132,7 +135,7 @@ const subjectTeachingPlanReport = async (
     .text(
       `Allotted Lectures : ${subject_data?.subject?.allotted_lecture ?? ""}`,
       {
-        width: (pageWidth / 3) * 1.5,
+        width: (pageWidth / 4) * 3,
         align: "right",
       }
     );
@@ -210,7 +213,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
       });
     }
 
@@ -259,7 +262,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 50,
       },
       {
@@ -268,7 +271,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 285,
       },
 
@@ -278,7 +281,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 55,
       },
       {
@@ -287,7 +290,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 55,
       },
       {
@@ -296,7 +299,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 55,
       },
       {
@@ -305,7 +308,7 @@ const subjectTeachingPlanReport = async (
         render: null,
         align: "center",
         valign: "center",
-        padding: [2, 2, 2, 2],
+        padding: [2, 2],
         width: 55,
       },
     ];
@@ -345,10 +348,10 @@ const subjectTeachingPlanReport = async (
     for (let i = 0; i < teaching_list?.length; i++) {
       let tech = teaching_list[i];
       if (i === 0) {
-        let dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
+        // let dbt = pageHeight - 60;
+        // if (doc.y >= dbt) {
+        //   doc.addPage();
+        // }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -358,10 +361,10 @@ const subjectTeachingPlanReport = async (
             align: "center",
           });
         doc.moveDown(0.5);
-        dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
+        // dbt = pageHeight - 60;
+        // if (doc.y >= dbt) {
+        //   doc.addPage();
+        // }
         let header = [
           {
             label: "Lecture No.",
@@ -369,7 +372,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 50,
           },
           {
@@ -378,7 +381,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "left",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 285,
           },
           {
@@ -387,7 +390,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -396,7 +399,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -405,7 +408,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -414,7 +417,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
         ];
@@ -447,10 +450,10 @@ const subjectTeachingPlanReport = async (
           // addPage: true,
         });
       } else {
-        let dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
+        // let dbt = pageHeight - 60;
+        // if (doc.y >= dbt) {
+        //   doc.addPage();
+        // }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -460,10 +463,20 @@ const subjectTeachingPlanReport = async (
             align: "center",
           });
         doc.moveDown(0.5);
-        dbt = pageHeight - 60;
-        if (doc.y >= dbt) {
-          doc.addPage();
-        }
+        // console.log(
+        //   "i ->",
+        //   i,
+        //   "(doc.y ->",
+        //   doc.y,
+        //   "dbt ",
+        //   pageHeight - 30,
+        //   "tech ->",
+        //   tech?.name
+        // );
+        // dbt = pageHeight - 60;
+        // if (doc.y >= dbt) {
+        //   doc.addPage();
+        // }
         let header = [
           {
             label: "Lecture No.",
@@ -471,7 +484,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 50,
           },
           {
@@ -480,7 +493,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "left",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 285,
           },
 
@@ -490,7 +503,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -499,7 +512,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -508,7 +521,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 55,
           },
           {
@@ -517,7 +530,7 @@ const subjectTeachingPlanReport = async (
             render: null,
             align: "center",
             valign: "center",
-            padding: [2, 2, 2, 2],
+            padding: [2, 2],
             width: 50,
           },
         ];
@@ -531,65 +544,14 @@ const subjectTeachingPlanReport = async (
           prepareHeader: () => doc.font("Times-Bold").fontSize(10),
           hideHeader: true,
           prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-            // dbt = pageHeight - 40;
-            // let ct_height = doc.y + rectRow?.y;
-            // let cY = rectCell.y;
-            // doc.table.rectRow;
-            // if (rectRow?.y >= dbt) {
-            //   console.log(i, row, "rectRow", "->", rectRow);
-            //   console.log(i, "rectCell", "->", rectCell);
-            //   rectRow.y = 20;
-            //   rectCell.y = 20;
-            //   // cY = 20;
-            //   // doc.table.rectRow.y = 20;
-            //   //   console.log(doc.y, "->", "rectRow", rectRow);
-            //   //   console.log("rectCell", rectCell);
-            //   //   doc.addPage();
-            //   //   // doc.addPage();
-            //   //   // doc.y = 20;
-            //   //   // rectRow.y = 20;
-            //   //   // rectCell.y = 20;
-            //   //   // doc.addPage();
-            //   //   // console.log(
-            //   //   //   "i -> ",
-            //   //   //   i,
-            //   //   //   "dbt ->",
-            //   //   //   dbt,
-            //   //   //   "Y ->",
-            //   //   //   rectCell?.y,
-            //   //   //   "page height->",
-            //   //   //   pageHeight,
-            //   //   //   "X ->",
-            //   //   //   rectCell?.x,
-            //   //   //   "width ->",
-            //   //   //   rectCell?.width,
-            //   //   //   "height ->",
-            //   //   //   rectCell?.height
-            //   //   // );
-            //   //   // rectCell.y = 20;
-            // }
-
             if (indexColumn === 0) {
               doc.font("Times-Bold").fontSize(10);
             } else {
               doc.font("Times-Roman").fontSize(10);
             }
-
-            // console.log(
-            //   "i -> ",
-            //   i,
-            //   ": ->",
-            //   rectCell?.y,
-            //   "-> DBT: ",
-            //   dbt,
-            //   "Cell Height",
-            //   rectCell?.height
-            // );
-
             doc
               .rect(
                 rectCell?.x ?? 0,
-                // cY ?? 0,
                 rectCell?.y ?? 0,
                 rectCell?.width ?? 0,
                 rectCell?.height ?? 0

@@ -2345,7 +2345,7 @@ exports.renderApplicationListQuery = async (req, res) => {
         populate: {
           path: "student",
           populate: {
-            path: "student_optional_subject major_subject nested_subject",
+            path: "student_optional_subject major_subject nested_subject studentClass department",
             select: "subjectName",
           },
         },
@@ -3204,6 +3204,11 @@ exports.renderApplicationListQuery = async (req, res) => {
               moment(ref?.student?.student_expand_DOB)?.format("DD/MM/YYYY") ??
               "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
+            ROLLNO: ref?.student?.studentROLLNO ?? "#NA",
+            Class:
+              `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}` ??
+              "#NA",
+            Department: ref?.student?.department?.dName ?? "#NA",
             CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
             Religion: ref?.student?.studentReligion ?? "#NA",
             MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",

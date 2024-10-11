@@ -115,6 +115,7 @@ exports.retrieveAcademicDepartmentAdminHead = async (req, res) => {
       ) {
       } else {
         department.departmentChatGroup.push(staff._id);
+        staff.recommend_authority = department?.dHead;
       }
       notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
       notify.notifySender = id;

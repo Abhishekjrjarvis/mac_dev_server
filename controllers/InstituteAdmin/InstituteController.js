@@ -942,6 +942,7 @@ exports.getNewDepartment = async (req, res) => {
       } else {
         department.departmentChatGroup.push(staff._id);
       }
+      staff.recommend_authority = department?.dHead;
       notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
@@ -3943,6 +3944,7 @@ exports.retrieveNewClass = async (req, res) => {
         ) {
         } else {
           depart.departmentChatGroup.push(staff._id);
+          staff.recommend_authority = depart?.dHead?._id;
           depart.staffCount += 1;
         }
         staff.staffClass.push(classRoom._id);
@@ -4075,6 +4077,7 @@ exports.retrieveNewSubject = async (req, res) => {
       ) {
       } else {
         depart.departmentChatGroup.push(staff._id);
+        staff.recommend_authority = depart?.dHead?._id;
         depart.staffCount += 1;
         await depart.save();
       }

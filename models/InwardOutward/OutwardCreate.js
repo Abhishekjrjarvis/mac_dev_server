@@ -67,8 +67,25 @@ const outwardCreateSchema = new mongoose.Schema({
   },
   cancle_by_staff: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      reason: String,
+      resent: {
+        type: String,
+        default: "Yes",
+      },
+    },
+  ],
+  is_resent: String,
+  published_arr: [
+    {
+      type: String,
+      announcement: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "InsAnnouncement",
+      },
     },
   ],
 });

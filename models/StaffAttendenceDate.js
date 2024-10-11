@@ -33,6 +33,7 @@ const staffAttendenceDateSchema = new mongoose.Schema({
         type: String,
       },
       status: String,
+      late_mark: String,
     },
   ],
   absentStaff: [
@@ -45,6 +46,7 @@ const staffAttendenceDateSchema = new mongoose.Schema({
         type: String,
       },
       status: String,
+      late_mark: String,
     },
   ],
   createdAt: {
@@ -53,7 +55,7 @@ const staffAttendenceDateSchema = new mongoose.Schema({
   },
   attendence_type: {
     type: String,
-    default: "Normal_Lecture"
+    default: "Normal_Lecture",
   },
   staffAttendDateFormat: {
     type: Date,

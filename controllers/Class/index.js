@@ -792,7 +792,7 @@ exports.custom_sort_batch_wise_student_in_class_internal_batch_query = async (
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-
+    console.log("HIT");
     const depart = await Department.find({
       institute: { $eq: `${id}` },
     }).select("departmentSelectBatch");
@@ -800,38 +800,40 @@ exports.custom_sort_batch_wise_student_in_class_internal_batch_query = async (
     let i = 0;
     if (depart?.length > 0) {
       for (let dt of depart) {
-        const cls = await Class.find({
-          batch: {
-            $eq: `${dt?.departmentSelectBatch}`,
-          },
-        }).select("multiple_batches");
+        if (dt?.departmentSelectBatch) {
+          const cls = await Class.find({
+            batch: {
+              $eq: `${dt?.departmentSelectBatch}`,
+            },
+          }).select("multiple_batches");
 
-        if (cls?.length > 0) {
-          for (let ct of cls) {
-            if (ct?.multiple_batches?.length > 0) {
-              for (let bt of ct?.multiple_batches) {
-                ++i;
-                console.log("-> ", i);
-                const arr_batch = await Batch.findById(bt).populate({
-                  path: "class_student_query",
-                  select: "studentROLLNO",
-                });
-                if (arr_batch?.class_student_query?.length > 0) {
-                  let arr = [];
+          if (cls?.length > 0) {
+            for (let ct of cls) {
+              if (ct?.multiple_batches?.length > 0) {
+                for (let bt of ct?.multiple_batches) {
+                  ++i;
+                  console.log("-> ", i);
+                  const arr_batch = await Batch.findById(bt).populate({
+                    path: "class_student_query",
+                    select: "studentROLLNO",
+                  });
+                  if (arr_batch?.class_student_query?.length > 0) {
+                    let arr = [];
 
-                  for (let st of arr_batch?.class_student_query) {
-                    arr.push({
-                      student: st?._id,
-                      roll: +st?.studentROLLNO,
-                    });
+                    for (let st of arr_batch?.class_student_query) {
+                      arr.push({
+                        student: st?._id,
+                        roll: +st?.studentROLLNO,
+                      });
+                    }
+                    arr = arr?.sort((a, b) => a?.roll - b?.roll);
+                    let dt = [];
+                    for (let ft of arr) {
+                      dt.push(ft?.student);
+                    }
+                    arr_batch.class_student_query = dt;
+                    await arr_batch.save();
                   }
-                  arr = arr?.sort((a, b) => a?.roll - b?.roll);
-                  let dt = [];
-                  for (let ft of arr) {
-                    dt.push(ft?.student);
-                  }
-                  arr_batch.class_student_query = dt;
-                  await arr_batch.save();
                 }
               }
             }

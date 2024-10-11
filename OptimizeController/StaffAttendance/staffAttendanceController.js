@@ -221,8 +221,26 @@ exports.getStaffAttendanceQuery = async (req, res) => {
     if (attendance) {
       const present = [];
       const absent = [];
-      attendance?.presentStaff?.forEach((st) => present.push(st.staff));
-      attendance?.absentStaff?.forEach((st) => absent.push(st.staff));
+      let other_data = {};
+      if (attendance?.presentStaff?.length > 0) {
+        for (let i = 0; i < attendance?.presentStaff?.length; i++) {
+          let st = attendance?.presentStaff[i];
+          present.push(st.staff);
+          other_data[`${st.staff}`] = {
+            inTime: st?.inTime,
+            outTime: st?.outTime,
+            status: st?.status,
+          };
+        }
+      }
+      if (attendance?.absentStaff?.length > 0) {
+        for (let i = 0; i < attendance?.absentStaff?.length; i++) {
+          let st = attendance?.absentStaff[i];
+          absent.push(st.staff);
+        }
+      }
+      // attendance?.presentStaff?.forEach((st) => present.push(st.staff));
+      // attendance?.absentStaff?.forEach((st) => absent.push(st.staff));
       res.status(200).send({
         message: "Success",
         attendance: {
@@ -233,6 +251,7 @@ exports.getStaffAttendanceQuery = async (req, res) => {
           absentStaff: absent,
           staffAttendTime: attendance?.staffAttendTime,
           staffAttendDate: attendance?.staffAttendDate,
+          other_data: other_data,
         },
       });
     } else {

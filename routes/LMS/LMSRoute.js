@@ -19,7 +19,7 @@ router.route("/manage/leave/:lmid").patch(catchAsync(LMS.render_leave_manage));
 
 router
   .route("/staff/:sid")
-  .get(isLoggedIn, catchAsync(LMSV2.getStaffLeave))
+  .get(catchAsync(LMSV2.getStaffLeave))
   .post(catchAsync(LMSV2.postStaffLeave));
 
 router
@@ -29,8 +29,8 @@ router
 
 router
   .route("/institute/:id")
-  .get(isLoggedIn, catchAsync(LMSV2.getAllStaffLeaveInstitute))
-  .patch(isLoggedIn, catchAsync(LMSV2.oneStaffLeaveProcess));
+  .get(catchAsync(LMSV2.getAllStaffLeaveInstitute))
+  .patch(catchAsync(LMSV2.oneStaffLeaveProcess));
 
 router.patch(
   "/:id/config/leave/assign/query",
@@ -125,5 +125,25 @@ router.get(
   "/:id/leave/manage/query",
   catchAsync(LMS.render_leave_manage_query)
 );
+router.patch(
+  "export/:lmid/staff/leave/query",
+  catchAsync(LMS.all_leave_export_with_staff_list_query)
+);
+router.get(
+  "/:lcid/one/month/holiday/query",
+  catchAsync(LMS.holiday_with_monthly_wise_query)
+);
+router.patch(
+  "/institute/:id/office/query",
+  catchAsync(LMS.office_time_institute_query)
+);
+router.patch(
+  "/department/:did/office/query",
+  catchAsync(LMS.office_time_department_query)
+);
 
+router.get(
+  "staff/institute/:id/list/query",
+  catchAsync(LMS.replacement_staff_list_query)
+);
 module.exports = router;

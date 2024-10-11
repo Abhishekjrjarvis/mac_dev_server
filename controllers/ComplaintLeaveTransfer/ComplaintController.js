@@ -728,47 +728,68 @@ exports.classAllTransfer = async (req, res) => {
 
 exports.getStaffLeave = async (req, res) => {
   try {
-    const { category } = req?.query
+    const { category } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const staff = await Staff.findById(req.params.sid)
-    .select("staffLeave")
-    if(category){
-      var all_leave = await Leave.find({ $and: [{ _id: {$in: staff?.staffLeave } }, { leave_type: `${category}`}]})
-    .sort({ createdAt: -1 })
-    .limit(limit)
+    const staff = await Staff.findById(req.params.sid).select("staffLeave");
+    if (category) {
+      var all_leave = await Leave.find({
+        $and: [
+          { _id: { $in: staff?.staffLeave } },
+          { leave_type: `${category}` },
+          {
+            status: "Request",
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
         .skip(skip)
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "review.review_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "sanction.sanction_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
-    }
-    else{
-      var all_leave = await Leave.find({ _id: {$in: staff?.staffLeave }})
-    .sort({ createdAt: -1 })
-    .limit(limit)
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
+    } else {
+      var all_leave = await Leave.find({
+        $and: [
+          {
+            _id: { $in: staff?.staffLeave },
+          },
+          {
+            status: "Request",
+          },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit)
         .skip(skip)
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "review.review_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "sanction.sanction_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
     }
     // const lEncrypt = await encryptionPayload(staff.staffLeave);
     res.status(200).send({ message: "All leaves", allLeave: all_leave });
@@ -820,43 +841,46 @@ exports.postStaffLeave = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff?.institute);
-    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0]});
+    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0] });
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
       staff: staff._id,
       institute: institute._id,
-      lms: lms?._id
+      lms: lms?._id,
     });
     if (lms?.leave_mods_access?.recommend) {
       if (staff?.recommend_authority) {
-        const recommend_mods = await FinanceModerator.findById({ _id: `${staff?.recommend_authority}` })
-        recommend_mods.recommend_request.push(leave?._id)
-        await recommend_mods.save()
+        const recommend_mods = await FinanceModerator.findById({
+          _id: `${staff?.recommend_authority}`,
+        });
+        recommend_mods.recommend_request.push(leave?._id);
+        await recommend_mods.save();
       }
-    }
-    else if (lms?.leave_mods_access?.review) {
+    } else if (lms?.leave_mods_access?.review) {
       if (staff?.review_authority) {
-        const review_mods = await FinanceModerator.findById({ _id: `${staff?.review_authority}` })
-        review_mods.review_request.push(leave?._id)
-        await review_mods.save()
+        const review_mods = await FinanceModerator.findById({
+          _id: `${staff?.review_authority}`,
+        });
+        review_mods.review_request.push(leave?._id);
+        await review_mods.save();
       }
-    }
-    else if (lms?.leave_mods_access?.sanction) {
+    } else if (lms?.leave_mods_access?.sanction) {
       if (staff?.sanction_authority) {
-        const sanction_mods = await FinanceModerator.findById({ _id: `${staff?.sanction_authority}` })
-        sanction_mods.sanction_request.push(leave?._id)
-        await sanction_mods.save()
+        const sanction_mods = await FinanceModerator.findById({
+          _id: `${staff?.sanction_authority}`,
+        });
+        sanction_mods.sanction_request.push(leave?._id);
+        await sanction_mods.save();
       }
-    }
-    else {
+    } else {
       lms.leave.push(leave._id);
     }
-    leave.leave_grant = dateArray?.length
-    leave.leave_type = req?.body?.leave_type
+    leave.leave_grant = dateArray?.length;
+    leave.leave_type = req?.body?.leave_type;
     staff.staffLeave.push(leave._id);
-    if(req?.body?.attach){
-      leave.attach = req?.body?.attach
+    if (req?.body?.attach) {
+      leave.attach = req?.body?.attach;
     }
     const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName} ${
@@ -886,7 +910,7 @@ exports.postStaffLeave = async (req, res) => {
       leave.save(),
       user.save(),
       notify.save(),
-      lms.save()
+      lms.save(),
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {
@@ -927,29 +951,108 @@ exports.getStaffOneLeaveDelete = async (req, res) => {
 
 exports.getAllStaffLeaveInstitute = async (req, res) => {
   try {
-    const { id } = req?.params
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const { status_query } = req?.query
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-    const ins = await InstituteAdmin.findById({ _id: id })
-    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}`})
-    var all_leave = await Leave.find({ $and: [{ _id: { $in: lms?.leave }}, { status: `${status_query}`}] })
-    .sort({ createdAt: -1})
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "staff",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-    })
-    
-    if(all_leave?.length > 0){
-      res.status(200).send({ message: "Explore All Leave Query", access: true, all_leave: all_leave})
+    const { id } = req?.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
     }
-    else{
-      res.status(200).send({ message: "I think you're lost in space", access: true, all_leave: []})
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const { status_query } = req?.query;
+
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}` });
+
+    let all_leave = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      all_leave = await Leave.find({
+        $and: [
+          {
+            $or: [
+              { lms: { $eq: `${lms?._id}` } },
+              { institute: { $eq: `${ins?._id}` } },
+            ],
+          },
+          { status: `${status_query}` },
+          // {
+          //   $or: [
+          //     {
+          //       date: {
+          //         $regex: req.query.search,
+          //         $options: "i",
+          //       },
+          //     },
+          //   ],
+          // },
+          // {
+          //   staff: {
+          //     $match: {
+          //       $or: [
+          //         {
+          //           staffFirstName: {
+          //             $regex: req.query.search,
+          //             $options: "i",
+          //           },
+          //         },
+          //         {
+          //           staffMiddleName: {
+          //             $regex: req.query.search,
+          //             $options: "i",
+          //           },
+          //         },
+          //         {
+          //           staffLastName: {
+          //             $regex: req.query.search,
+          //             $options: "i",
+          //           },
+          //         },
+          //         {
+          //           staffROLLNO: {
+          //             $regex: req.query.search,
+          //             $options: "i",
+          //           },
+          //         },
+          //       ],
+          //     },
+          //   },
+          // },
+        ],
+      }).populate({
+        path: "staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
+    } else {
+      all_leave = await Leave.find({
+        $and: [
+          {
+            $or: [
+              { lms: { $eq: `${lms?._id}` } },
+              { institute: { $eq: `${ins?._id}` } },
+            ],
+          },
+          { status: `${status_query}` },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
     }
+
+    res.status(200).send({
+      message: "All Issued Leave of staff",
+      all_leave: all_leave,
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -957,7 +1060,7 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
 
 exports.oneStaffLeaveProcess = async (req, res) => {
   try {
-    const { leave_from, staff_mod } = req?.body
+    const { leave_from, staff_mod } = req?.body;
     var leave = await Leave.findById(req.params.id)
       .populate({
         path: "institute",
@@ -969,300 +1072,341 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           path: "user",
           select: "uNotify activity_tab",
         },
-        select: "user casual_leave medical_leave sick_leave recommend_authority review_authority sanction_authority leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
+        select:
+          "user casual_leave medical_leave sick_leave recommend_authority review_authority sanction_authority leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
       .select("staff institute status recommend review sanction leave_grant");
-    
+
     // leave.leave_grant = leave?.date?.length
-      var user = await User.findById(leave?.staff?.user?._id);
-      var notify = new StudentNotification({});
+    var user = await User.findById(leave?.staff?.user?._id);
+    var notify = new StudentNotification({});
     if (leave_from === "Recommend_Section") {
-      const recommend_mods = await FinanceModerator.findById({ _id: `${staff_mod}` })
+      const recommend_mods = await FinanceModerator.findById({
+        _id: `${staff_mod}`,
+      });
       if (leave?.staff?.review_authority && req?.body?.status === "Accepted") {
-        const review_mods = await FinanceModerator.findById({ _id: `${leave?.staff?.review_authority}` })
-        review_mods.review_request.push(leave?._id)
-        await review_mods.save()
+        const review_mods = await FinanceModerator.findById({
+          _id: `${leave?.staff?.review_authority}`,
+        });
+        review_mods.review_request.push(leave?._id);
+        await review_mods.save();
       }
       notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Recommended Authority - From ${leave?.institute?.insName}`;
-    notify.notifySender = leave?.institute?._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Staff";
-    notify.notifyPublisher = leave?.staff?._id;
-    user.activity_tab.push(notify._id);
-    notify.notifyByInsPhoto = leave?.institute?._id;
-    notify.notifyCategory = "Leave Status";
+      notify.notifySender = leave?.institute?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = leave?.staff?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByInsPhoto = leave?.institute?._id;
+      notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
-      leave.recommend.recommend_by = recommend_mods?.access_staff
-      leave.recommend.recommend_on = new Date()
-      leave.recommend.recommend_status = req?.body?.status
-      recommend_mods.recommend_request.pull(leave?._id)
-      recommend_mods.recommend_history.push(leave?._id)
-    //
-    invokeMemberTabNotification(
-      "Staff Activity",
-      notify,
-      `Recommend Leave Application ${req.body.status}`,
-      user._id,
-      user.deviceToken,
-      "Staff",
-      notify
-    );
-      await Promise.all([ notify.save(), user.save(), leave.save(), recommend_mods.save()])
-    }
-    else if (leave_from === "Review_Section") {
-      const review_mods = await FinanceModerator.findById({ _id: `${staff_mod}` })
-      if (leave?.staff?.sanction_authority && req?.body?.status === "Accepted") {
-        const sanction_mods = await FinanceModerator.findById({ _id: `${leave?.staff?.sanction_authority}` })
-        sanction_mods.sanction_request.push(leave?._id)
-        await sanction_mods.save()
+      leave.recommend.recommend_by = recommend_mods?.access_staff;
+      leave.recommend.recommend_on = new Date();
+      leave.recommend.recommend_status = req?.body?.status;
+      recommend_mods.recommend_request.pull(leave?._id);
+      recommend_mods.recommend_history.push(leave?._id);
+      //
+      if (user.deviceToken) {
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          `Recommend Leave Application ${req.body.status}`,
+          user._id,
+          user.deviceToken,
+          "Staff",
+          notify
+        );
+      }
+
+      await Promise.all([
+        notify.save(),
+        user.save(),
+        leave.save(),
+        recommend_mods.save(),
+      ]);
+    } else if (leave_from === "Review_Section") {
+      const review_mods = await FinanceModerator.findById({
+        _id: `${staff_mod}`,
+      });
+      if (
+        leave?.staff?.sanction_authority &&
+        req?.body?.status === "Accepted"
+      ) {
+        const sanction_mods = await FinanceModerator.findById({
+          _id: `${leave?.staff?.sanction_authority}`,
+        });
+        sanction_mods.sanction_request.push(leave?._id);
+        await sanction_mods.save();
       }
       notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority - From ${leave?.institute?.insName}`;
-    notify.notifySender = leave?.institute?._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Staff";
-    notify.notifyPublisher = leave?.staff?._id;
-    user.activity_tab.push(notify._id);
-    notify.notifyByInsPhoto = leave?.institute?._id;
-    notify.notifyCategory = "Leave Status";
+      notify.notifySender = leave?.institute?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = leave?.staff?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByInsPhoto = leave?.institute?._id;
+      notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
-      leave.review.review_by = review_mods?.access_staff
-      leave.review.review_on = new Date()
-      leave.review.review_status = req?.body?.status
-      review_mods.review_request.pull(leave?._id)
-      review_mods.review_history.push(leave?._id)
-    //
-    invokeMemberTabNotification(
-      "Staff Activity",
-      notify,
-      `Review Leave Application ${req.body.status}`,
-      user._id,
-      user.deviceToken,
-      "Staff",
-      notify
-    );
-      await Promise.all([ notify.save(), user.save(), leave.save(), review_mods.save()])
-    }
-    else if (leave_from === "Sanction_Section") {
-    const sanction_mods = await FinanceModerator.findById({ _id: `${staff_mod}`})
-    leave.status = req.body.status;
-    if(req?.body?.status === "Issued"){
-      leave.granted_on = new Date()
-    }
-    if(leave?.leave_type === "Casual Leave"){
-      if(leave?.staff?.casual_leave > leave?.leave_grant){
-        leave.staff.casual_leave -= leave?.leave_grant
+      leave.review.review_by = review_mods?.access_staff;
+      leave.review.review_on = new Date();
+      leave.review.review_status = req?.body?.status;
+      review_mods.review_request.pull(leave?._id);
+      review_mods.review_history.push(leave?._id);
+      //
+      if (user.deviceToken) {
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          `Review Leave Application ${req.body.status}`,
+          user._id,
+          user.deviceToken,
+          "Staff",
+          notify
+        );
       }
-    }
-    if(leave?.leave_type === "Medical Leave"){
-      if(leave?.staff?.medical_leave > leave?.leave_grant){
-        leave.staff.medical_leave -= leave?.leave_grant
+      await Promise.all([
+        notify.save(),
+        user.save(),
+        leave.save(),
+        review_mods.save(),
+      ]);
+    } else if (leave_from === "Sanction_Section") {
+      const sanction_mods = await FinanceModerator.findById({
+        _id: `${staff_mod}`,
+      });
+      leave.status = req.body.status;
+      if (req?.body?.status === "Issued") {
+        leave.granted_on = new Date();
       }
-    }
-    if(leave?.leave_type === "Sick Leave"){
-      if(leave?.staff?.sick_leave > leave?.leave_grant){
-        leave.staff.sick_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Casual Leave") {
+        if (leave?.staff?.casual_leave > leave?.leave_grant) {
+          leave.staff.casual_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Commuted Leave"){
-      if(leave?.staff?.commuted_leave > leave?.leave_grant){
-        leave.staff.commuted_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Medical Leave") {
+        if (leave?.staff?.medical_leave > leave?.leave_grant) {
+          leave.staff.medical_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Maternity Leave"){
-      if(leave?.staff?.maternity_leave > leave?.leave_grant){
-        leave.staff.maternity_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Sick Leave") {
+        if (leave?.staff?.sick_leave > leave?.leave_grant) {
+          leave.staff.sick_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Paternity Leave"){
-      if(leave?.staff?.paternity_leave > leave?.leave_grant){
-        leave.staff.paternity_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Commuted Leave") {
+        if (leave?.staff?.commuted_leave > leave?.leave_grant) {
+          leave.staff.commuted_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Study Leave"){
-      if(leave?.staff?.study_leave > leave?.leave_grant){
-        leave.staff.study_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Maternity Leave") {
+        if (leave?.staff?.maternity_leave > leave?.leave_grant) {
+          leave.staff.maternity_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Half Pay Leave"){
-      if(leave?.staff?.half_pay_leave > leave?.leave_grant){
-        leave.staff.half_pay_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Paternity Leave") {
+        if (leave?.staff?.paternity_leave > leave?.leave_grant) {
+          leave.staff.paternity_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Quarantine Leave"){
-      if(leave?.staff?.quarantine_leave > leave?.leave_grant){
-        leave.staff.quarantine_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Study Leave") {
+        if (leave?.staff?.study_leave > leave?.leave_grant) {
+          leave.staff.study_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Sabbatical Leave"){
-      if(leave?.staff?.sabbatical_leave > leave?.leave_grant){
-        leave.staff.sabbatical_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Half Pay Leave") {
+        if (leave?.staff?.half_pay_leave > leave?.leave_grant) {
+          leave.staff.half_pay_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Special Disability Leave"){
-      if(leave?.staff?.special_disability_leave > leave?.leave_grant){
-        leave.staff.special_disability_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Quarantine Leave") {
+        if (leave?.staff?.quarantine_leave > leave?.leave_grant) {
+          leave.staff.quarantine_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Winter Vacation Leave"){
-      if(leave?.staff?.winter_vacation_leave > leave?.leave_grant){
-        leave.staff.winter_vacation_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Sabbatical Leave") {
+        if (leave?.staff?.sabbatical_leave > leave?.leave_grant) {
+          leave.staff.sabbatical_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Summer Vacation Leave"){
-      if(leave?.staff?.summer_vacation_leave > leave?.leave_grant){
-        leave.staff.summer_vacation_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Special Disability Leave") {
+        if (leave?.staff?.special_disability_leave > leave?.leave_grant) {
+          leave.staff.special_disability_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Child Adoption Leave"){
-      if(leave?.staff?.child_adoption_leave > leave?.leave_grant){
-        leave.staff.child_adoption_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Winter Vacation Leave") {
+        if (leave?.staff?.winter_vacation_leave > leave?.leave_grant) {
+          leave.staff.winter_vacation_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Bereavement Leave"){
-      if(leave?.staff?.bereavement_leave > leave?.leave_grant){
-        leave.staff.bereavement_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Summer Vacation Leave") {
+        if (leave?.staff?.summer_vacation_leave > leave?.leave_grant) {
+          leave.staff.summer_vacation_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Compensation Off Leave"){
-      if(leave?.staff?.c_off_leave > leave?.leave_grant){
-        leave.staff.c_off_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Child Adoption Leave") {
+        if (leave?.staff?.child_adoption_leave > leave?.leave_grant) {
+          leave.staff.child_adoption_leave -= leave?.leave_grant;
+        }
       }
-    }
-    leave.staff.leave_taken += leave?.leave_grant
-    notify.notifyContent = `Your Leave request has been ${req.body.status} by Sanction Authority - From ${leave.institute.insName}`;
-    notify.notifySender = leave.institute._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Staff";
-    notify.notifyPublisher = leave.staff._id;
-    user.activity_tab.push(notify._id);
-    notify.notifyByInsPhoto = leave.institute._id;
-    notify.notifyCategory = "Leave Status";
+      if (leave?.leave_type === "Bereavement Leave") {
+        if (leave?.staff?.bereavement_leave > leave?.leave_grant) {
+          leave.staff.bereavement_leave -= leave?.leave_grant;
+        }
+      }
+      if (leave?.leave_type === "Compensation Off Leave") {
+        if (leave?.staff?.c_off_leave > leave?.leave_grant) {
+          leave.staff.c_off_leave -= leave?.leave_grant;
+        }
+      }
+      leave.staff.leave_taken += leave?.leave_grant;
+      notify.notifyContent = `Your Leave request has been ${req.body.status} by Sanction Authority - From ${leave.institute.insName}`;
+      notify.notifySender = leave.institute._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = leave.staff._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByInsPhoto = leave.institute._id;
+      notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
-      leave.sanction.sanction_by = sanction_mods?.access_staff
-      leave.sanction.sanction_on = new Date()
-      leave.sanction.sanction_status = req?.body?.status
-      sanction_mods.sanction_request.pull(leave?._id)
-      sanction_mods.sanction_history.push(leave?._id)
-    //
-    invokeMemberTabNotification(
-      "Staff Activity",
-      notify,
-      `Sanction Leave Application ${req.body.status}`,
-      user._id,
-      user.deviceToken,
-      "Staff",
-      notify
-    );
-    //
-    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save(), sanction_mods.save()]);
-    }
-    else {
-    leave.status = req.body.status;
-    if(req?.body?.status === "Issued"){
-      leave.granted_on = new Date()
-    }
-    if(leave?.leave_type === "Casual Leave"){
-      if(leave?.staff?.casual_leave > leave?.leave_grant){
-        leave.staff.casual_leave -= leave?.leave_grant
+      leave.sanction.sanction_by = sanction_mods?.access_staff;
+      leave.sanction.sanction_on = new Date();
+      leave.sanction.sanction_status = req?.body?.status;
+      sanction_mods.sanction_request.pull(leave?._id);
+      sanction_mods.sanction_history.push(leave?._id);
+      //
+      if (user.deviceToken) {
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          `Sanction Leave Application ${req.body.status}`,
+          user._id,
+          user.deviceToken,
+          "Staff",
+          notify
+        );
       }
-    }
-    if(leave?.leave_type === "Medical Leave"){
-      if(leave?.staff?.medical_leave > leave?.leave_grant){
-        leave.staff.medical_leave -= leave?.leave_grant
+      //
+      await Promise.all([
+        leave.save(),
+        user.save(),
+        notify.save(),
+        leave.staff.save(),
+        sanction_mods.save(),
+      ]);
+    } else {
+      leave.status = req.body.status;
+      if (req?.body?.status === "Issued") {
+        leave.granted_on = new Date();
       }
-    }
-    if(leave?.leave_type === "Sick Leave"){
-      if(leave?.staff?.sick_leave > leave?.leave_grant){
-        leave.staff.sick_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Casual Leave") {
+        if (leave?.staff?.casual_leave > leave?.leave_grant) {
+          leave.staff.casual_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Commuted Leave"){
-      if(leave?.staff?.commuted_leave > leave?.leave_grant){
-        leave.staff.commuted_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Medical Leave") {
+        if (leave?.staff?.medical_leave > leave?.leave_grant) {
+          leave.staff.medical_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Maternity Leave"){
-      if(leave?.staff?.maternity_leave > leave?.leave_grant){
-        leave.staff.maternity_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Sick Leave") {
+        if (leave?.staff?.sick_leave > leave?.leave_grant) {
+          leave.staff.sick_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Paternity Leave"){
-      if(leave?.staff?.paternity_leave > leave?.leave_grant){
-        leave.staff.paternity_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Commuted Leave") {
+        if (leave?.staff?.commuted_leave > leave?.leave_grant) {
+          leave.staff.commuted_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Study Leave"){
-      if(leave?.staff?.study_leave > leave?.leave_grant){
-        leave.staff.study_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Maternity Leave") {
+        if (leave?.staff?.maternity_leave > leave?.leave_grant) {
+          leave.staff.maternity_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Half Pay Leave"){
-      if(leave?.staff?.half_pay_leave > leave?.leave_grant){
-        leave.staff.half_pay_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Paternity Leave") {
+        if (leave?.staff?.paternity_leave > leave?.leave_grant) {
+          leave.staff.paternity_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Quarantine Leave"){
-      if(leave?.staff?.quarantine_leave > leave?.leave_grant){
-        leave.staff.quarantine_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Study Leave") {
+        if (leave?.staff?.study_leave > leave?.leave_grant) {
+          leave.staff.study_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Sabbatical Leave"){
-      if(leave?.staff?.sabbatical_leave > leave?.leave_grant){
-        leave.staff.sabbatical_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Half Pay Leave") {
+        if (leave?.staff?.half_pay_leave > leave?.leave_grant) {
+          leave.staff.half_pay_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Special Disability Leave"){
-      if(leave?.staff?.special_disability_leave > leave?.leave_grant){
-        leave.staff.special_disability_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Quarantine Leave") {
+        if (leave?.staff?.quarantine_leave > leave?.leave_grant) {
+          leave.staff.quarantine_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Winter Vacation Leave"){
-      if(leave?.staff?.winter_vacation_leave > leave?.leave_grant){
-        leave.staff.winter_vacation_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Sabbatical Leave") {
+        if (leave?.staff?.sabbatical_leave > leave?.leave_grant) {
+          leave.staff.sabbatical_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Summer Vacation Leave"){
-      if(leave?.staff?.summer_vacation_leave > leave?.leave_grant){
-        leave.staff.summer_vacation_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Special Disability Leave") {
+        if (leave?.staff?.special_disability_leave > leave?.leave_grant) {
+          leave.staff.special_disability_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Child Adoption Leave"){
-      if(leave?.staff?.child_adoption_leave > leave?.leave_grant){
-        leave.staff.child_adoption_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Winter Vacation Leave") {
+        if (leave?.staff?.winter_vacation_leave > leave?.leave_grant) {
+          leave.staff.winter_vacation_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Bereavement Leave"){
-      if(leave?.staff?.bereavement_leave > leave?.leave_grant){
-        leave.staff.bereavement_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Summer Vacation Leave") {
+        if (leave?.staff?.summer_vacation_leave > leave?.leave_grant) {
+          leave.staff.summer_vacation_leave -= leave?.leave_grant;
+        }
       }
-    }
-    if(leave?.leave_type === "Compensation Off Leave"){
-      if(leave?.staff?.c_off_leave > leave?.leave_grant){
-        leave.staff.c_off_leave -= leave?.leave_grant
+      if (leave?.leave_type === "Child Adoption Leave") {
+        if (leave?.staff?.child_adoption_leave > leave?.leave_grant) {
+          leave.staff.child_adoption_leave -= leave?.leave_grant;
+        }
       }
-    }
-    leave.staff.leave_taken += leave?.leave_grant
-    notify.notifyContent = `Your Leave request has been ${req.body.status} by Leave & Transfer Authority - From ${leave.institute.insName}`;
-    notify.notifySender = leave.institute._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Staff";
-    notify.notifyPublisher = leave.staff._id;
-    user.activity_tab.push(notify._id);
-    notify.notifyByInsPhoto = leave.institute._id;
-    notify.notifyCategory = "Leave Status";
+      if (leave?.leave_type === "Bereavement Leave") {
+        if (leave?.staff?.bereavement_leave > leave?.leave_grant) {
+          leave.staff.bereavement_leave -= leave?.leave_grant;
+        }
+      }
+      if (leave?.leave_type === "Compensation Off Leave") {
+        if (leave?.staff?.c_off_leave > leave?.leave_grant) {
+          leave.staff.c_off_leave -= leave?.leave_grant;
+        }
+      }
+      leave.staff.leave_taken += leave?.leave_grant;
+      notify.notifyContent = `Your Leave request has been ${req.body.status} by Leave & Transfer Authority - From ${leave.institute.insName}`;
+      notify.notifySender = leave.institute._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = leave.staff._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByInsPhoto = leave.institute._id;
+      notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
-    //
-    invokeMemberTabNotification(
-      "Staff Activity",
-      notify,
-      `Leave Application ${req.body.status}`,
-      user._id,
-      user.deviceToken,
-      "Staff",
-      notify
-    );
-    //
-    await Promise.all([leave.save(), user.save(), notify.save(), leave.staff.save()]);
+      //
+      if (user.deviceToken) {
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          `Leave Application ${req.body.status}`,
+          user._id,
+          user.deviceToken,
+          "Staff",
+          notify
+        );
+      }
+      //
+      await Promise.all([
+        leave.save(),
+        user.save(),
+        notify.save(),
+        leave.staff.save(),
+      ]);
     }
     res.status(200).send({ message: `Leave ${req.body.status} by Institute` });
   } catch (e) {
@@ -1675,10 +1819,10 @@ exports.instituteStaffAllTransfer = async (req, res) => {
   }
 };
 
-exports.renderLeaveConfigQuery = async(req, res) => {
-  try{
-    const { id } = req.params
-    const { flow } = req?.query
+exports.renderLeaveConfigQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { flow } = req?.query;
     const {
       casual,
       medical,
@@ -1695,198 +1839,327 @@ exports.renderLeaveConfigQuery = async(req, res) => {
       summer,
       child,
       bereavement,
-      earned
-    } = req?.body
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+      earned,
+    } = req?.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const ins = await InstituteAdmin.findById({ _id: id})
-    const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id })
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const new_leave_config = await LeaveConfig.findOne({ institute: ins?._id });
     if (flow === "TEACHING_FACULTY") {
-      new_leave_config.staff_leave_config.casual_leave = casual?.leave ?? 0
-      new_leave_config.staff_leave_config.casual_leave_approval = casual?.approval
-      new_leave_config.staff_leave_config.casual_leave_forward = casual?.forward
+      new_leave_config.staff_leave_config.casual_leave = casual?.leave ?? 0;
+      new_leave_config.staff_leave_config.casual_leave_approval =
+        casual?.approval;
+      new_leave_config.staff_leave_config.casual_leave_forward =
+        casual?.forward;
 
-      new_leave_config.staff_leave_config.medical_leave = medical?.leave ?? 0
-      new_leave_config.staff_leave_config.medical_leave_approval = medical?.approval
-      new_leave_config.staff_leave_config.medical_leave_forward = medical?.forward
+      new_leave_config.staff_leave_config.medical_leave = medical?.leave ?? 0;
+      new_leave_config.staff_leave_config.medical_leave_approval =
+        medical?.approval;
+      new_leave_config.staff_leave_config.medical_leave_forward =
+        medical?.forward;
 
-      new_leave_config.staff_leave_config.sick_leave = sick?.leave ?? 0
-      new_leave_config.staff_leave_config.sick_leave_approval = sick?.approval
-      new_leave_config.staff_leave_config.sick_leave_forward = sick?.forward
+      new_leave_config.staff_leave_config.sick_leave = sick?.leave ?? 0;
+      new_leave_config.staff_leave_config.sick_leave_approval = sick?.approval;
+      new_leave_config.staff_leave_config.sick_leave_forward = sick?.forward;
 
-      new_leave_config.staff_leave_config.commuted_leave = commuted?.leave ?? 0
-      new_leave_config.staff_leave_config.commuted_leave_approval = commuted?.approval
-      new_leave_config.staff_leave_config.commuted_leave_forward = commuted?.forward
+      new_leave_config.staff_leave_config.commuted_leave = commuted?.leave ?? 0;
+      new_leave_config.staff_leave_config.commuted_leave_approval =
+        commuted?.approval;
+      new_leave_config.staff_leave_config.commuted_leave_forward =
+        commuted?.forward;
 
-      new_leave_config.staff_leave_config.maternity_leave = maternity?.leave ?? 0
-      new_leave_config.staff_leave_config.maternity_leave_approval = maternity?.approval
-      new_leave_config.staff_leave_config.maternity_leave_forward = maternity?.forward
+      new_leave_config.staff_leave_config.maternity_leave =
+        maternity?.leave ?? 0;
+      new_leave_config.staff_leave_config.maternity_leave_approval =
+        maternity?.approval;
+      new_leave_config.staff_leave_config.maternity_leave_forward =
+        maternity?.forward;
 
-      new_leave_config.staff_leave_config.paternity_leave = paternity?.leave ?? 0
-      new_leave_config.staff_leave_config.paternity_leave_approval = paternity?.approval
-      new_leave_config.staff_leave_config.paternity_leave_forward = paternity?.forward
+      new_leave_config.staff_leave_config.paternity_leave =
+        paternity?.leave ?? 0;
+      new_leave_config.staff_leave_config.paternity_leave_approval =
+        paternity?.approval;
+      new_leave_config.staff_leave_config.paternity_leave_forward =
+        paternity?.forward;
 
-      new_leave_config.staff_leave_config.quarantine_leave = quarantine?.leave ?? 0
-      new_leave_config.staff_leave_config.quarantine_leave_approval = quarantine?.approval
-      new_leave_config.staff_leave_config.quarantine_leave_forward = quarantine?.forward
+      new_leave_config.staff_leave_config.quarantine_leave =
+        quarantine?.leave ?? 0;
+      new_leave_config.staff_leave_config.quarantine_leave_approval =
+        quarantine?.approval;
+      new_leave_config.staff_leave_config.quarantine_leave_forward =
+        quarantine?.forward;
 
-      new_leave_config.staff_leave_config.half_pay_leave = half?.leave ?? 0
-      new_leave_config.staff_leave_config.half_pay_leave_approval = half?.approval
-      new_leave_config.staff_leave_config.half_pay_leave_forward = half?.forward
+      new_leave_config.staff_leave_config.half_pay_leave = half?.leave ?? 0;
+      new_leave_config.staff_leave_config.half_pay_leave_approval =
+        half?.approval;
+      new_leave_config.staff_leave_config.half_pay_leave_forward =
+        half?.forward;
 
-      new_leave_config.staff_leave_config.study_leave = study?.leave ?? 0
-      new_leave_config.staff_leave_config.study_leave_approval = study?.approval
-      new_leave_config.staff_leave_config.study_leave_forward = study?.forward
+      new_leave_config.staff_leave_config.study_leave = study?.leave ?? 0;
+      new_leave_config.staff_leave_config.study_leave_approval =
+        study?.approval;
+      new_leave_config.staff_leave_config.study_leave_forward = study?.forward;
 
-      new_leave_config.staff_leave_config.sabbatical_leave = sabbatical?.leave ?? 0
-      new_leave_config.staff_leave_config.sabbatical_leave_approval = sabbatical?.approval
-      new_leave_config.staff_leave_config.sabbatical_leave_forward = sabbatical?.forward
+      new_leave_config.staff_leave_config.sabbatical_leave =
+        sabbatical?.leave ?? 0;
+      new_leave_config.staff_leave_config.sabbatical_leave_approval =
+        sabbatical?.approval;
+      new_leave_config.staff_leave_config.sabbatical_leave_forward =
+        sabbatical?.forward;
 
-      new_leave_config.staff_leave_config.special_disability_leave = special?.leave ?? 0
-      new_leave_config.staff_leave_config.special_disability_leave_approval = special?.approval
-      new_leave_config.staff_leave_config.special_disability_leave_forward = special?.forward
+      new_leave_config.staff_leave_config.special_disability_leave =
+        special?.leave ?? 0;
+      new_leave_config.staff_leave_config.special_disability_leave_approval =
+        special?.approval;
+      new_leave_config.staff_leave_config.special_disability_leave_forward =
+        special?.forward;
 
-      new_leave_config.staff_leave_config.winter_vacation_leave = winter?.leave ?? 0
-      new_leave_config.staff_leave_config.winter_vacation_leave_approval = winter?.approval
-      new_leave_config.staff_leave_config.winter_vacation_leave_forward = winter?.forward
+      new_leave_config.staff_leave_config.winter_vacation_leave =
+        winter?.leave ?? 0;
+      new_leave_config.staff_leave_config.winter_vacation_leave_approval =
+        winter?.approval;
+      new_leave_config.staff_leave_config.winter_vacation_leave_forward =
+        winter?.forward;
 
-      new_leave_config.staff_leave_config.summer_vacation_leave = summer?.leave ?? 0
-      new_leave_config.staff_leave_config.summer_vacation_leave_approval = summer?.approval
-      new_leave_config.staff_leave_config.summer_vacation_leave_forward = summer?.forward
+      new_leave_config.staff_leave_config.summer_vacation_leave =
+        summer?.leave ?? 0;
+      new_leave_config.staff_leave_config.summer_vacation_leave_approval =
+        summer?.approval;
+      new_leave_config.staff_leave_config.summer_vacation_leave_forward =
+        summer?.forward;
 
-      new_leave_config.staff_leave_config.child_adoption_leave = child?.leave ?? 0
-      new_leave_config.staff_leave_config.child_adoption_leave_approval = child?.approval
-      new_leave_config.staff_leave_config.child_adoption_leave_forward = child?.forward
+      new_leave_config.staff_leave_config.child_adoption_leave =
+        child?.leave ?? 0;
+      new_leave_config.staff_leave_config.child_adoption_leave_approval =
+        child?.approval;
+      new_leave_config.staff_leave_config.child_adoption_leave_forward =
+        child?.forward;
 
-      new_leave_config.staff_leave_config.bereavement_leave = bereavement?.leave ?? 0
-      new_leave_config.staff_leave_config.bereavement_leave_approval = bereavement?.approval
-      new_leave_config.staff_leave_config.bereavement_leave_forward = bereavement?.forward
+      new_leave_config.staff_leave_config.bereavement_leave =
+        bereavement?.leave ?? 0;
+      new_leave_config.staff_leave_config.bereavement_leave_approval =
+        bereavement?.approval;
+      new_leave_config.staff_leave_config.bereavement_leave_forward =
+        bereavement?.forward;
 
-      new_leave_config.staff_leave_config.earned_leave = earned?.leave ?? 0
-      new_leave_config.staff_leave_config.earned_leave_approval = earned?.approval
-      new_leave_config.staff_leave_config.earned_leave_forward = earned?.forward
+      new_leave_config.staff_leave_config.earned_leave = earned?.leave ?? 0;
+      new_leave_config.staff_leave_config.earned_leave_approval =
+        earned?.approval;
+      new_leave_config.staff_leave_config.earned_leave_forward =
+        earned?.forward;
 
-    await Promise.all([ ins.save(), new_leave_config.save() ])
-    res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
-    var all_staff = await Staff.find({ $and: [{ _id: { $in: ins?.ApproveStaff }}, { teaching_type: "Teaching Faculty"}]})
-    for(var ref of all_staff){
-      ref.casual_leave = new_leave_config?.staff_leave_config.casual_leave
-      ref.medical_leave = new_leave_config?.staff_leave_config.medical_leave
-      ref.sick_leave = new_leave_config?.staff_leave_config.sick_leave
-      ref.commuted_leave = new_leave_config?.staff_leave_config.commuted_leave
-      ref.maternity_leave = new_leave_config?.staff_leave_config.maternity_leave
-      ref.paternity_leave = new_leave_config?.staff_leave_config.paternity_leave
-      ref.quarantine_leave = new_leave_config?.staff_leave_config.quarantine_leave
-      ref.half_pay_leave = new_leave_config?.staff_leave_config.half_pay_leave
-      ref.study_leave = new_leave_config?.staff_leave_config.study_leave
-      ref.sabbatical_leave = new_leave_config?.staff_leave_config.sabbatical_leave
-      ref.special_disability_leave = new_leave_config?.staff_leave_config.special_disability_leave
-      ref.winter_vacation_leave = new_leave_config?.staff_leave_config.winter_vacation_leave
-      ref.summer_vacation_leave = new_leave_config?.staff_leave_config.summer_vacation_leave
-      ref.child_adoption_leave = new_leave_config?.staff_leave_config.child_adoption_leave
-      ref.bereavement_leave = new_leave_config?.staff_leave_config.bereavement_leave
-      ref.earned_leave = new_leave_config?.staff_leave_config.earned_leave
-      await ref.save()
-    } 
+      await Promise.all([ins.save(), new_leave_config.save()]);
+      res
+        .status(200)
+        .send({ message: "Explore Leave Configuration Query", access: true });
+      var all_staff = await Staff.find({
+        $and: [
+          { _id: { $in: ins?.ApproveStaff } },
+          { teaching_type: "Teaching Faculty" },
+        ],
+      });
+      for (var ref of all_staff) {
+        ref.casual_leave = new_leave_config?.staff_leave_config.casual_leave;
+        ref.medical_leave = new_leave_config?.staff_leave_config.medical_leave;
+        ref.sick_leave = new_leave_config?.staff_leave_config.sick_leave;
+        ref.commuted_leave =
+          new_leave_config?.staff_leave_config.commuted_leave;
+        ref.maternity_leave =
+          new_leave_config?.staff_leave_config.maternity_leave;
+        ref.paternity_leave =
+          new_leave_config?.staff_leave_config.paternity_leave;
+        ref.quarantine_leave =
+          new_leave_config?.staff_leave_config.quarantine_leave;
+        ref.half_pay_leave =
+          new_leave_config?.staff_leave_config.half_pay_leave;
+        ref.study_leave = new_leave_config?.staff_leave_config.study_leave;
+        ref.sabbatical_leave =
+          new_leave_config?.staff_leave_config.sabbatical_leave;
+        ref.special_disability_leave =
+          new_leave_config?.staff_leave_config.special_disability_leave;
+        ref.winter_vacation_leave =
+          new_leave_config?.staff_leave_config.winter_vacation_leave;
+        ref.summer_vacation_leave =
+          new_leave_config?.staff_leave_config.summer_vacation_leave;
+        ref.child_adoption_leave =
+          new_leave_config?.staff_leave_config.child_adoption_leave;
+        ref.bereavement_leave =
+          new_leave_config?.staff_leave_config.bereavement_leave;
+        ref.earned_leave = new_leave_config?.staff_leave_config.earned_leave;
+        await ref.save();
+      }
+    } else if (flow === "NON_TEACHING_FACULTY") {
+      new_leave_config.staff_leave_config_non_teaching.casual_leave =
+        casual?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.casual_leave_approval =
+        casual?.approval;
+      new_leave_config.staff_leave_config_non_teaching.casual_leave_forward =
+        casual?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.medical_leave =
+        medical?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.medical_leave_approval =
+        medical?.approval;
+      new_leave_config.staff_leave_config_non_teaching.medical_leave_forward =
+        medical?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.sick_leave =
+        sick?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.sick_leave_approval =
+        sick?.approval;
+      new_leave_config.staff_leave_config_non_teaching.sick_leave_forward =
+        sick?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave =
+        commuted?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave_approval =
+        commuted?.approval;
+      new_leave_config.staff_leave_config_non_teaching.commuted_leave_forward =
+        commuted?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave =
+        maternity?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave_approval =
+        maternity?.approval;
+      new_leave_config.staff_leave_config_non_teaching.maternity_leave_forward =
+        maternity?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave =
+        paternity?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave_approval =
+        paternity?.approval;
+      new_leave_config.staff_leave_config_non_teaching.paternity_leave_forward =
+        paternity?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave =
+        quarantine?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_approval =
+        quarantine?.approval;
+      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_forward =
+        quarantine?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave =
+        half?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_approval =
+        half?.approval;
+      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_forward =
+        half?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.study_leave =
+        study?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.study_leave_approval =
+        study?.approval;
+      new_leave_config.staff_leave_config_non_teaching.study_leave_forward =
+        study?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave =
+        sabbatical?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_approval =
+        sabbatical?.approval;
+      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_forward =
+        sabbatical?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave =
+        special?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_approval =
+        special?.approval;
+      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_forward =
+        special?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave =
+        winter?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_approval =
+        winter?.approval;
+      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_forward =
+        winter?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave =
+        summer?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_approval =
+        summer?.approval;
+      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_forward =
+        summer?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave =
+        child?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_approval =
+        child?.approval;
+      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_forward =
+        child?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave =
+        bereavement?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_approval =
+        bereavement?.approval;
+      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_forward =
+        bereavement?.forward;
+
+      new_leave_config.staff_leave_config_non_teaching.earned_leave =
+        earned?.leave ?? 0;
+      new_leave_config.staff_leave_config_non_teaching.earned_leave_approval =
+        earned?.approval;
+      new_leave_config.staff_leave_config_non_teaching.earned_leave_forward =
+        earned?.forward;
+
+      await Promise.all([ins.save(), new_leave_config.save()]);
+      res
+        .status(200)
+        .send({ message: "Explore Leave Configuration Query", access: true });
+      var all_staff = await Staff.find({
+        $and: [
+          { _id: { $in: ins?.ApproveStaff } },
+          { teaching_type: "Non-Teaching Faculty" },
+        ],
+      });
+      for (var ref of all_staff) {
+        ref.casual_leave =
+          new_leave_config?.staff_leave_config_non_teaching.casual_leave;
+        ref.medical_leave =
+          new_leave_config?.staff_leave_config_non_teaching.medical_leave;
+        ref.sick_leave =
+          new_leave_config?.staff_leave_config_non_teaching.sick_leave;
+        ref.commuted_leave =
+          new_leave_config?.staff_leave_config_non_teaching.commuted_leave;
+        ref.maternity_leave =
+          new_leave_config?.staff_leave_config_non_teaching.maternity_leave;
+        ref.paternity_leave =
+          new_leave_config?.staff_leave_config_non_teaching.paternity_leave;
+        ref.quarantine_leave =
+          new_leave_config?.staff_leave_config_non_teaching.quarantine_leave;
+        ref.half_pay_leave =
+          new_leave_config?.staff_leave_config_non_teaching.half_pay_leave;
+        ref.study_leave =
+          new_leave_config?.staff_leave_config_non_teaching.study_leave;
+        ref.sabbatical_leave =
+          new_leave_config?.staff_leave_config_non_teaching.sabbatical_leave;
+        ref.special_disability_leave =
+          new_leave_config?.staff_leave_config_non_teaching.special_disability_leave;
+        ref.winter_vacation_leave =
+          new_leave_config?.staff_leave_config_non_teaching.winter_vacation_leave;
+        ref.summer_vacation_leave =
+          new_leave_config?.staff_leave_config_non_teaching.summer_vacation_leave;
+        ref.child_adoption_leave =
+          new_leave_config?.staff_leave_config_non_teaching.child_adoption_leave;
+        ref.bereavement_leave =
+          new_leave_config?.staff_leave_config_non_teaching.bereavement_leave;
+        ref.earned_leave =
+          new_leave_config?.staff_leave_config_non_teaching.earned_leave;
+        await ref.save();
+      }
     }
-    else if (flow === "NON_TEACHING_FACULTY") {
-      new_leave_config.staff_leave_config_non_teaching.casual_leave = casual?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.casual_leave_approval = casual?.approval
-      new_leave_config.staff_leave_config_non_teaching.casual_leave_forward = casual?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.medical_leave = medical?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.medical_leave_approval = medical?.approval
-      new_leave_config.staff_leave_config_non_teaching.medical_leave_forward = medical?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.sick_leave = sick?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.sick_leave_approval = sick?.approval
-      new_leave_config.staff_leave_config_non_teaching.sick_leave_forward = sick?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.commuted_leave = commuted?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.commuted_leave_approval = commuted?.approval
-      new_leave_config.staff_leave_config_non_teaching.commuted_leave_forward = commuted?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.maternity_leave = maternity?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.maternity_leave_approval = maternity?.approval
-      new_leave_config.staff_leave_config_non_teaching.maternity_leave_forward = maternity?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.paternity_leave = paternity?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.paternity_leave_approval = paternity?.approval
-      new_leave_config.staff_leave_config_non_teaching.paternity_leave_forward = paternity?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.quarantine_leave = quarantine?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_approval = quarantine?.approval
-      new_leave_config.staff_leave_config_non_teaching.quarantine_leave_forward = quarantine?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.half_pay_leave = half?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_approval = half?.approval
-      new_leave_config.staff_leave_config_non_teaching.half_pay_leave_forward = half?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.study_leave = study?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.study_leave_approval = study?.approval
-      new_leave_config.staff_leave_config_non_teaching.study_leave_forward = study?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave = sabbatical?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_approval = sabbatical?.approval
-      new_leave_config.staff_leave_config_non_teaching.sabbatical_leave_forward = sabbatical?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.special_disability_leave = special?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_approval = special?.approval
-      new_leave_config.staff_leave_config_non_teaching.special_disability_leave_forward = special?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave = winter?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_approval = winter?.approval
-      new_leave_config.staff_leave_config_non_teaching.winter_vacation_leave_forward = winter?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave = summer?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_approval = summer?.approval
-      new_leave_config.staff_leave_config_non_teaching.summer_vacation_leave_forward = summer?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave = child?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_approval = child?.approval
-      new_leave_config.staff_leave_config_non_teaching.child_adoption_leave_forward = child?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.bereavement_leave = bereavement?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_approval = bereavement?.approval
-      new_leave_config.staff_leave_config_non_teaching.bereavement_leave_forward = bereavement?.forward
-
-      new_leave_config.staff_leave_config_non_teaching.earned_leave = earned?.leave ?? 0
-      new_leave_config.staff_leave_config_non_teaching.earned_leave_approval = earned?.approval
-      new_leave_config.staff_leave_config_non_teaching.earned_leave_forward = earned?.forward
-
-    await Promise.all([ ins.save(), new_leave_config.save() ])
-    res.status(200).send({ message: "Explore Leave Configuration Query", access: true})
-    var all_staff = await Staff.find({ $and: [{ _id: { $in: ins?.ApproveStaff }}, { teaching_type: "Non-Teaching Faculty"}]})
-    for(var ref of all_staff){
-      ref.casual_leave = new_leave_config?.staff_leave_config_non_teaching.casual_leave
-      ref.medical_leave = new_leave_config?.staff_leave_config_non_teaching.medical_leave
-      ref.sick_leave = new_leave_config?.staff_leave_config_non_teaching.sick_leave
-      ref.commuted_leave = new_leave_config?.staff_leave_config_non_teaching.commuted_leave
-      ref.maternity_leave = new_leave_config?.staff_leave_config_non_teaching.maternity_leave
-      ref.paternity_leave = new_leave_config?.staff_leave_config_non_teaching.paternity_leave
-      ref.quarantine_leave = new_leave_config?.staff_leave_config_non_teaching.quarantine_leave
-      ref.half_pay_leave = new_leave_config?.staff_leave_config_non_teaching.half_pay_leave
-      ref.study_leave = new_leave_config?.staff_leave_config_non_teaching.study_leave
-      ref.sabbatical_leave = new_leave_config?.staff_leave_config_non_teaching.sabbatical_leave
-      ref.special_disability_leave = new_leave_config?.staff_leave_config_non_teaching.special_disability_leave
-      ref.winter_vacation_leave = new_leave_config?.staff_leave_config_non_teaching.winter_vacation_leave
-      ref.summer_vacation_leave = new_leave_config?.staff_leave_config_non_teaching.summer_vacation_leave
-      ref.child_adoption_leave = new_leave_config?.staff_leave_config_non_teaching.child_adoption_leave
-      ref.bereavement_leave = new_leave_config?.staff_leave_config_non_teaching.bereavement_leave
-      ref.earned_leave = new_leave_config?.staff_leave_config_non_teaching.earned_leave
-      await ref.save()
-    }
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderStaffLeaveConfigQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
-    const { 
+exports.renderStaffLeaveConfigQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const {
       casual,
       medical,
       sick,
@@ -1902,34 +2175,40 @@ exports.renderStaffLeaveConfigQuery = async(req, res) => {
       summer,
       child,
       bereavement,
-      earned
-    } = req?.body
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+      earned,
+    } = req?.body;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const staff = await Staff.findById({ _id: sid})
-    staff.casual_leave = casual?.leave ?? 0
-    staff.medical_leave = medical?.leave ?? 0
-    staff.sick_leave = sick?.leave ?? 0
-    staff.commuted_leave = commuted?.leave ?? 0
-    staff.maternity_leave = maternity?.leave ?? 0
-    staff.paternity_leave = paternity?.leave ?? 0
-    staff.quarantine_leave = quarantine?.leave ?? 0
-    staff.half_pay_leave = half?.leave ?? 0
-    staff.study_leave = study?.leave ?? 0
-    staff.sabbatical_leave = sabbatical?.leave ?? 0
-    staff.special_disability_leave = special?.leave ?? 0
-    staff.winter_vacation_leave = winter?.leave ?? 0
-    staff.summer_vacation_leave = summer?.leave ?? 0
-    staff.child_adoption_leave = child?.leave ?? 0
-    staff.bereavement_leave = bereavement?.leave ?? 0
-    staff.earned_leave = earned?.leave ?? 0
-    await staff.save()
-    res.status(200).send({ message: "Explore One Staff Leave Configuration Query", access: true})
+    const staff = await Staff.findById({ _id: sid });
+    staff.casual_leave = casual?.leave ?? 0;
+    staff.medical_leave = medical?.leave ?? 0;
+    staff.sick_leave = sick?.leave ?? 0;
+    staff.commuted_leave = commuted?.leave ?? 0;
+    staff.maternity_leave = maternity?.leave ?? 0;
+    staff.paternity_leave = paternity?.leave ?? 0;
+    staff.quarantine_leave = quarantine?.leave ?? 0;
+    staff.half_pay_leave = half?.leave ?? 0;
+    staff.study_leave = study?.leave ?? 0;
+    staff.sabbatical_leave = sabbatical?.leave ?? 0;
+    staff.special_disability_leave = special?.leave ?? 0;
+    staff.winter_vacation_leave = winter?.leave ?? 0;
+    staff.summer_vacation_leave = summer?.leave ?? 0;
+    staff.child_adoption_leave = child?.leave ?? 0;
+    staff.bereavement_leave = bereavement?.leave ?? 0;
+    staff.earned_leave = earned?.leave ?? 0;
+    await staff.save();
+    res.status(200).send({
+      message: "Explore One Staff Leave Configuration Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.postStaffCoffLeaveQuery = async (req, res) => {
   try {
@@ -1974,20 +2253,20 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff.institute);
-    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0]});
+    const lms = await LMS.findById({ _id: institute?.lms_depart?.[0] });
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
       staff: staff._id,
       institute: institute._id,
-      lms: lms?._id
+      lms: lms?._id,
     });
-    leave.leave_grant = dateArray?.length
-    leave.leave_type = req?.body?.leave_type
+    leave.leave_grant = dateArray?.length;
+    leave.leave_type = req?.body?.leave_type;
     lms.c_off_leave.push(leave._id);
     staff.staffLeave.push(leave._id);
-    if(req?.body?.attach){
-      leave.attach = req?.body?.attach
+    if (req?.body?.attach) {
+      leave.attach = req?.body?.attach;
     }
     const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName} ${
@@ -2017,7 +2296,7 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
       leave.save(),
       user.save(),
       notify.save(),
-      lms.save()
+      lms.save(),
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {
@@ -2025,648 +2304,855 @@ exports.postStaffCoffLeaveQuery = async (req, res) => {
   }
 };
 
-exports.renderStaffCoffLeaveQuery = async(req, res) => {
-  try{
-    const { id } = req?.params
+exports.renderStaffCoffLeaveQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { status_query } = req?.query
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const { status_query } = req?.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const ins = await InstituteAdmin.findById({ _id: id})
-    var all_leave = await Leave.find({ $and: [{ _id: { $in: ins?.c_off_leave }}, { status: `${status_query}`}] })
-    .sort({ createdAt: -1})
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "staff",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto valid_full_name staffROLLNO"
+    const ins = await InstituteAdmin.findById({ _id: id });
+    var all_leave = await Leave.find({
+      $and: [{ _id: { $in: ins?.c_off_leave } }, { status: `${status_query}` }],
     })
-    
-    if(all_leave?.length > 0){
-      res.status(200).send({ message: "Explore All C-Off Leave Query", access: true, all_leave: all_leave})
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto valid_full_name staffROLLNO",
+      });
+
+    if (all_leave?.length > 0) {
+      res.status(200).send({
+        message: "Explore All C-Off Leave Query",
+        access: true,
+        all_leave: all_leave,
+      });
+    } else {
+      res.status(200).send({
+        message: "I think you're lost in space",
+        access: true,
+        all_leave: [],
+      });
     }
-    else{
-      res.status(200).send({ message: "I think you're lost in space", access: true, all_leave: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
+};
+
+exports.renderManageCoffQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params;
+    const { sid } = req?.body;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var one_leave = await Leave.findById({ _id: lid });
+    var staff = await Staff.findById({ _id: sid });
+
+    one_leave.status = "Accepted";
+    staff.c_off_leave += 1;
+
+    await Promise.all([staff.save(), one_leave.save()]);
+    res.status(200).send({ message: "Explore Manage C-off Leave Query" });
+  } catch (e) {
+    console.log(e);
   }
-}
-
-exports.renderManageCoffQuery = async(req, res) => {
-  try{
-    const { lid } = req?.params
-    const { sid } = req?.body
-    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    var one_leave = await Leave.findById({ _id: lid})
-    var staff = await Staff.findById({ _id: sid })
-
-    one_leave.status = "Accepted"
-    staff.c_off_leave += 1
-
-    await Promise.all([ staff.save(), one_leave.save() ])
-    res.status(200).send({ message: "Explore Manage C-off Leave Query"})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderAddStaffToAuthorityQuery = async (req, res) => {
   try {
-    const { mid } = req?.params
-    const { flow, staff_arr } = req?.body
-    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var mods = await FinanceModerator.findById({ _id: mid })
+    const { mid } = req?.params;
+    const { flow, staff_arr } = req?.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var mods = await FinanceModerator.findById({ _id: mid });
     if (flow === "Recommend_Section") {
-      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
-      for(var ele of all_staff){
-        ele.recommend_authority = mods?._id
-        mods.recommend_staff.push(ele?._id)
-        mods.recommend_staff_count += 1
-        await ele.save()
+      var all_staff = await Staff.find({ _id: { $in: staff_arr } });
+      for (var ele of all_staff) {
+        ele.recommend_authority = mods?._id;
+        mods.recommend_staff.push(ele?._id);
+        mods.recommend_staff_count += 1;
+        await ele.save();
       }
-      await mods.save()
-      res.status(200).send({ message: "Flow Redirect To Recommend Section", access: true})
-    }
-    else if (flow === "Review_Section") {
-      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
-      for(var ele of all_staff){
-        ele.review_authority = mods?._id
-        mods.review_staff.push(ele?._id)
-        mods.review_staff_count += 1
-        await ele.save()
+      await mods.save();
+      res
+        .status(200)
+        .send({ message: "Flow Redirect To Recommend Section", access: true });
+    } else if (flow === "Review_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr } });
+      for (var ele of all_staff) {
+        ele.review_authority = mods?._id;
+        mods.review_staff.push(ele?._id);
+        mods.review_staff_count += 1;
+        await ele.save();
       }
-      await mods.save()
-      res.status(200).send({ message: "Flow Redirect To Review Section", access: true})
+      await mods.save();
+      res
+        .status(200)
+        .send({ message: "Flow Redirect To Review Section", access: true });
+    } else {
+      res.status(200).send({ message: "Invalid Flow", access: true });
     }
-    else {
-      res.status(200).send({ message: "Invalid Flow", access: true})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderRemoveStaffToAuthorityQuery = async (req, res) => {
   try {
-    const { mid } = req?.params
-    const { flow, staff_arr } = req?.body
-    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    var mods = await FinanceModerator.findById({ _id: mid })
+    const { mid } = req?.params;
+    const { flow, staff_arr } = req?.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var mods = await FinanceModerator.findById({ _id: mid });
     if (flow === "Recommend_Section") {
-      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
-      for(var ele of all_staff){
-        ele.recommend_authority = null
-        mods.recommend_staff.pull(ele?._id)
+      var all_staff = await Staff.find({ _id: { $in: staff_arr } });
+      for (var ele of all_staff) {
+        ele.recommend_authority = null;
+        mods.recommend_staff.pull(ele?._id);
         if (mods.recommend_staff_count > 0) {
-          mods.recommend_staff_count -= 1
+          mods.recommend_staff_count -= 1;
         }
-        await ele.save()
+        await ele.save();
       }
-      await mods.save()
-      res.status(200).send({ message: "Flow Redirect To Recommend Section", access: true})
-    }
-    else if (flow === "Review_Section") {
-      var all_staff = await Staff.find({ _id: { $in: staff_arr}})
-      for(var ele of all_staff){
-        ele.review_authority = null
-        mods.review_staff.pull(ele?._id)
+      await mods.save();
+      res
+        .status(200)
+        .send({ message: "Flow Redirect To Recommend Section", access: true });
+    } else if (flow === "Review_Section") {
+      var all_staff = await Staff.find({ _id: { $in: staff_arr } });
+      for (var ele of all_staff) {
+        ele.review_authority = null;
+        mods.review_staff.pull(ele?._id);
         if (mods.review_staff_count > 0) {
-          mods.review_staff_count -= 1
+          mods.review_staff_count -= 1;
         }
-        await ele.save()
+        await ele.save();
       }
-      await mods.save()
-      res.status(200).send({ message: "Flow Redirect To Review Section", access: true})
+      await mods.save();
+      res
+        .status(200)
+        .send({ message: "Flow Redirect To Review Section", access: true });
+    } else {
+      res.status(200).send({ message: "Invalid Flow", access: true });
     }
-    else {
-      res.status(200).send({ message: "Invalid Flow", access: true})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllLeaveRequestQuery = async (req, res) => {
   try {
-    const { mid } = req?.params
+    const { mid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { flow } = req?.query
-    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { flow } = req?.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var mods = await FinanceModerator.findById({ _id: mid })
+    var mods = await FinanceModerator.findById({ _id: mid });
     if (flow === "Recommend_Section") {
-      var all_leave = await Leave.find({ _id: { $in: mods?.recommend_request } })
+      var all_leave = await Leave.find({
+        _id: { $in: mods?.recommend_request },
+      })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Leave", access: true, all_leave:[] }) 
-      }
-    }
-    else if (flow === "Review_Section") {
+    } else if (flow === "Review_Section") {
       var all_leave = await Leave.find({ _id: { $in: mods?.review_request } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Review Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Review Section + No Leave", access: true, all_leave:[] }) 
-      }
-    }
-    else if (flow === "Sanction_Section") {
+    } else if (flow === "Sanction_Section") {
       var all_leave = await Leave.find({ _id: { $in: mods?.sanction_request } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "review.review_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Sanction Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Sanction Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Sanction Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Sanction Section + No Leave", access: true, all_leave:[] }) 
-      }
+    } else {
+      res.status(200).send({ message: "Invalid Flow", access: true });
     }
-    else {
-      res.status(200).send({ message: "Invalid Flow", access: true})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllLeaveHistoryQuery = async (req, res) => {
   try {
-    const { mid } = req?.params
+    const { mid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { flow } = req?.query
-    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { flow } = req?.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var mods = await FinanceModerator.findById({ _id: mid })
+    var mods = await FinanceModerator.findById({ _id: mid });
     if (flow === "Recommend_Section") {
-      var all_leave = await Leave.find({ _id: { $in: mods?.recommend_history } })
+      var all_leave = await Leave.find({
+        _id: { $in: mods?.recommend_history },
+      })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Leave", access: true, all_leave:[] }) 
-      }
-    }
-    else if (flow === "Review_Section") {
+    } else if (flow === "Review_Section") {
       var all_leave = await Leave.find({ _id: { $in: mods?.review_history } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "review.review_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Review Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Review Section + No Leave", access: true, all_leave:[] }) 
-      }
-    }
-    else if (flow === "Sanction_Section") {
+    } else if (flow === "Sanction_Section") {
       var all_leave = await Leave.find({ _id: { $in: mods?.sanction_history } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
         .populate({
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "recommend.recommend_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "review.review_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         })
         .populate({
           path: "sanction.sanction_by",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        })
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
       if (all_leave?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Sanction Section + All Leave", access: true, all_leave: all_leave})
+        res.status(200).send({
+          message: "Flow Redirect To Sanction Section + All Leave",
+          access: true,
+          all_leave: all_leave,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Sanction Section + No Leave",
+          access: true,
+          all_leave: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Sanction Section + No Leave", access: true, all_leave:[] }) 
-      }
+    } else {
+      res.status(200).send({ message: "Invalid Flow", access: true });
     }
-    else {
-      res.status(200).send({ message: "Invalid Flow", access: true})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.renderAllStaffQuery = async (req, res) => {
   try {
-    const { mid } = req?.params
+    const { mid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { flow } = req?.query
-    if (!mid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+    const { flow } = req?.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var mods = await FinanceModerator.findById({ _id: mid })
+    var mods = await FinanceModerator.findById({ _id: mid });
     if (flow === "Recommend_Section") {
       var all_staff = await Staff.find({ _id: { $in: mods?.recommend_staff } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type")
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type"
+        );
       if (all_staff?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + All Staff", access: true, all_staff: all_staff})
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + All Staff",
+          access: true,
+          all_staff: all_staff,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Recommend Section + No Staff",
+          access: true,
+          all_staff: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Recommend Section + No Staff", access: true, all_staff:[] }) 
-      }
-    }
-    else if (flow === "Review_Section") {
+    } else if (flow === "Review_Section") {
       var all_staff = await Staff.find({ _id: { $in: mods?.review_staff } })
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type")
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO teaching_type"
+        );
       if (all_staff?.length > 0) {
-        res.status(200).send({ message: "Flow Redirect To Review Section + All Staff", access: true, all_staff: all_staff})
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + All Staff",
+          access: true,
+          all_staff: all_staff,
+        });
+      } else {
+        res.status(200).send({
+          message: "Flow Redirect To Review Section + No Staff",
+          access: true,
+          all_staff: [],
+        });
       }
-      else {
-        res.status(200).send({ message: "Flow Redirect To Review Section + No Staff", access: true, all_staff:[] }) 
-      }
+    } else {
+      res.status(200).send({ message: "Invalid Flow", access: true });
     }
-    else {
-      res.status(200).send({ message: "Invalid Flow", access: true})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.renderLeaveOverviewQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderLeaveOverviewQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const staff = await Staff.findById({ _id: sid })
-    .select("casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave")
+    const staff = await Staff.findById({ _id: sid }).select(
+      "casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
+    );
 
-    var total_leave = staff?.casual_leave + staff?.medical_leave + staff?.sick_leave + staff?.off_duty_leave + staff?.lwp_leave + staff?.c_off_leave + staff?.commuted_leave + staff?.maternity_leave + staff?.paternity_leave + staff?.study_leave + staff?.half_pay_leave + staff?.quarantine_leave + staff?.sabbatical_leave + staff?.special_disability_leave + staff?.winter_vacation_leave + staff?.summer_vacation_leave + staff?.child_adoption_leave + staff?.bereavement_leave
-    var leave_taken = staff?.leave_taken
+    var total_leave =
+      staff?.casual_leave +
+      staff?.medical_leave +
+      staff?.sick_leave +
+      staff?.off_duty_leave +
+      staff?.lwp_leave +
+      staff?.c_off_leave +
+      staff?.commuted_leave +
+      staff?.maternity_leave +
+      staff?.paternity_leave +
+      staff?.study_leave +
+      staff?.half_pay_leave +
+      staff?.quarantine_leave +
+      staff?.sabbatical_leave +
+      staff?.special_disability_leave +
+      staff?.winter_vacation_leave +
+      staff?.summer_vacation_leave +
+      staff?.child_adoption_leave +
+      staff?.bereavement_leave;
+    var leave_taken = staff?.leave_taken;
 
     var overview = {
       total_leave_available: total_leave,
-      total_leave_taken: leave_taken
-    }
+      total_leave_taken: leave_taken,
+    };
 
-    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, overview: overview, staff: staff })
+    res.status(200).send({
+      message: "Explore All Leave Available + Taken Query",
+      access: true,
+      overview: overview,
+      staff: staff,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderLeaveFilterOverviewQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
-    const { category } = req?.query
+exports.renderLeaveFilterOverviewQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { category } = req?.query;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if(!sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const staff = await Staff.findById({ _id: sid })
-    .select("staffLeave")
+    const staff = await Staff.findById({ _id: sid }).select("staffLeave");
 
-    if(category){
-      var all_leave = await Leave.find({ $and: [{ _id: { $in: staff?.staffLeave }},  { leave_type: `${category}` }]})
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "staff",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "recommend.recommend_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "review.review_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "sanction.sanction_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
+    if (category) {
+      var all_leave = await Leave.find({
+        $and: [
+          { _id: { $in: staff?.staffLeave } },
+          { leave_type: `${category}` },
+          {
+            status: "Accepted",
+          },
+        ],
+      })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "recommend.recommend_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "review.review_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "sanction.sanction_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
+    } else {
+      var all_leave = await Leave.find({
+        $and: [
+          { _id: { $in: staff?.staffLeave } },
+          {
+            status: "Accepted",
+          },
+        ],
+      })
+        .sort({
+          createdAt: -1,
+        })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "recommend.recommend_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "review.review_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "sanction.sanction_by",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        });
     }
-    else{
-      var all_leave = await Leave.find({ $and: [{ _id: { $in: staff?.staffLeave }}]})
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: "staff",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "recommend.recommend_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "review.review_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    .populate({
-      path: "sanction.sanction_by",
-      select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-    })
-    }
 
-    res.status(200).send({ message: "Explore All Leave Available + Taken Query", access: true, all_leave: all_leave })
+    res.status(200).send({
+      message: "Explore All Leave Available + Taken Query",
+      access: true,
+      all_leave: all_leave,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderLeaveConfigRulesQuery = async(req, res) => {
-  try{
-    const { lid } = req?.params
-    const { flow, year, date, month, int_month } = req?.query
-    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderLeaveConfigRulesQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params;
+    const { flow, year, date, month, int_month } = req?.query;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    if(flow === "Leave_Start"){
-      var int_num = parseInt(int_month) + 1
-      var valid_month = (month + 1 > 12) ? (month + 1) - 12 : month + 1
+    if (flow === "Leave_Start") {
+      var int_num = parseInt(int_month) + 1;
+      var valid_month = month + 1 > 12 ? month + 1 - 12 : month + 1;
       num = months_helper?.filter((val) => {
         if (int_num - 1 >= 10) {
-          console.log("F")
-          if(`${val?.code}` === `${int_num - 1}`) return val
+          console.log("F");
+          if (`${val?.code}` === `${int_num - 1}`) return val;
+        } else {
+          console.log("E");
+          if (`${val?.code}` === `0${int_num - 1}`) return val;
         }
-        else {
-          console.log("E")
-          if(`${val?.code}` === `0${int_num - 1}`) return val
-        }
-      })
-      const leave_config = await LeaveConfig.findById({ _id: lid })
-      leave_config.leave_start_academic_year = new Date(`${year}-${month}-${date}`)
-      leave_config.leave_end_academic_year = new Date(`${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`)
-      await leave_config.save()
+      });
+      const leave_config = await LeaveConfig.findById({ _id: lid });
+      leave_config.leave_start_academic_year = new Date(
+        `${year}-${month}-${date}`
+      );
+      leave_config.leave_end_academic_year = new Date(
+        `${parseInt(year) + 1}-${num[0]?.code}-${num[0]?.last}`
+      );
+      await leave_config.save();
     }
     // await LeaveConfig.findByIdAndUpdate(lid, req?.body)
 
-    res.status(200).send({ message: "Explore All Leave Config Rules Query", access: true})
+    res
+      .status(200)
+      .send({ message: "Explore All Leave Config Rules Query", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
+};
+
+exports.renderLeaveSetOffConfigRulesQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await LeaveConfig.findByIdAndUpdate(lid, req?.body);
+
+    res
+      .status(200)
+      .send({ message: "Set Off Rules Updated Successfully", access: true });
+  } catch (e) {
+    console.log(e);
   }
-}
+};
 
-exports.renderLeaveSetOffConfigRulesQuery = async(req, res) => {
-  try{
-    const { lid } = req?.params
-    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderLeaveConfigHolidayQuery = async (req, res) => {
+  try {
+    const { lid } = req?.params;
+    const { date_arr, reason, mark_sunday, mark_saturday } = req?.body;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    await LeaveConfig.findByIdAndUpdate(lid, req?.body)
-
-    res.status(200).send({ message: "Set Off Rules Updated Successfully", access: true})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
-
-exports.renderLeaveConfigHolidayQuery = async(req, res) => {
-  try{
-    const { lid } = req?.params
-    const { date_arr, mark_sunday, mark_saturday } = req?.body
-    if(!lid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-
-    const leave = await LeaveConfig.findById({ _id: lid })
+    const leave = await LeaveConfig.findById({ _id: lid });
+    // 2024-10-18
     if (date_arr?.length > 0) {
-      for(var val of date_arr){
-        leave.holiday_config.dDate.push(val)
-      } 
+      leave.custom_holiday.push({
+        dates: date_arr,
+        reason: reason,
+      });
     }
-    if(mark_sunday?.status === "ALL_SUNDAYS"){
+    if (mark_sunday?.status === "ALL_SUNDAYS") {
       const sundaysInYear = getSundaysInYear(2024, 2025);
-      for(var val of sundaysInYear?.formattedSundays){
+      for (var val of sundaysInYear?.formattedSundays) {
         if (leave.holiday_config.dDate.includes(`${val}`)) {
-          
-        }
-        else {
-          leave.holiday_config.dDate.push(val)
+        } else {
+          leave.holiday_config.dDate.push(val);
         }
       }
-    }
-    else {
+    } else {
       const sundaysInYear = getSundaysInYear(2024, 2025);
-      for(var val of sundaysInYear?.formattedSundays){
-        leave.holiday_config.dDate.pull(val)
+      for (var val of sundaysInYear?.formattedSundays) {
+        leave.holiday_config.dDate.pull(val);
       }
     }
-    if(mark_saturday?.status === "ALL_SATURDAYS"){
+    if (mark_saturday?.status === "ALL_SATURDAYS") {
       const sundaysInYear = getSundaysInYear(2024, 2025);
-      for(var val of sundaysInYear?.formattedSaturdays){
+      for (var val of sundaysInYear?.formattedSaturdays) {
         if (leave.holiday_config.dDate.includes(`${val}`)) {
-          
-        }
-        else {
-          leave.holiday_config.dDate.push(val)
+        } else {
+          leave.holiday_config.dDate.push(val);
         }
       }
-    }
-    else {
+    } else {
       const sundaysInYear = getSundaysInYear(2024, 2025);
-      for(var val of sundaysInYear?.formattedSaturdays){
-        leave.holiday_config.dDate.pull(val)
+      for (var val of sundaysInYear?.formattedSaturdays) {
+        leave.holiday_config.dDate.pull(val);
       }
     }
-    
-    leave.holiday_config.mark_sunday.status = mark_sunday?.status
-    leave.holiday_config.mark_saturday.status = mark_saturday?.status
-    await leave.save()
-    res.status(200).send({ message: "Explore All Holidays In a year", access: true})
-  }
-  catch(e){
-    console.log(e)
-  }
-}
 
-exports.renderTeachingTypeQuery = async(req, res) => {
-  try{
-    const { id } = req?.params
+    leave.holiday_config.mark_sunday.status = mark_sunday?.status;
+    leave.holiday_config.mark_saturday.status = mark_saturday?.status;
+    await leave.save();
+    res
+      .status(200)
+      .send({ message: "Explore All Holidays In a year", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTeachingTypeQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { type, search } = req?.query
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const { type, search } = req?.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    if(search){
-      var all_staff = await Staff.find({ 
-      $and: [
-        { institute: id }, 
-        { staffStatus: "Approved"}, 
-        { teaching_type: `${type}`}
-      ], 
-      $or: [
-        { staffFirstName: { $regex: `${search}`, $options: "i"}},
-        { staffMiddleName: { $regex: `${search}`, $options: "i"}},
-        { staffLastName: { $regex: `${search}`, $options: "i"}},
-      ]})
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
-    }
-    else{
-      var all_staff = await Staff.find({ $and: [{ institute: id }, { staffStatus: "Approved"}, { teaching_type: `${type}`}]})
-      .limit(limit)
-      .skip(skip)
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO")
+    if (search) {
+      var all_staff = await Staff.find({
+        $and: [
+          { institute: id },
+          { staffStatus: "Approved" },
+          { teaching_type: `${type}` },
+        ],
+        $or: [
+          { staffFirstName: { $regex: `${search}`, $options: "i" } },
+          { staffMiddleName: { $regex: `${search}`, $options: "i" } },
+          { staffLastName: { $regex: `${search}`, $options: "i" } },
+        ],
+      }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      );
+    } else {
+      var all_staff = await Staff.find({
+        $and: [
+          { institute: id },
+          { staffStatus: "Approved" },
+          { teaching_type: `${type}` },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        );
     }
 
-    if(all_staff?.length > 0){
-      res.status(200).send({ message: `${type} Staff Query`, access: true, all_staff: all_staff})
+    if (all_staff?.length > 0) {
+      res.status(200).send({
+        message: `${type} Staff Query`,
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: `No Staff Query`, access: false, all_staff: [] });
     }
-    else{
-      res.status(200).send({ message: `No Staff Query`, access: false, all_staff: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderOneLeaveConfigQuery = async(req, res) => {
-  try{
-    const { id } = req?.params
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderOneLeaveConfigQuery = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const institute = await InstituteAdmin.findById({ _id: id })
-    .select("leave_mods_access")
-    const leave_config = await LeaveConfig.findOne({ institute: id})
-    if(leave_config?._id){
-      res.status(200).send({ message: `One Leave Query`, access: true, leave_config: leave_config, mods_control: institute?.leave_mods_access})
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "leave_mods_access"
+    );
+    const leave_config = await LeaveConfig.findOne({ institute: id });
+    if (leave_config?._id) {
+      res.status(200).send({
+        message: `One Leave Query`,
+        access: true,
+        leave_config: leave_config,
+        mods_control: institute?.leave_mods_access,
+      });
+    } else {
+      res.status(200).send({ message: `No Leave Query`, access: false });
     }
-    else{
-      res.status(200).send({ message: `No Leave Query`, access: false})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderAutoStaffLeaveConfigQuery = async (
-  staff_arr
-) => {
-  try{
+exports.renderAutoStaffLeaveConfigQuery = async (staff_arr) => {
+  try {
     for (var val of staff_arr) {
-      const staff = await Staff.findOne({ staff_emp_code: `${val?.EmployeeCode}` })
-      staff.casual_leave = val?.CasualLeave ?? 0
-      staff.medical_leave = val?.MedicalLeave ?? 0
-      staff.sick_leave = val?.SickLeave ?? 0
-      staff.commuted_leave = val?.CommutedLeave ?? 0
-      staff.maternity_leave = val?.MaternityLeave ?? 0
-      staff.paternity_leave = val?.PaternityLeave ?? 0
-      staff.quarantine_leave = val?.QuarantineLeave ?? 0
-      staff.half_pay_leave = val?.HalfLeave ?? 0
-      staff.study_leave = val?.StudyLeave ?? 0
-      staff.sabbatical_leave = val?.SabbaticalLeave ?? 0
-      staff.special_disability_leave = val?.SpecialLeave ?? 0
-      staff.winter_vacation_leave = val?.WinterLeave ?? 0
-      staff.summer_vacation_leave = val?.SummerLeave ?? 0
-      staff.child_adoption_leave = val?.ChildLeave ?? 0
-      staff.bereavement_leave = val?.BereavementLeave ?? 0
-      staff.earned_leave = val?.EarnedLeave ?? 0
-      await staff.save()
+      const staff = await Staff.findOne({
+        staff_emp_code: `${val?.EmployeeCode}`,
+      });
+      staff.casual_leave = val?.CasualLeave ?? 0;
+      staff.medical_leave = val?.MedicalLeave ?? 0;
+      staff.sick_leave = val?.SickLeave ?? 0;
+      staff.commuted_leave = val?.CommutedLeave ?? 0;
+      staff.maternity_leave = val?.MaternityLeave ?? 0;
+      staff.paternity_leave = val?.PaternityLeave ?? 0;
+      staff.quarantine_leave = val?.QuarantineLeave ?? 0;
+      staff.half_pay_leave = val?.HalfLeave ?? 0;
+      staff.study_leave = val?.StudyLeave ?? 0;
+      staff.sabbatical_leave = val?.SabbaticalLeave ?? 0;
+      staff.special_disability_leave = val?.SpecialLeave ?? 0;
+      staff.winter_vacation_leave = val?.WinterLeave ?? 0;
+      staff.summer_vacation_leave = val?.SummerLeave ?? 0;
+      staff.child_adoption_leave = val?.ChildLeave ?? 0;
+      staff.bereavement_leave = val?.BereavementLeave ?? 0;
+      staff.earned_leave = val?.EarnedLeave ?? 0;
+      await staff.save();
     }
-    res.status(200).send({ message: "Explore Staff Leave Configuration Query", access: true})
+    res.status(200).send({
+      message: "Explore Staff Leave Configuration Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.renderTeachingQuery = async(req, res) => {
-  try{
-    const all_ins = await InstituteAdmin.find({})
-    for(var val of all_ins){
-      if(val?.insPhoneNumber && val?.insEmail){
-      const new_l = new LeaveConfig()
-      new_l.institute = val?._id
-      val.leave_config = new_l?._id
-      await Promise.all([ val.save(), new_l.save()])
+exports.renderTeachingQuery = async (req, res) => {
+  try {
+    const all_ins = await InstituteAdmin.find({});
+    for (var val of all_ins) {
+      if (val?.insPhoneNumber && val?.insEmail) {
+        const new_l = new LeaveConfig();
+        new_l.institute = val?._id;
+        val.leave_config = new_l?._id;
+        await Promise.all([val.save(), new_l.save()]);
       }
     }
-    res.status(200).send({ message: `Leave Query`, access: true})
+    res.status(200).send({ message: `Leave Query`, access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

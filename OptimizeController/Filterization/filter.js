@@ -2346,7 +2346,7 @@ exports.renderApplicationListQuery = async (req, res) => {
           path: "student",
           populate: {
             path: "student_optional_subject major_subject nested_subject studentClass department",
-            select: "subjectName",
+            // select: "subjectName",
           },
         },
       });

@@ -5399,27 +5399,28 @@ exports.subjectTodaySetAttendanceTimeQuery = async (req, res) => {
       cls?.attendance_time_slot?.push(slt?._id);
       await Promise.all([slt.save(), cls.save()]);
     } else {
-      for (let t_slot of slot_based?.slot) {
-        if (!t_slot.is_mark) {
-        } else {
-          let slot_to = +t_slot?.to_minutes - 5;
-          let come_to_minutes = +to_minutes - 5;
-          if (from_minutes >= slot_to) {
-          } else if (come_to_minutes <= +t_slot?.from_minutes) {
-          } else {
-            subject = await Subject.findById(t_slot.register_subject)
-              .populate({
-                path: "subjectTeacherName",
-                select: "staffFirstName staffLastName staffMiddleName",
-              })
-              .select("subjectName subjectTeacherName")
-              .lean()
-              .exec();
-            already_slot_mark = true;
-            break;
-          }
-        }
-      }
+      // not validate slot attendance
+      // for (let t_slot of slot_based?.slot) {
+      //   if (!t_slot.is_mark) {
+      //   } else {
+      //     let slot_to = +t_slot?.to_minutes - 5;
+      //     let come_to_minutes = +to_minutes - 5;
+      //     if (from_minutes >= slot_to) {
+      //     } else if (come_to_minutes <= +t_slot?.from_minutes) {
+      //     } else {
+      //       subject = await Subject.findById(t_slot.register_subject)
+      //         .populate({
+      //           path: "subjectTeacherName",
+      //           select: "staffFirstName staffLastName staffMiddleName",
+      //         })
+      //         .select("subjectName subjectTeacherName")
+      //         .lean()
+      //         .exec();
+      //       already_slot_mark = true;
+      //       break;
+      //     }
+      //   }
+      // }
       if (!already_slot_mark) {
         let flag = true;
         for (let t_slot of slot_based?.slot) {
@@ -5712,56 +5713,56 @@ exports.subjectTodayUpdateAttendanceTimeQuery = async (req, res) => {
     var subject = null;
     var from_minutes = time_convertor(from);
     var to_minutes = time_convertor(to);
-
-    for (let t_slot of slot_based?.slot) {
-      if (!t_slot.is_mark) {
-      } else {
-        if (
-          t_slot?.is_extra &&
-          flow !== "Normal_Lecture" &&
-          `${which_lecture}` !== `${t_slot.which_extra_lecture}`
-        ) {
-          let slot_to = +t_slot?.to_minutes - 5;
-          let come_to_minutes = +to_minutes - 5;
-          if (from_minutes >= slot_to) {
-          } else if (come_to_minutes <= +t_slot?.from_minutes) {
-          } else {
-            subject = await Subject.findById(t_slot.register_subject)
-              .populate({
-                path: "subjectTeacherName",
-                select: "staffFirstName staffLastName staffMiddleName",
-              })
-              .select("subjectName subjectTeacherName")
-              .lean()
-              .exec();
-            already_slot_mark = true;
-            break;
-          }
-        }
-        if (
-          !t_slot?.is_extra &&
-          flow === "Normal_Lecture" &&
-          `${which_lecture}` !== `${t_slot.which_lecture}`
-        ) {
-          let slot_to = +t_slot?.to_minutes - 5;
-          let come_to_minutes = +to_minutes - 5;
-          if (from_minutes >= slot_to) {
-          } else if (come_to_minutes <= +t_slot?.from_minutes) {
-          } else {
-            subject = await Subject.findById(t_slot.register_subject)
-              .populate({
-                path: "subjectTeacherName",
-                select: "staffFirstName staffLastName staffMiddleName",
-              })
-              .select("subjectName subjectTeacherName")
-              .lean()
-              .exec();
-            already_slot_mark = true;
-            break;
-          }
-        }
-      }
-    }
+    // not validate slot attendance
+    // for (let t_slot of slot_based?.slot) {
+    //   if (!t_slot.is_mark) {
+    //   } else {
+    //     if (
+    //       t_slot?.is_extra &&
+    //       flow !== "Normal_Lecture" &&
+    //       `${which_lecture}` !== `${t_slot.which_extra_lecture}`
+    //     ) {
+    //       let slot_to = +t_slot?.to_minutes - 5;
+    //       let come_to_minutes = +to_minutes - 5;
+    //       if (from_minutes >= slot_to) {
+    //       } else if (come_to_minutes <= +t_slot?.from_minutes) {
+    //       } else {
+    //         subject = await Subject.findById(t_slot.register_subject)
+    //           .populate({
+    //             path: "subjectTeacherName",
+    //             select: "staffFirstName staffLastName staffMiddleName",
+    //           })
+    //           .select("subjectName subjectTeacherName")
+    //           .lean()
+    //           .exec();
+    //         already_slot_mark = true;
+    //         break;
+    //       }
+    //     }
+    //     if (
+    //       !t_slot?.is_extra &&
+    //       flow === "Normal_Lecture" &&
+    //       `${which_lecture}` !== `${t_slot.which_lecture}`
+    //     ) {
+    //       let slot_to = +t_slot?.to_minutes - 5;
+    //       let come_to_minutes = +to_minutes - 5;
+    //       if (from_minutes >= slot_to) {
+    //       } else if (come_to_minutes <= +t_slot?.from_minutes) {
+    //       } else {
+    //         subject = await Subject.findById(t_slot.register_subject)
+    //           .populate({
+    //             path: "subjectTeacherName",
+    //             select: "staffFirstName staffLastName staffMiddleName",
+    //           })
+    //           .select("subjectName subjectTeacherName")
+    //           .lean()
+    //           .exec();
+    //         already_slot_mark = true;
+    //         break;
+    //       }
+    //     }
+    //   }
+    // }
     if (!already_slot_mark) {
       for (let t_slot of slot_based?.slot) {
         if (t_slot?.is_extra && flow !== "Normal_Lecture") {

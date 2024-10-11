@@ -9,7 +9,7 @@ const inwardOutwardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  pulished: [
+  pulished_on_feed: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "OutwardCreate",

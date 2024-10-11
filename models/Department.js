@@ -560,6 +560,19 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  office_start_hr: {
+    type: String,
+  },
+  office_end_hr: {
+    type: String,
+  },
+  late_mark: {
+    intime: String,
+    outtime: String,
+    intime_concession: String,
+    outtime_concession: String,
+    halfday: String,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

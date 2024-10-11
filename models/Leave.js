@@ -23,61 +23,92 @@ const leaveSchema = new mongoose.Schema({
     default: "Request",
   },
   attach: {
-    type: String
+    type: String,
   },
   leave_type: {
-    type: String
+    type: String,
   },
   granted_on: {
-    type: Date
+    type: Date,
   },
   recommend: {
     recommend_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff"
+      ref: "Staff",
     },
     recommend_on: {
-      type: Date
+      type: Date,
     },
     recommend_status: {
       type: String,
-      default: "Request"
-    }
+      default: "Request",
+    },
   },
   review: {
     review_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff"
+      ref: "Staff",
     },
     review_on: {
-      type: Date
+      type: Date,
     },
     review_status: {
       type: String,
-      default: "Request"
-    }
+      default: "Request",
+    },
   },
   sanction: {
     sanction_by: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff"
+      ref: "Staff",
     },
     sanction_on: {
-      type: Date
+      type: Date,
     },
     sanction_status: {
       type: String,
-      default: "Request"
-    }
+      default: "Request",
+    },
   },
   leave_grant: {
     type: Number,
-    default: 0
+    default: 0,
   },
   lms: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "LMS"
-  }
+    ref: "LMS",
+  },
+  leave_dates: [
+    {
+      date: {
+        type: String,
+      },
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+      replace_staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      which_type: {
+        type: String,
+        default: "Teaching",
+      },
+    },
+  ],
+  from: {
+    type: Date,
+  },
+  to: {
+    type: Date,
+  },
+  total_days: {
+    type: Number,
+  },
+  leave_number: {
+    type: String,
+  },
 });
 
 const Leave = mongoose.model("Leave", leaveSchema);

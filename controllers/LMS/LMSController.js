@@ -1,21 +1,31 @@
+const { lms_json_to_excel } = require("../../Custom/JSONToExcel");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const { designation_alarm, email_sms_designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const Department = require("../../models/Department");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const LMS = require("../../models/Leave/LMS");
 const LeaveConfig = require("../../models/Leave/LeaveConfig");
 const FinanceModerator = require("../../models/Moderator/FinanceModerator");
 const Staff = require("../../models/Staff");
+const SubjectTimetable = require("../../models/Timetable/SubjectTimetable");
 const User = require("../../models/User");
 const Notification = require("../../models/notification");
 
 exports.render_lms_module_query = async (req, res) => {
-    try {
-        const { id, sid } = req.body;
-        if(!id && !sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
+  try {
+    const { id, sid } = req.body;
+    if (!id && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     var institute = await InstituteAdmin.findById({ _id: id });
-        var lms = new LMS({});
-        var new_leave_config = new LeaveConfig({})
+    var lms = new LMS({});
+    var new_leave_config = new LeaveConfig({});
     if (sid) {
       var staff = await Staff.findById({ _id: sid });
       var user = await User.findById({ _id: `${staff?.user}` });
@@ -27,9 +37,9 @@ exports.render_lms_module_query = async (req, res) => {
         role: "LMS Administrator",
         role_id: lms?._id,
       });
-        new_leave_config.institute = institute?._id
-        new_leave_config.lms = lms?._id
-      lms.leave_config = new_leave_config?._id
+      new_leave_config.institute = institute?._id;
+      new_leave_config.lms = lms?._id;
+      lms.leave_config = new_leave_config?._id;
       lms.active_staff = staff._id;
       notify.notifyContent = `you got the designation of as LMS Administrator`;
       notify.notifySender = id;
@@ -49,8 +59,8 @@ exports.render_lms_module_query = async (req, res) => {
         staff.save(),
         user.save(),
         notify.save(),
-          lms.save(),
-          new_leave_config.save()
+        lms.save(),
+        new_leave_config.save(),
       ]);
       designation_alarm(
         user?.userPhoneNumber,
@@ -82,176 +92,191 @@ exports.render_lms_module_query = async (req, res) => {
       lms: lms._id,
       access: true,
     });
-    }
-    catch (e) {
-        console.log(e)
-    }
-}
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_lms_dashboard_master = async (req, res) => {
-    try {
-        const { lmid } = req.params;
-        if(!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-      const lms = await LMS.findById({ _id: lmid })
-        .select(
-          "all_staff_count leave_moderator_role_count tab_manage leave_manage"
-        )
-        .populate({
-          path: "institute",
-          select:
-            "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation",
-        })
-        .populate({
-          path: "active_staff",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-        })
-        .populate({
-          path: "leave_config",
-          select:
-            "_id",
-        });
-      res.status(200).send({
-        message: "Explore LMS Dashboard master query",
-        lms: lms,
-        access: true
+  try {
+    const { lmid } = req.params;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
       });
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  
+    const lms = await LMS.findById({ _id: lmid })
+      .select(
+        "all_staff_count leave_moderator_role_count tab_manage leave_manage"
+      )
+      .populate({
+        path: "institute",
+        select:
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library alias_pronounciation",
+      })
+      .populate({
+        path: "active_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "leave_config",
+        select: "_id",
+      });
+    res.status(200).send({
+      message: "Explore LMS Dashboard master query",
+      lms: lms,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-exports.render_tab_manage = async(req, res) => {
-    try{
-      const { lmid } = req.params
-      if(!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-  
-      await LMS.findByIdAndUpdate(lmid, req?.body)
-      res.status(200).send({ message: "Explore Available Tabs Queyr", access: true})
-    }
-    catch(e){
-      console.log(e)
-    }
-}
+exports.render_tab_manage = async (req, res) => {
+  try {
+    const { lmid } = req.params;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await LMS.findByIdAndUpdate(lmid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Available Tabs Queyr", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_lms_all_mods = async (req, res) => {
-    try {
-      const { lmid } = req.params;
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = (page - 1) * limit;
-      const { search } = req.query;
-      if (!lmid)
-        return res.status(200).send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
-  
-      const lms = await LMS.findById({ _id: lmid }).select(
-        "leave_moderator_role"
-      );
+  try {
+    const { lmid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-        if (search) {
-          var all_mods = await FinanceModerator.find({
-            $and: [{ _id: { $in: lms?.leave_moderator_role } }],
-            $or: [{ access_role: { $regex: search, $options: "i" } }],
-          })
-            .populate({
-              path: "access_staff",
-              select:
-                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-            })
-        } else {
-          var all_mods = await FinanceModerator.find({
-            $and: [{_id: { $in: lms?.leave_moderator_role }} ]
-          })
-            .sort("-1")
-            .limit(limit)
-            .skip(skip)
-            .populate({
-              path: "access_staff",
-              select:
-                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-            })
-        }
-        if (all_mods?.length > 0) {
-          res.status(200).send({
-            message: "All Leave & Transfer Admin / Moderator List 😀",
-            all_mods,
-            access: true,
-          });
-        } else {
-          res.status(200).send({
-            message: "No Leave & Transfer Admin / Moderator List 😀",
-            all_mods: [],
-            access: false,
-          });
-        }
-    } catch (e) {
-      console.log(e);
+    const lms = await LMS.findById({ _id: lmid }).select(
+      "leave_moderator_role"
+    );
+
+    if (search) {
+      var all_mods = await FinanceModerator.find({
+        $and: [{ _id: { $in: lms?.leave_moderator_role } }],
+        $or: [{ access_role: { $regex: search, $options: "i" } }],
+      }).populate({
+        path: "access_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
+    } else {
+      var all_mods = await FinanceModerator.find({
+        $and: [{ _id: { $in: lms?.leave_moderator_role } }],
+      })
+        .sort("-1")
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
     }
+    if (all_mods?.length > 0) {
+      res.status(200).send({
+        message: "All Leave & Transfer Admin / Moderator List 😀",
+        all_mods,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Leave & Transfer Admin / Moderator List 😀",
+        all_mods: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
-  
-exports.render_leave_manage = async(req, res) => {
-    try{
-      const { lmid } = req.params
-      if(!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-  
-      await LMS.findByIdAndUpdate(lmid, req?.body)
-      res.status(200).send({ message: "Explore Available Tabs Queyr", access: true})
-    }
-    catch(e){
-      console.log(e)
-    }
-}
+
+exports.render_leave_manage = async (req, res) => {
+  try {
+    const { lmid } = req.params;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await LMS.findByIdAndUpdate(lmid, req?.body);
+    res
+      .status(200)
+      .send({ message: "Explore Available Tabs Queyr", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.render_biometric_linking_query = async (req, res) => {
   try {
-    const { sid, mcid } = req?.body
-    if (!sid && !mcid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const one_staff = await Staff.findById({ _id: sid })
-    const one_institute = await InstituteAdmin.findById({ _id: `${one_staff?.institute}` })
-    const one_lms = await LMS.findById({ _id: `${one_institute?.lms_depart?.[0]}`})
-    one_staff.staff_biometric_id = `${mcid}`
+    const { sid, mcid } = req?.body;
+    if (!sid && !mcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_staff = await Staff.findById({ _id: sid });
+    const one_institute = await InstituteAdmin.findById({
+      _id: `${one_staff?.institute}`,
+    });
+    const one_lms = await LMS.findById({
+      _id: `${one_institute?.lms_depart?.[0]}`,
+    });
+    one_staff.staff_biometric_id = `${mcid}`;
     if (one_lms.biometric_staff?.includes(`${one_staff?._id}`)) {
-      
+    } else {
+      one_lms.biometric_staff.push(one_staff?._id);
+      await one_lms.save();
     }
-    else {
-      one_lms.biometric_staff.push(one_staff?._id)
-      await one_lms.save()
-    }
-    await one_staff.save()
+    await one_staff.save();
 
-    res.status(200).send({ message: "Explore One Staff Biometric Linking Process Query", access: true})
+    res.status(200).send({
+      message: "Explore One Staff Biometric Linking Process Query",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
-exports.fetchBiometricStaffQuery = async (
-  lmid,
-  staff_ref
-) => {
+exports.fetchBiometricStaffQuery = async (lmid, staff_ref) => {
   try {
     if (staff_ref?.length > 0) {
-      const one_lms = await LMS.findById({ _id: lmid})
+      const one_lms = await LMS.findById({ _id: lmid });
       staff_ref?.forEach(async (ele) => {
-        const staff = await Staff.findOne({ staff_emp_code: `${ele?.EmployeeCode}` });
+        const staff = await Staff.findOne({
+          staff_emp_code: `${ele?.EmployeeCode}`,
+        });
         staff.staff_biometric_id = ele?.MachineCode;
         if (one_lms.biometric_staff?.includes(`${staff?._id}`)) {
-      
-        }
-        else {
-          one_lms.biometric_staff.push(staff?._id)
-          await one_lms.save()
+        } else {
+          one_lms.biometric_staff.push(staff?._id);
+          await one_lms.save();
         }
         await staff.save();
       });
     } else {
-      console.log("false")
+      console.log("false");
     }
   } catch (e) {
     console.log(e);
@@ -260,71 +285,329 @@ exports.fetchBiometricStaffQuery = async (
 
 exports.render_all_linked_staff_query = async (req, res) => {
   try {
-    const { lmid } = req?.params
+    const { lmid } = req?.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req?.query
-    if (!lmid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
+    const { search } = req?.query;
+    if (!lmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
     if (search) {
-      var lms = await LMS.findById({ _id: lmid })
+      var lms = await LMS.findById({ _id: lmid });
       var all_staff = await Staff.find({
-        $and: [{
-          _id: { $in: lms?.biometric_staff }
-        }],
+        $and: [
+          {
+            _id: { $in: lms?.biometric_staff },
+          },
+        ],
         $or: [
           {
-            staffFirstName: { $regex: `${search}`, $options: "i"}
+            staffFirstName: { $regex: `${search}`, $options: "i" },
           },
           {
-            staffMiddleName: { $regex: `${search}`, $options: "i"}
+            staffMiddleName: { $regex: `${search}`, $options: "i" },
           },
           {
-            staffLastName: { $regex: `${search}`, $options: "i"}
+            staffLastName: { $regex: `${search}`, $options: "i" },
           },
           {
-            staff_emp_code: { $regex: `${search}`, $options: "i"}
+            staff_emp_code: { $regex: `${search}`, $options: "i" },
           },
-        ]
-      })
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code")
-    }
-    else {
-      const lms = await LMS.findById({ _id: lmid })
+        ],
+      }).select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code"
+      );
+    } else {
+      const lms = await LMS.findById({ _id: lmid });
       var all_staff = await Staff.find({
-        $and: [{
-          _id: { $in: lms?.biometric_staff }
-        }],
+        $and: [
+          {
+            _id: { $in: lms?.biometric_staff },
+          },
+        ],
       })
-      .select("staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code")
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffROLLNO staff_biometric_id teaching_type current_designation staff_emp_code"
+        )
         .limit(limit)
-      .skip(skip)
+        .skip(skip);
     }
     if (all_staff?.length > 0) {
-      res.status(200).send({ message: "Explore All Linked Staff Query", access: true, all_staff: all_staff})
+      res.status(200).send({
+        message: "Explore All Linked Staff Query",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Linked Staff Query",
+        access: false,
+        all_staff: [],
+      });
     }
-    else {
-      res.status(200).send({ message: "No Linked Staff Query", access: false, all_staff: []})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
-  }
-}
+};
 
 exports.render_leave_manage_query = async (req, res) => {
   try {
-    const { id } = req?.params
-    if (!id) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false })
-    
-    const ins = await InstituteAdmin.findById({ _id: id })
-    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}` })
-      .select("leave_manage")
-    
-    res.status(200).send({ message: "Explore Leave Dynamic Toggle Query", access: true, lms})
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ins = await InstituteAdmin.findById({ _id: id });
+    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}` }).select(
+      "leave_manage"
+    );
+
+    res.status(200).send({
+      message: "Explore Leave Dynamic Toggle Query",
+      access: true,
+      lms,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch (e) {
-    console.log(e)
+};
+
+exports.all_leave_export_with_staff_list_query = async (req, res) => {
+  try {
+    const { lmid } = req.params;
+    if (!lmid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const lms = await LMS.findById(lmid);
+
+    const institute = await InstituteAdmin.findById(lms?.institute);
+
+    let staff = [];
+
+    if (institute?.ApproveStaff?.length > 0) {
+      let active_leaves = [];
+      for (let ft in lms?.leave_manage) {
+        let obj = lms?.leave_manage[ft];
+        if (obj) {
+          active_leaves.push(ft);
+        }
+      }
+      active_leaves.push("earned_leave");
+      for (let st of institute?.ApproveStaff) {
+        const staff = await Staff.findById(st)
+          .select(
+            "staffFirstName staffMiddleName staffLastName staffROLLNO casual_leave medical_leave sick_leave off_duty_leave c_off_leave lwp_leave leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave earned_leave"
+          )
+          .lean()
+          .exec();
+        let bj = {
+          "Employee Code": staff?.staffROLLNO ?? "#NA",
+          Name: `${staff?.staffFirstName} ${
+            staff?.staffMiddleName ? staff?.staffMiddleName : ""
+          } ${staff?.staffLastName}`,
+        };
+        if (active_leaves?.length > 0) {
+          for (let ty of active_leaves) {
+            bj[ty] = staff[ty];
+          }
+        }
+        staff.push(bj);
+      }
+    }
+
+    let excel_key = "";
+    if (staff?.length > 0) {
+      excel_key = await lms_json_to_excel(
+        lmid,
+        staff,
+        "Staff",
+        "ALL_LEAVE",
+        "all-leave"
+      );
+    }
+    res.status(200).send({
+      message: "One Subject student excel export",
+      excel_key: excel_key,
+    });
+  } catch (e) {
+    console.log(e);
   }
-}
+};
+exports.holiday_with_monthly_wise_query = async (req, res) => {
+  try {
+    const { lcid } = req.params;
+    const { month, year } = req.query;
+    if (!lcid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let rgx = new RegExp(`\/${year}\/${month}$`);
+
+    const leave_conf = await LeaveConfig.findById(lcid).populate({
+      path: "custom_holiday",
+      match: {
+        dates: { $regex: rgx },
+      },
+    });
+
+    let holiday = [];
+    if (leave_conf?.custom_holiday?.length > 0) {
+      holiday.push(...leave_conf?.custom_holiday);
+    }
+    if (leave_conf?.holiday_config?.dDate?.length > 0) {
+      for (let dt of leave_conf?.holiday_config?.dDate) {
+        if (dt?.includes("/")) {
+          let args_split = dt?.split("/");
+          if (args_split?.[2] === year) {
+            if (args_split?.[1] === month) {
+              holiday.push({
+                dates: [
+                  `${args_split?.[2]}-${args_split?.[1]}-${args_split?.[0]}`,
+                ],
+                reason:
+                  leave_conf.holiday_config.mark_sunday ??
+                  leave_conf.holiday_config.mark_saturday,
+              });
+            }
+          }
+        } else {
+          let args_split = dt?.split("-");
+          if (args_split?.[0] === year) {
+            if (args_split?.[1] === month) {
+              holiday.push({
+                dates: [
+                  `${args_split?.[0]}-${args_split?.[1]}-${args_split?.[2]}`,
+                ],
+                reason:
+                  leave_conf.holiday_config.mark_sunday ??
+                  leave_conf.holiday_config.mark_saturday,
+              });
+            }
+          }
+        }
+      }
+    }
+    res.status(200).send({
+      message: "One month all holiday related data",
+      holiday: holiday,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.office_time_institute_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    res.status(200).send({
+      message: "Institute related offcie hour and other things is change",
+    });
+
+    const dept = await Department.find({
+      institute: { $eq: id },
+    });
+
+    if (dept?.length > 0) {
+      for (let dt of dept) {
+        dt.office_start_hr = req.body?.office_start_hr;
+        dt.office_end_hr = req.body?.office_end_hr;
+        dt.late_mark = req.body?.late_mark;
+        await dt.save();
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.office_time_department_query = async (req, res) => {
+  try {
+    const { did } = req.params;
+
+    if (!did) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    await Department.findByIdAndUpdate(id, req.body);
+    res.status(200).send({
+      message: "Department related offcie hour and other things is change",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.replacement_staff_list_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { day, date } = req.query;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const staffs = await Staff.find({
+      institute: { $eq: `${id}` },
+    })
+      .select(
+        "staffFirstName staffLastName staffMiddleName staffROLLNO staffProfilePhoto staffSubject"
+      )
+      .lean()
+      .exec();
+
+    const st_list = [];
+
+    if (staffs?.length > 0) {
+      for (let st of staffs) {
+        let dt = [];
+        dt = await SubjectTimetable.find({
+          $and: [
+            {
+              subject: {
+                $in: st.staffSubject,
+              },
+            },
+            {
+              $or: [
+                {
+                  day: { $eq: day },
+                },
+                {
+                  date: { $eq: date },
+                },
+              ],
+            },
+          ],
+        });
+
+        st_list.push({
+          ...st,
+          subject_list: dt,
+        });
+      }
+    }
+    res.status(200).send({
+      st_list: st_list,
+      message: "Staff List with their timetable",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

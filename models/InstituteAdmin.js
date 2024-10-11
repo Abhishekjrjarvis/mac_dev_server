@@ -1402,6 +1402,19 @@ const instituteAdminSchema = new mongoose.Schema({
   longitude: { type: Number },
   place_name: { type: String },
   premise_area: { type: Number },
+  office_start_hr: {
+    type: String,
+  },
+  office_end_hr: {
+    type: String,
+  },
+  late_mark: {
+    intime: String,
+    outtime: String,
+    intime_concession: String,
+    outtime_concession: String,
+    halfday: String,
+  },
 });
 
 // instituteAdminSchema.post("findOneAndDelete", async function (doc) {

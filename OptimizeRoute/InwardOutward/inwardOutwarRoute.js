@@ -84,5 +84,12 @@ router
 router
   .route("/inward/approved/:ioid/list/query")
   .get(catchAsync(inwardOutwardController.inward_approved_list_query));
+router
+  .route("/outward/resent/:oid/query")
+  .patch(catchAsync(inwardOutwardController.outward_resent_prepare_by_query));
+
+router
+  .route("/publish/feed/announcement/:oid/query")
+  .patch(catchAsync(inwardOutwardController.outward_feed_announcement_query));
 
 module.exports = router;

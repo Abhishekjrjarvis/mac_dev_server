@@ -18,6 +18,7 @@ const SubjectInternalEvaluation = require("../models/InternalEvaluation/SubjectI
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const Class = require("../models/Class");
 const Guide = require("../models/Guide/Guide");
+const LMS = require("../models/Leave/LMS");
 
 exports.json_to_excel_query = async (
   data_query,
@@ -1149,6 +1150,37 @@ exports.subject_continuous_json_to_excel = async (
     const results = await uploadExcelFile(`${name}.xlsx`);
 
     const subject = await Subject.findById(id);
+    subject.export_collection.push({
+      excel_type: excelType,
+      excel_file: results,
+      excel_file_name: name,
+    });
+    subject.export_collection_count += 1;
+    await subject.save();
+    return results;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.lms_json_to_excel = async (
+  id,
+  list,
+  sheetName,
+  excelType,
+  exportTypeName
+) => {
+  try {
+    let real_book = xlsx.utils.book_new();
+    let real_sheet = xlsx.utils.json_to_sheet(list);
+
+    xlsx.utils.book_append_sheet(real_book, real_sheet, sheetName);
+    let name = `lms-${exportTypeName}-${new Date().getHours()}-${new Date().getMinutes()}-${new Date().getSeconds()}`;
+    xlsx.writeFile(real_book, `./export/${name}.xlsx`);
+
+    const results = await uploadExcelFile(`${name}.xlsx`);
+
+    const subject = await LMS.findById(id);
     subject.export_collection.push({
       excel_type: excelType,
       excel_file: results,

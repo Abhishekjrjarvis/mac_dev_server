@@ -2244,7 +2244,7 @@ exports.subject_all_expriment_query = async (req, res) => {
         ],
       })
         .select("name experiment_type date createdAt")
-        .sort("-1")
+        .sort({ created_at: -1 })
         .skip(dropItem)
         .limit(itemPerPage);
     }

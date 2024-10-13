@@ -390,7 +390,7 @@ exports.all_leave_export_with_staff_list_query = async (req, res) => {
 
     const institute = await InstituteAdmin.findById(lms?.institute);
 
-    let staff = [];
+    let staff_list = [];
 
     if (institute?.ApproveStaff?.length > 0) {
       let active_leaves = [];
@@ -416,25 +416,29 @@ exports.all_leave_export_with_staff_list_query = async (req, res) => {
         };
         if (active_leaves?.length > 0) {
           for (let ty of active_leaves) {
-            bj[ty] = staff[ty];
+            if (staff?._id) {
+              if (staff[ty]) {
+                bj[ty] = staff[ty];
+              }
+            }
           }
         }
-        staff.push(bj);
+        staff_list.push(bj);
       }
     }
 
     let excel_key = "";
-    if (staff?.length > 0) {
+    if (staff_list?.length > 0) {
       excel_key = await lms_json_to_excel(
         lmid,
-        staff,
+        staff_list,
         "Staff",
         "ALL_LEAVE",
         "all-leave"
       );
     }
     res.status(200).send({
-      message: "One Subject student excel export",
+      message: "One Lms staff excel export",
       excel_key: excel_key,
     });
   } catch (e) {
@@ -450,55 +454,66 @@ exports.holiday_with_monthly_wise_query = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    let rgx = new RegExp(`\/${year}\/${month}$`);
-
-    const leave_conf = await LeaveConfig.findById(lcid).populate({
-      path: "custom_holiday",
-      match: {
-        dates: { $regex: rgx },
-      },
-    });
+    const leave_conf = await LeaveConfig.findById(lcid);
 
     let holiday = [];
     if (leave_conf?.custom_holiday?.length > 0) {
-      holiday.push(...leave_conf?.custom_holiday);
-    }
-    if (leave_conf?.holiday_config?.dDate?.length > 0) {
-      for (let dt of leave_conf?.holiday_config?.dDate) {
-        if (dt?.includes("/")) {
-          let args_split = dt?.split("/");
-          if (args_split?.[2] === year) {
-            if (args_split?.[1] === month) {
+      for (let bt of leave_conf?.custom_holiday) {
+        if (bt?.dates?.length > 0) {
+          for (let ft of bt?.dates) {
+            if (ft?.includes(`/${month}/${year}`)) {
               holiday.push({
-                dates: [
-                  `${args_split?.[2]}-${args_split?.[1]}-${args_split?.[0]}`,
-                ],
-                reason:
-                  leave_conf.holiday_config.mark_sunday ??
-                  leave_conf.holiday_config.mark_saturday,
-              });
-            }
-          }
-        } else {
-          let args_split = dt?.split("-");
-          if (args_split?.[0] === year) {
-            if (args_split?.[1] === month) {
-              holiday.push({
-                dates: [
-                  `${args_split?.[0]}-${args_split?.[1]}-${args_split?.[2]}`,
-                ],
-                reason:
-                  leave_conf.holiday_config.mark_sunday ??
-                  leave_conf.holiday_config.mark_saturday,
+                dates: ft,
+                reason: bt?.reason,
               });
             }
           }
         }
       }
     }
+    if (leave_conf?.holiday_config?.dDate?.length > 0) {
+      for (let dt of leave_conf?.holiday_config?.dDate) {
+        if (dt?.includes("/")) {
+          if (dt?.includes(`/${month}/${year}`)) {
+            holiday.push({
+              dates: dt,
+              reason:
+                leave_conf.holiday_config.mark_sunday?.status ??
+                leave_conf.holiday_config.mark_saturday?.status,
+            });
+          }
+
+          // let args_split = dt?.split("/");
+          // if (args_split?.[2] === year) {
+          //   if (args_split?.[1] === month) {
+          //     holiday.push({
+          //       dates: `${args_split?.[2]}-${args_split?.[1]}-${args_split?.[0]}`,
+
+          //       reason:
+          //         leave_conf.holiday_config.mark_sunday?.status ??
+          //         leave_conf.holiday_config.mark_saturday?.status,
+          //     });
+          //   }
+          // }
+        } else {
+          // let args_split = dt?.split("-");
+          // if (args_split?.[0] === year) {
+          //   if (args_split?.[1] === month) {
+          //     holiday.push({
+          //       dates: `${args_split?.[0]}-${args_split?.[1]}-${args_split?.[2]}`,
+          //       reason:
+          //         leave_conf.holiday_config.mark_sunday?.status ??
+          //         leave_conf.holiday_config.mark_saturday?.status,
+          //     });
+          //   }
+          // }
+        }
+      }
+    }
     res.status(200).send({
       message: "One month all holiday related data",
       holiday: holiday,
+      // leave_conf,
     });
   } catch (e) {
     console.log(e);
@@ -598,7 +613,11 @@ exports.replacement_staff_list_query = async (req, res) => {
         });
 
         st_list.push({
-          ...st,
+          staffFirstName: st?.staffFirstName,
+          staffMiddleName: st?.staffMiddleName,
+          staffROLLNO: st?.staffROLLNO,
+          staffProfilePhoto: st?.staffProfilePhoto,
+          staffLastName: st?.staffLastName,
           subject_list: dt,
         });
       }

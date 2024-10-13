@@ -618,6 +618,7 @@ exports.replacement_staff_list_query = async (req, res) => {
           staffROLLNO: st?.staffROLLNO,
           staffProfilePhoto: st?.staffProfilePhoto,
           staffLastName: st?.staffLastName,
+          _id: st?._id,
           subject_list: dt,
         });
       }

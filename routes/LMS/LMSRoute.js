@@ -126,7 +126,7 @@ router.get(
   catchAsync(LMS.render_leave_manage_query)
 );
 router.patch(
-  "export/:lmid/staff/leave/query",
+  "/export/:lmid/staff/leave/query",
   catchAsync(LMS.all_leave_export_with_staff_list_query)
 );
 router.get(
@@ -143,7 +143,7 @@ router.patch(
 );
 
 router.get(
-  "staff/institute/:id/list/query",
+  "/staff/institute/:id/list/query",
   catchAsync(LMS.replacement_staff_list_query)
 );
 module.exports = router;

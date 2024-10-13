@@ -458,7 +458,7 @@ const leaveConfigSchema = new mongoose.Schema({
   },
   custom_holiday: [
     {
-      dates: [{ type: Date }],
+      dates: [{ type: String }],
       reason: String,
     },
   ],

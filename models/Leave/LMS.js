@@ -182,6 +182,19 @@ const lmsSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  leave_number: {
+    type: Number,
+    default: 0,
+  },
+  monthly_number_pattern: [],
+  monthly_number: {
+    type: Number,
+    default: 0,
+  },
+  monthly_leave_number: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("LMS", lmsSchema);

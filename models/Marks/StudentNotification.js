@@ -147,6 +147,15 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "OutwardCreate",
   },
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+  },
+  leaveId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Leave",
+  },
+  leave_access_type: String,
 });
 
 module.exports = mongoose.model(

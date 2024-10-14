@@ -1,6 +1,11 @@
 const dynamicImages = require("../../helper/dynamicImages");
 
-const instituteReportHeader = async (instituteData, doc, pageWidth) => {
+const instituteReportHeader = async (
+  instituteData,
+  doc,
+  pageWidth,
+  is_right_hide
+) => {
   let dy = doc.y - 12;
   if (instituteData?.insProfilePhoto) {
     doc.image(
@@ -19,23 +24,27 @@ const instituteReportHeader = async (instituteData, doc, pageWidth) => {
       .circle(doc.x + 24.6, dy + 30.3, 39.2)
       .stroke("white");
   }
-  if (instituteData?.affliatedLogo) {
-    doc.image(
-      await dynamicImages("CUSTOM", instituteData?.affliatedLogo),
-      pageWidth - 80,
-      dy,
-      {
-        width: 60,
-        height: 60,
-        align: "right",
-      }
-    );
-    doc
-      .lineCap("square")
-      .lineWidth(20)
-      .circle(pageWidth - 50, dy + 30.3, 39.2)
-      .stroke("white");
+  if (is_right_hide) {
+  } else {
+    if (instituteData?.affliatedLogo) {
+      doc.image(
+        await dynamicImages("CUSTOM", instituteData?.affliatedLogo),
+        pageWidth - 80,
+        dy,
+        {
+          width: 60,
+          height: 60,
+          align: "right",
+        }
+      );
+      doc
+        .lineCap("square")
+        .lineWidth(20)
+        .circle(pageWidth - 50, dy + 30.3, 39.2)
+        .stroke("white");
+    }
   }
+
   doc
     .fontSize(10)
     .text(instituteData?.insAffiliated, 20, 20, { align: "center" });

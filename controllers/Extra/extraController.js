@@ -131,6 +131,7 @@ const studentOtherFeeReceipt = require("../../scripts/studentOtherFeeReceipt");
 const OtherFees = require("../../models/Finance/Other/OtherFees");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 const combinedSummaryBankDaybook = require("../../scripts/combinedSummaryBankDaybook");
+const staffLeaveRequestReport = require("../../scripts/leaveReport/staffLeaveRequestReport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5080,7 +5081,9 @@ exports.generateDummyPdfQuery = async (req, res) => {
   try {
     // await staffLeaveRequest();
     // await combinedBankDaybook();
-    await combinedSummaryBankDaybook();
+    // await combinedSummaryBankDaybook();
+    await staffLeaveRequestReport();
+
     res.status(200).send({
       message: "Dummy pdf generate",
     });

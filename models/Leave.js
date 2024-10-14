@@ -83,6 +83,12 @@ const leaveSchema = new mongoose.Schema({
       date: {
         type: String,
       },
+      from: {
+        type: String,
+      },
+      to: {
+        type: String,
+      },
       subject: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subject",
@@ -93,7 +99,7 @@ const leaveSchema = new mongoose.Schema({
       },
       which_type: {
         type: String,
-        default: "Teaching",
+        default: "Single",
       },
     },
   ],
@@ -108,6 +114,10 @@ const leaveSchema = new mongoose.Schema({
   },
   leave_number: {
     type: String,
+  },
+  staff_replace_type: {
+    type: String,
+    default: "Single",
   },
 });
 

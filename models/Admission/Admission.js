@@ -567,6 +567,7 @@ const admissionAdminSchema = new mongoose.Schema({
   admission_form_print_case: {
     type: String,
   },
+  admission_enroll_stats: {},
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

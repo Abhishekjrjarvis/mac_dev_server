@@ -1,17 +1,27 @@
-# FROM node:10-alpine
+# Use an official Node.js runtime as a parent image
+FROM node:18
 
-# RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+# Set the working directory inside the container
+WORKDIR /app
 
-# WORKDIR /home/node/app
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
 
-# COPY package*.json ./
+# Install Python, node-gyp, and build-essential tools
+RUN apt-get update && apt-get install -y python3 build-essential \
+    && npm install -g node-gyp
 
-# USER node
+# Install the application dependencies
+RUN npm install
 
-# RUN npm install
+# # Copy the .env file into the app directory
+# COPY .env ./
 
-# COPY --chown=node:node . .
+# Copy the rest of your application files to the working directory
+COPY . .
 
-# EXPOSE 8080
+# Expose the port your app runs on (default for Node.js apps is often 3000 or another port)
+EXPOSE 8080
 
-# CMD [ "node", "app.js" ]
+# Define the command to run your application
+CMD ["npm", "start"]

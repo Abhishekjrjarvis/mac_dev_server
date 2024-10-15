@@ -5082,7 +5082,10 @@ exports.generateDummyPdfQuery = async (req, res) => {
     // await staffLeaveRequest();
     // await combinedBankDaybook();
     // await combinedSummaryBankDaybook();
-    await staffLeaveRequestReport();
+    await staffLeaveRequestReport(
+      "670da804c26612d9989c7917",
+      "651ba22de39dbdf817dd520c"
+    );
 
     res.status(200).send({
       message: "Dummy pdf generate",

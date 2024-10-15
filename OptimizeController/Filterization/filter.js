@@ -2350,8 +2350,17 @@ exports.renderApplicationListQuery = async (req, res) => {
             // select: "subjectName",
           },
         },
+      })
+      .populate({
+        path: "cancelApplication",
+        populate: {
+          path: "student",
+          populate: {
+            path: "student_optional_subject major_subject nested_subject studentClass department",
+            // select: "subjectName",
+          },
+        },
       });
-
     if (
       `${flow}` === "Request_Query" &&
       valid_apply?.receievedApplication?.length > 0
@@ -3216,6 +3225,210 @@ exports.renderApplicationListQuery = async (req, res) => {
             ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
             Address: `${ref?.student?.studentAddress}` ?? "#NA",
             AppliedOn: `${moment(ref?.student?.createdAt).format("LL")}`,
+            ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
+            AlternateContactNo:
+              ref?.student?.studentParentsPhoneNumber ?? "#NA",
+            NameAsMarksheet: ref?.student?.studentNameAsMarksheet,
+            NameAsCertificate: ref?.student?.studentNameAsCertificate,
+            BirthPlace: ref?.student?.studentBirthPlace,
+            Religion: ref?.student?.studentReligion,
+            Caste: ref?.student?.studentCast,
+            Nationality: ref?.student?.studentNationality,
+            RationCard: ref?.student?.studentFatherRationCardColor,
+            BloodGroup: ref?.student?.student_blood_group,
+            AadharNumber: ref?.student?.studentAadharNumber,
+            PhoneNumber: ref?.student?.studentPhoneNumber,
+            Email: ref?.student?.studentEmail,
+            ParentsPhoneNumber: ref?.student?.studentParentsPhoneNumber,
+            CurrentAddress: ref?.student?.studentCurrentAddress,
+            CurrentPinCode: ref?.student?.studentCurrentPincode,
+            CurrentState: ref?.student?.studentCurrentState,
+            CurrentDistrict: ref?.student?.studentCurrentDistrict,
+            Address: ref?.student?.studentAddress,
+            PinCode: ref?.student?.studentPincode,
+            State: ref?.student?.studentState,
+            District: ref?.student?.studentDistrict,
+            ParentsName: ref?.student?.studentParentsName,
+            ParentsEmail: ref?.student?.studentParentsEmail,
+            ParentsOccupation: ref?.student?.studentParentsOccupation,
+            ParentsOfficeAddress: ref?.student?.studentParentsAddress,
+            ParentsAnnualIncome: ref?.student?.studentParentsAnnualIncom,
+            SeatType: ref?.student?.student_seat_type,
+            PhysicallyHandicapped: ref?.student?.student_ph_type,
+            DefencePersonnel: ref?.student?.student_defence_personnel_word,
+            MaritalStatus: ref?.student?.student_marital_status,
+            PreviousBoard: ref?.student?.student_board_university,
+            PreviousSchool: ref?.student?.studentPreviousSchool,
+            UniversityCourse: ref?.student?.student_university_courses,
+            PassingYear: ref?.student?.student_year,
+            PreviousClass: ref?.student?.student_previous_class,
+            PreviousMarks: ref?.student?.student_previous_marks,
+            PreviousPercentage: ref?.student?.student_previous_percentage,
+            SeatNo: ref?.student?.student_previous_section,
+            StandardMOP: ref?.student?.month_of_passing,
+            StandardYOP: ref?.student?.year_of_passing,
+            StandardPercentage: ref?.student?.percentage,
+            StandardNameOfInstitute: ref?.student?.name_of_institute,
+            HSCMOP: ref?.student?.hsc_month,
+            HSCYOP: ref?.student?.hsc_year,
+            HSCPercentage: ref?.student?.hsc_percentage,
+            HSCNameOfInstitute: ref?.student?.hsc_name_of_institute,
+            HSCBoard: ref?.student?.hsc_board,
+            HSCCandidateType: ref?.student?.hsc_candidate_type,
+            HSCVocationalType: ref?.student?.hsc_vocational_type,
+            HSCPhysicsMarks: ref?.student?.hsc_physics_marks,
+            HSCChemistryMarks: ref?.student?.hsc_chemistry_marks,
+            HSCMathematicsMarks: ref?.student?.hsc_mathematics_marks,
+            HSCPCMTotal: ref?.student?.hsc_pcm_total,
+            HSCGrandTotal: ref?.student?.hsc_grand_total,
+            FormNo: ref?.student?.form_no,
+            QviplePayId: ref?.student?.qviple_student_pay_id,
+            ...numss,
+            ...numsss,
+          });
+        }
+      }
+      var valid_back = await json_to_excel_admission_application_query(
+        excel_list,
+        valid_apply?.applicationName,
+        appId,
+        flow
+      );
+      if (valid_back?.back) {
+        res.status(200).send({
+          message: "Explore New Excel On Hostel Export TAB",
+          access: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No New Excel Exports ",
+          access: false,
+        });
+      }
+    } else if (
+      `${flow}` === "Cancel_Query" &&
+      valid_apply?.cancelApplication?.length > 0
+    ) {
+      var excel_list = [];
+      const all_group_select = await SubjectGroupSelect.find({
+        $and: [{ subject_group: { $in: valid_apply?.subject_selected_group } }],
+      })
+        .populate({
+          path: "compulsory_subject",
+          select: "subjectName",
+        })
+        .populate({
+          path: "optional_subject",
+          populate: {
+            path: "optional_subject_options optional_subject_options_or.options",
+            select: "subjectName",
+          },
+        })
+        .populate({
+          path: "fixed_subject",
+          populate: {
+            path: "fixed_subject_options",
+            select: "subjectName",
+          },
+        });
+      var subject_list = [];
+      for (let ele of all_group_select) {
+        subject_list.push(...ele?.compulsory_subject);
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.fixed_subject) {
+          subject_list.push(...val?.fixed_subject_options);
+        }
+      }
+      for (let ele of all_group_select) {
+        for (let val of ele?.optional_subject) {
+          subject_list.push(...val?.optional_subject_options);
+        }
+        for (let val of ele?.optional_subject) {
+          for (let stu of val?.optional_subject_options_or) {
+            subject_list.push(...stu?.options);
+          }
+        }
+      }
+      var numss = {};
+      var numsss = {};
+      for (var ref of valid_apply?.cancelApplication) {
+        if (ref?.student?.studentFirstName != "") {
+          for (let ele of ref?.student?.student_dynamic_field) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numss[ele?.key] = ele?.value;
+          }
+          var nums_queue = {};
+          for (let stu of subject_list) {
+            ref.student.student_dynamic_subject.push({
+              subjectName: stu?.subjectName,
+              status: "No",
+              _id: stu?._id,
+            });
+          }
+          for (let ele of ref?.student?.student_dynamic_subject) {
+            for (let val of ref?.student?.student_optional_subject) {
+              if (`${ele?._id}` === `${val?._id}`) {
+                nums_queue[ele?.subjectName] = "Yes";
+                ele.status = "Yes";
+              }
+            }
+          }
+          for (let val of ref?.student?.student_dynamic_subject) {
+            for (let ele of ref?.student?.major_subject) {
+              if (`${val?._id}` === `${ele?._id}`) {
+                nums_queue[val?.subjectName] = "Yes";
+                ele.status = "Yes";
+              }
+            }
+          }
+          if (ref?.nested_subject?.length > 0) {
+            for (let val of ref?.student?.student_dynamic_subject) {
+              for (let ele of ref?.student?.nested_subject) {
+                if (`${val?._id}` === `${ele?._id}`) {
+                  nums_queue[val?.subjectName] = "Yes";
+                  ele.status = "Yes";
+                }
+              }
+            }
+          }
+          for (let ele of ref?.student?.student_dynamic_subject) {
+            // numss.push(
+            //   [ele?.key]: ele?.value,
+            // );
+            numsss[ele?.subjectName] = ele?.status;
+          }
+          excel_list.push({
+            RegistrationID: ref?.student?.studentGRNO ?? "#NA",
+            "ABC ID": ref?.student?.student_abc_id ?? "#NA",
+            Name: `${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName ??
+                  ref?.student?.studentFatherName
+                : ""
+            } ${ref?.student?.studentLastName}`,
+            FirstName: ref?.student?.studentFirstName ?? "#NA",
+            FatherName:
+              ref?.student?.studentFatherName ??
+              ref?.student?.studentMiddleName,
+            LastName: ref?.student?.studentLastName ?? "#NA",
+            DOB:
+              moment(ref?.student?.student_expand_DOB)?.format("DD/MM/YYYY") ??
+              "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            ROLLNO: ref?.student?.studentROLLNO ?? "#NA",
+            Class:
+              `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}` ??
+              "#NA",
+            Department: ref?.student?.department?.dName ?? "#NA",
+            CasteCategory: ref?.student?.studentCastCategory ?? "#NA",
+            Religion: ref?.student?.studentReligion ?? "#NA",
+            MotherName: `${ref?.student?.studentMotherName}` ?? "#NA",
+            ApplicationName: `${valid_apply?.applicationName}` ?? "#NA",
+            Address: `${ref?.student?.studentAddress}` ?? "#NA",
+            AppliedOn: `${moment(ref?.cancel_on).format("LL")}`,
             ContactNo: ref?.student?.studentPhoneNumber ?? "#NA",
             AlternateContactNo:
               ref?.student?.studentParentsPhoneNumber ?? "#NA",
@@ -20558,8 +20771,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20619,8 +20837,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20683,8 +20906,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20728,7 +20956,14 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads application fee_payment_mode fee_transaction_date")
+          .select(
+            "fee_heads application fee_payment_mode fee_transaction_date fee_payment_amount society_invoice_count invoice_count"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          })
           .populate({
             path: "application",
             select: "applicationDepartment",
@@ -20772,8 +21007,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20830,8 +21070,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20891,8 +21136,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -20933,7 +21183,14 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads application fee_payment_mode")
+          .select(
+            "fee_heads application fee_payment_mode fee_payment_amount society_invoice_count invoice_count"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender",
+          })
           .populate({
             path: "application",
             select: "applicationDepartment",
@@ -20962,551 +21219,83 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           return val;
       });
     }
-    let heads_queue = [];
-    if (bank_acc?.bank_account_type === "Society") {
-      for (let ele of all_struct) {
-        for (let val of ele?.applicable_fees_heads) {
-          if (val?.is_society == true) {
-            if (heads_queue?.includes(`${val?.master}`)) {
-            } else {
-              heads_queue.push(val?.master);
-            }
-          }
-        }
+    var head_list = [];
+    const buildStructureObject = async (arr) => {
+      var obj = {};
+      for (let i = 0; i < arr.length; i++) {
+        const { HeadsName, PaidHeadFees } = arr[i];
+        obj[HeadsName] = PaidHeadFees;
       }
-    } else {
-      for (let ele of all_struct) {
-        for (let val of ele?.applicable_fees_heads) {
-          if (val?.is_society == false) {
-            if (heads_queue?.includes(`${val?.master}`)) {
-            } else {
-              heads_queue.push(val?.master);
-            }
-          }
-        }
-      }
-    }
-    const all_master = await FeeMaster.find({
-      _id: { $in: heads_queue },
-    }).select("master_name");
-    var obj = {};
-    var nest_obj = [];
-    for (let ele of all_master) {
-      obj["head_name"] = ele?.master_name;
-      obj["head_amount"] = 0;
-      obj["cash_head_amount"] = 0;
-      obj["pg_head_amount"] = 0;
-      obj["bank_head_amount"] = 0;
-      obj["_id"] = ele?._id;
-      nest_obj.push(obj);
-      obj = {};
-    }
-    // var t = 0
-    var t = [];
-    var l = [];
-    const daylist = getDaysArray(new Date(`${from}`), new Date(`${to}`));
-    daylist.map((v) => v.toISOString().slice(0, 10)).join("");
-    let date_wise = [];
-    for (let cls of daylist) {
-      cls = `${cls}`;
-      let obj = {
-        date: `${moment(`${cls}`)?.format("YYYY-MM-DD")}`,
-        cash_head_amount: 0,
-        bank_head_amount: 0,
-        pg_head_amount: 0,
-        head_amount: 0,
-        indian_format: `${moment(`${cls}`)?.format("DD/MM/YYYY")}`,
-      };
-      date_wise.push({
-        ...obj,
-      });
-    }
+      return obj;
+    };
+    let results = [];
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
-        for (let cls of date_wise) {
-          if (
-            `${cls?.date}` ===
-            `${moment(`${ele?.fee_transaction_date}`).format("YYYY-MM-DD")}`
-          ) {
-            if (payment_type == "Total") {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (ele?.fee_payment_mode == "By Cash") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
+        let normal = 0;
+        let society = 0;
+        var head_array = [];
 
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway / Online") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway - PG") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Net Banking") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "UPI Transfer") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Cheque") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Demand Draft") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-                    }
-                  }
-                }
-              }
-            } else if (payment_type == "Cash / Bank") {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (ele?.fee_payment_mode == "By Cash") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway / Online") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway - PG") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Net Banking") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "UPI Transfer") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Cheque") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Demand Draft") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-                    }
-                  }
-                }
-              }
-            } else {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // if (val?.master == "6654be24e36490a31bccd1db") {
-                      //   t.push(`${val?.original_paid}`);
-                      // }
-                      // if (val?.master == "6654be3de36490a31bccd257") {
-                      //   l.push(`${val?.original_paid}`);
-                      // }
-                      // t+= val?.original_paid
-                    }
-                  }
-                }
-              }
+        for (var val of ele?.fee_heads) {
+          if (bank_acc?.bank_account_type === "Society") {
+            if (val?.master && val?.is_society == true) {
+              const head = await FeeMaster.findById({ _id: val?.master });
+              head_array.push({
+                HeadsName: head?.master_name,
+                PaidHeadFees: val?.original_paid,
+              });
+              society += val?.original_paid;
+            }
+          } else {
+            if (val?.master && val?.is_society == false) {
+              const head = await FeeMaster.findById({ _id: val?.master });
+              head_array.push({
+                HeadsName: head?.master_name,
+                PaidHeadFees: val?.original_paid,
+              });
+              normal += val?.original_paid;
             }
           }
         }
+        if (ele?.fee_heads?.length > 0) {
+          var result = await buildStructureObject(head_array);
+        }
+        if (result) {
+          results.push({
+            ReceiptNumber:
+              bank_acc?.bank_account_type === "Society"
+                ? ele?.society_invoice_count
+                : ele?.invoice_count ?? "0",
+            // TransactionAmount: ele?.fee_payment_amount ?? "0",
+            Name:
+              `${ele?.student?.studentLastName} ${
+                ele?.student?.studentFirstName
+              } ${
+                ele?.student?.studentMiddleName
+                  ? ele?.student?.studentMiddleName
+                  : ""
+              }` ?? "#NA",
+            // FirstName: ele?.student?.studentFirstName ?? "#NA",
+            // MiddleName:
+            //   ele?.student?.studentMiddleName ??
+            //   ele?.student?.studentFatherName,
+            // LastName: ele?.student?.studentLastName ?? "#NA",
+            BankTxnValue:
+              bank_acc?.bank_account_type === "Society" ? society : normal,
+            ...result,
+          });
+        }
       }
-      // nest_obj.push({
-      //   head_name: "Total Fees",
-      //   head_amount: t
-      // })
-      all_receipts.sort(function (st1, st2) {
-        return (
-          parseInt(st1?.invoice_count?.substring(14)) -
-          parseInt(st2?.invoice_count?.substring(14))
-        );
-      });
 
       return {
         message: "Explore Day Book Heads Query",
         access: true,
         all_receipts: all_receipts?.length,
-        results: nest_obj,
-        range: `${all_receipts[0]?.invoice_count?.substring(
-          14
-        )} To ${all_receipts[
-          all_receipts?.length - 1
-        ]?.invoice_count?.substring(14)}`,
+        results: results,
         account_info: bank_acc,
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
         one_staff: staff ? one_staff : {},
-        date_wise: date_wise ?? [],
       };
     } else {
       return {
@@ -21520,7 +21309,6 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
         ins_info: institute,
         range: "",
         one_staff: {},
-        date_wise: date_wise ?? [],
       };
     }
   } catch (e) {
@@ -23577,29 +23365,27 @@ exports.render_combined_detail_bank_daybook_heads_wise = async (req, res) => {
       }
     }
     let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
-    let data_2 = await hostel_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      hostel,
-      fid,
-      staff
-    );
-    let data_3 = await miscellanous_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      fid,
-      staff
-    );
-    let combine = [data_1, data_2, data_3];
+    // let data_2 = await hostel_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   hostel,
+    //   fid,
+    //   staff
+    // );
+    // let data_3 = await miscellanous_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   fid,
+    //   staff
+    // );
+    let combine = [data_1];
     let combines = [];
     for (let cls of combine) {
-      combines.push({
-        date_wise: cls?.date_wise,
-      });
+      combines.push(...cls?.results);
     }
     const valid_bank = await BankAccount.findById({ _id: bank }).select(
       "-day_book"
@@ -23919,6 +23705,13 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
     });
     var excel_list = [];
     var excel_list_1 = [];
+    var males = [];
+    var girls = [];
+    var total_val = [];
+    var dse_males = [];
+    var dse_girls = [];
+    var dse_total_val = [];
+
     for (let depart of departs) {
       const all_subjects = await SubjectMaster.find({
         _id: { $in: depart?.merged_subject_master },
@@ -23945,12 +23738,14 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
         }
       }
       const m_classes = await ClassMaster.find({ _id: { $in: nums_class } });
+      let dse = [];
       for (let m_class of m_classes) {
         for (let ele of all_subjects) {
           for (let val of ele?.subjects) {
             for (let cls of m_class?.classDivision) {
               if (`${val?.class?._id}` === `${cls}`) {
                 nums.push(val?._id);
+                dse.push(val?.class?._id);
               }
             }
           }
@@ -23980,454 +23775,153 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
           }
         }
 
-        const unique = [...new Set(ds.map((item) => item))];
-        var all_student = await Student.find({ _id: { $in: unique } }).select(
-          "studentGender studentCastCategory studentCast studentReligion student student_ph studentGRNO studentROLLNO valid_full_name studentProfilePhoto photoId"
-        );
-        var general_m = 0;
-        var general_f = 0;
-        var obc_m = 0;
-        var obc_f = 0;
-        var sc_m = 0;
-        var sc_f = 0;
-        var st_m = 0;
-        var st_f = 0;
-        var hindu_m = 0;
-        var hindu_f = 0;
-        var muslim_m = 0;
-        var muslim_f = 0;
-        var sikh_m = 0;
-        var sikh_f = 0;
-        var christian_m = 0;
-        var christian_f = 0;
-        var jain_m = 0;
-        var jain_f = 0;
-        var parsi_m = 0;
-        var parsi_f = 0;
-        var budh_m = 0;
-        var budh_f = 0;
-        var jews_m = 0;
-        var jews_f = 0;
-        var ph_m = 0;
-        var ph_f = 0;
-        var general_m_arr = [];
-        var general_f_arr = [];
+        let unique = [...new Set(ds.map((item) => item))];
+        if (dse?.length > 0) {
+          const all_stu = await Student.find({
+            $and: [{ studentClass: { $in: dse } }],
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentROLLNO studentGRNO department major_subject"
+            )
+            .populate({
+              path: "studentClass",
+              select: "className",
+            });
+          var numss = [];
+          for (let ele of all_subjects) {
+            for (let val of all_stu) {
+              if (val?.major_subject?.includes(`${ele?._id}`)) {
+                numss.push(val);
+              }
+            }
+          }
+          const uniques = [...new Set(numss.map((item) => item._id))];
+          var all_student_value = await Student.find({
+            _id: { $in: uniques },
+          }).select(
+            "studentGender studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO studentROLLNO"
+          );
+        }
+        if (unique?.length > 0) {
+          var all_student = await Student.find({ _id: { $in: unique } }).select(
+            "studentGender studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO studentROLLNO"
+          );
+        }
+
         var boy_arr = [];
         var girl_arr = [];
-        var obc_m_arr = [];
-        var obc_f_arr = [];
-        var sc_m_arr = [];
-        var sc_f_arr = [];
-        var st_m_arr = [];
-        var st_f_arr = [];
-        var hindu_m_arr = [];
-        var hindu_f_arr = [];
-        var muslim_m_arr = [];
-        var muslim_f_arr = [];
-        var sikh_m_arr = [];
-        var sikh_f_arr = [];
-        var christian_m_arr = [];
-        var christian_f_arr = [];
-        var jain_m_arr = [];
-        var jain_f_arr = [];
-        var parsi_m_arr = [];
-        var parsi_f_arr = [];
-        var budh_m_arr = [];
-        var budh_f_arr = [];
-        var jews_m_arr = [];
-        var jews_f_arr = [];
-        var ph_m_arr = [];
-        var ph_f_arr = [];
-        var dt_m = 0;
-        var dt_f = 0;
-        var dt_m_arr = [];
-        var dt_f_arr = [];
-        var sbc_m = 0;
-        var sbc_f = 0;
-        var sbc_m_arr = [];
-        var sbc_f_arr = [];
-        var ews_m = 0;
-        var ews_f = 0;
-        var ews_m_arr = [];
-        var ews_f_arr = [];
-        var maratha_m = 0;
-        var maratha_f = 0;
-        var maratha_m_arr = [];
-        var maratha_f_arr = [];
-        var jk_m = 0;
-        var jk_f = 0;
-        var jk_m_arr = [];
-        var jk_f_arr = [];
-        var goins_m = 0;
-        var goins_f = 0;
-        var goins_m_arr = [];
-        var goins_f_arr = [];
-        var nt_m = 0;
-        var nt_f = 0;
-        var nt_m_arr = [];
-        var nt_f_arr = [];
-        for (var ele of all_student) {
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentCastCategory?.toLowerCase() === "general"
-          ) {
-            general_m += 1;
-            general_m_arr.push(ele);
-          } else {
-            general_m += 0;
+        if (all_student?.length > 0) {
+          for (var ele of all_student) {
+            if (ele?.studentGender?.toLowerCase() === "male") {
+              boy_arr.push(ele);
+            }
+            if (ele?.studentGender?.toLowerCase() === "female") {
+              girl_arr.push(ele);
+            }
           }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentCastCategory?.toLowerCase() === "general"
-          ) {
-            general_f += 1;
-            general_f_arr.push(ele);
-          } else {
-            general_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentCastCategory?.toLowerCase() === "obc"
-          ) {
-            obc_m += 1;
-            obc_m_arr.push(ele);
-          } else {
-            obc_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentCastCategory?.toLowerCase() === "obc"
-          ) {
-            obc_f += 1;
-            obc_f_arr.push(ele);
-          } else {
-            obc_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentCastCategory?.toLowerCase() === "sc"
-          ) {
-            sc_m += 1;
-            sc_m_arr.push(ele);
-          } else {
-            sc_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentCastCategory?.toLowerCase() === "sc"
-          ) {
-            sc_f += 1;
-            sc_f_arr.push(ele);
-          } else {
-            sc_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentCastCategory?.toLowerCase() === "st"
-          ) {
-            st_m += 1;
-            st_m_arr.push(ele);
-          } else {
-            st_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentCastCategory?.toLowerCase() === "st"
-          ) {
-            st_f += 1;
-            st_f_arr.push(ele);
-          } else {
-            st_f += 0;
-          }
-          if (
-            (ele?.studentGender?.toLowerCase() === "male" &&
-              ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-d"
-          ) {
-            nt_m += 1;
-            nt_m_arr.push(ele);
-          } else {
-            nt_m += 0;
-          }
-          if (
-            (ele?.studentGender?.toLowerCase() === "female" &&
-              ele?.studentCastCategory?.toLowerCase() === "nt-a") ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-b" ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-c" ||
-            ele?.studentCastCategory?.toLowerCase() === "nt-d"
-          ) {
-            nt_f += 1;
-            nt_f_arr.push(ele);
-          } else {
-            nt_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "hindu"
-          ) {
-            hindu_m += 1;
-            hindu_m_arr.push(ele);
-          } else {
-            hindu_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "hindu"
-          ) {
-            hindu_f += 1;
-            hindu_f_arr.push(ele);
-          } else {
-            hindu_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "muslim"
-          ) {
-            muslim_m += 1;
-            muslim_m_arr.push(ele);
-          } else {
-            muslim_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "muslim"
-          ) {
-            muslim_f += 1;
-            muslim_f_arr.push(ele);
-          } else {
-            muslim_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "sikh"
-          ) {
-            sikh_m += 1;
-            sikh_m_arr.push(ele);
-          } else {
-            sikh_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "sikh"
-          ) {
-            sikh_f += 1;
-            sikh_f_arr.push(ele);
-          } else {
-            sikh_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "christian"
-          ) {
-            christian_m += 1;
-            christian_m_arr.push(ele);
-          } else {
-            christian_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "christian"
-          ) {
-            christian_f += 1;
-            christian_f_arr.push(ele);
-          } else {
-            christian_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "jainism"
-          ) {
-            jain_m += 1;
-            jain_m_arr.push(ele);
-          } else {
-            jain_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "jainism"
-          ) {
-            jain_f += 1;
-            jain_f_arr.push(ele);
-          } else {
-            jain_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "parsi"
-          ) {
-            parsi_m += 1;
-            parsi_m_arr.push(ele);
-          } else {
-            parsi_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "parsi"
-          ) {
-            parsi_f += 1;
-            parsi_f_arr.push(ele);
-          } else {
-            parsi_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "buddhism"
-          ) {
-            budh_m += 1;
-            budh_m_arr.push(ele);
-          } else {
-            budh_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "buddhism"
-          ) {
-            budh_f += 1;
-            budh_f_arr.push(ele);
-          } else {
-            budh_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.studentReligion?.toLowerCase() === "jews"
-          ) {
-            jews_m += 1;
-            jews_m_arr.push(ele);
-          } else {
-            jews_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.studentReligion?.toLowerCase() === "jews"
-          ) {
-            jews_f += 1;
-            jews_f_arr.push(ele);
-          } else {
-            jews_f += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "male" &&
-            ele?.student_ph?.toLowerCase() === "yes"
-          ) {
-            ph_m += 1;
-            ph_m_arr.push(ele);
-          } else {
-            ph_m += 0;
-          }
-          if (
-            ele?.studentGender?.toLowerCase() === "female" &&
-            ele?.student_ph?.toLowerCase() === "yes"
-          ) {
-            ph_f += 1;
-            ph_f_arr.push(ele);
-          } else {
-            ph_f += 0;
-          }
-          if (ele?.studentGender?.toLowerCase() === "male") {
-            boy_arr.push(ele);
-          }
-          if (ele?.studentGender?.toLowerCase() === "female") {
-            girl_arr.push(ele);
-          }
+          excel_list.push({
+            StandardName: `${m_class?.className}`,
+            // boy: boy_arr?.length,
+            // boy_arr: boy_arr,
+            // girl: girl_arr?.length,
+            // girl_arr: girl_arr,
+            // total: boy_arr?.length + girl_arr?.length,
+            // regular: {
+            //   male: [{ count: boy_arr?.length, count_bind: [...boy_arr] }],
+            //   female: [{ count: girl_arr?.length, count_bind: [...girl_arr] }],
+            //   total: [
+            //     {
+            //       count: boy_arr?.length + girl_arr?.length,
+            //       count_bind: [...boy_arr, ...girl_arr],
+            //     },
+            //   ],
+            // },
+          });
+          males.push({
+            count: boy_arr?.length ?? 0,
+            count_bind: [...boy_arr],
+          });
+          girls.push({
+            count: girl_arr?.length ?? 0,
+            count_bind: [...girl_arr],
+          });
+          total_val.push({
+            count: boy_arr?.length + girl_arr?.length ?? 0,
+            count_bind: [...boy_arr, ...girl_arr],
+          });
+          boy_arr = [];
+          girl_arr = [];
         }
-        excel_list.push({
-          StandardName: `${m_class?.className}`,
-          Regular: true,
-          strength: unique?.length,
-          boy: boy_arr?.length,
-          boy_arr: boy_arr,
-          girl: girl_arr?.length,
-          girl_arr: girl_arr,
-          general_m: general_m,
-          general_f: general_f,
-          obc_m: obc_m,
-          obc_f: obc_f,
-          sc_m: sc_m,
-          sc_f: sc_f,
-          st_m: st_m,
-          st_f: st_f,
-          hindu_m: hindu_m,
-          hindu_f: hindu_f,
-          muslim_m: muslim_m,
-          muslim_f: muslim_f,
-          sikh_m: sikh_m,
-          sikh_f: sikh_f,
-          christian_m: christian_m,
-          christian_f: christian_f,
-          jain_m: jain_m,
-          jain_f: jain_f,
-          parsi_m: parsi_m,
-          parsi_f: parsi_f,
-          budh_m: budh_m,
-          budh_f: budh_f,
-          jews_m: jews_m,
-          jews_f: jews_f,
-          ph_m: ph_m,
-          ph_f: ph_f,
-          general_m_arr: general_m_arr,
-          general_f_arr: general_f_arr,
-          obc_m_arr: obc_m_arr,
-          obc_f_arr: obc_f_arr,
-          sc_m_arr: sc_m_arr,
-          sc_f_arr: sc_f_arr,
-          st_m_arr: st_m_arr,
-          st_f_arr: st_f_arr,
-          hindu_m_arr: hindu_m_arr,
-          hindu_f_arr: hindu_f_arr,
-          muslim_m_arr: muslim_m_arr,
-          muslim_f_arr: muslim_f_arr,
-          sikh_m_arr: sikh_m_arr,
-          sikh_f_arr: sikh_f_arr,
-          christian_m_arr: christian_m_arr,
-          christian_f_arr: christian_f_arr,
-          jain_m_arr: jain_m_arr,
-          jain_f_arr: jain_f_arr,
-          parsi_m_arr: parsi_m_arr,
-          parsi_f_arr: parsi_f_arr,
-          budh_m_arr: budh_m_arr,
-          budh_f_arr: budh_f_arr,
-          jews_m_arr: jews_m_arr,
-          jews_f_arr: jews_f_arr,
-          ph_m_arr: ph_m_arr,
-          ph_f_arr: ph_f_arr,
-          dt_m: dt_m,
-          dt_f: dt_f,
-          dt_m_arr: dt_m_arr,
-          dt_f_arr: dt_f_arr,
-          sbc_m: sbc_m,
-          sbc_f: sbc_f,
-          sbc_m_arr: sbc_m_arr,
-          sbc_f_arr: sbc_f_arr,
-          ews_m: ews_m,
-          ews_f: ews_f,
-          ews_m_arr: ews_m_arr,
-          ews_f_arr: ews_f_arr,
-          maratha_m: maratha_m,
-          maratha_f: maratha_f,
-          maratha_m_arr: maratha_m_arr,
-          maratha_f_arr: maratha_f_arr,
-          jk_m: jk_m,
-          jk_f: jk_f,
-          jk_m_arr: jk_m_arr,
-          jk_f_arr: jk_f_arr,
-          goins_m: goins_m,
-          goins_f: goins_f,
-          goins_m_arr: goins_m_arr,
-          goins_f_arr: goins_f_arr,
-          nt_m: nt_m,
-          nt_f: nt_f,
-          nt_m_arr: nt_m_arr,
-          nt_f_arr: nt_f_arr,
-        });
+        if (all_student_value?.length > 0) {
+          for (var ele of all_student_value) {
+            if (ele?.studentGender?.toLowerCase() === "male") {
+              boy_arr.push(ele);
+            }
+            if (ele?.studentGender?.toLowerCase() === "female") {
+              girl_arr.push(ele);
+            }
+          }
+          excel_list.push({
+            StandardName: `${m_class?.className}`,
+            // boy: boy_arr?.length,
+            // boy_arr: boy_arr,
+            // girl: girl_arr?.length,
+            // girl_arr: girl_arr,
+            // total: boy_arr?.length + girl_arr?.length,
+            // regular: {
+            //   male: [{ count: boy_arr?.length, count_bind: [...boy_arr] }],
+            //   female: [{ count: girl_arr?.length, count_bind: [...girl_arr] }],
+            //   total: [
+            //     {
+            //       count: boy_arr?.length + girl_arr?.length,
+            //       count_bind: [...boy_arr, ...girl_arr],
+            //     },
+            //   ],
+            // },
+          });
+          dse_males.push({
+            count: boy_arr?.length ?? 0,
+            count_bind: [...boy_arr],
+          });
+          dse_girls.push({
+            count: girl_arr?.length ?? 0,
+            count_bind: [...girl_arr],
+          });
+          dse_total_val.push({
+            count: boy_arr?.length + girl_arr?.length ?? 0,
+            count_bind: [...boy_arr, ...girl_arr],
+          });
+          boy_arr = [];
+          girl_arr = [];
+        }
+      }
+      var master = [];
+      for (let ele of excel_list) {
+        master.push(ele?.StandardName);
       }
       excel_list_1.push({
-        excel_list: [...excel_list],
+        master: [...master],
+        regular: {
+          male: [...males],
+          female: [...girls],
+          total: [...total_val],
+        },
+        dse: {
+          male: [...dse_males],
+          female: [...dse_girls],
+          total: [...dse_total_val],
+        },
         DepartmentName: `${depart?.dName}`,
         Batch: `${batch_query?.batchName}`,
       });
+      master = [];
       excel_list = [];
+      males = [];
+      girls = [];
+      total_val = [];
+      dse_males = [];
+      dse_girls = [];
+      dse_total_val = [];
     }
     ads_admin.admission_enroll_stats = excel_list_1;
     await ads_admin.save();

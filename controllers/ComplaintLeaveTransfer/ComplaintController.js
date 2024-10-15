@@ -33,6 +33,7 @@ const LeaveConfig = require("../../models/Leave/LeaveConfig");
 const { months_helper, getSundaysInYear } = require("../../helper/dayTimer");
 const LMS = require("../../models/Leave/LMS");
 const moment = require("moment");
+const staffLeaveRequestReport = require("../../scripts/leaveReport/staffLeaveRequestReport");
 //=======================================For the students related controller=========================================
 
 exports.getStudentLeave = async (req, res) => {
@@ -798,9 +799,13 @@ exports.getStaffLeave = async (req, res) => {
   }
 };
 
+const required_format_date = (dt) => {
+  let ft = dt?.split("/");
+  return `${ft[2]}-${ft[1]}-${ft[0]}`;
+};
 exports.postStaffLeave = async (req, res) => {
   try {
-    const { are } = req.body;
+    const { are, from, to, total_days } = req.body;
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const dateArray = [];
@@ -840,8 +845,6 @@ exports.postStaffLeave = async (req, res) => {
         "staffLeave user institute staffFirstName staffMiddleName staffLastName recommend_authority review_authority sanction_authority"
       );
 
-    const user = await User.findById(staff.user).select("uNotify");
-
     const institute = await InstituteAdmin.findById(staff?.institute);
     const lms = await LMS.findById({ _id: institute?.lms_depart?.[0] });
     lms.leave_number += 1;
@@ -874,6 +877,10 @@ exports.postStaffLeave = async (req, res) => {
       institute: institute._id,
       lms: lms?._id,
       leave_number: ct_number,
+      from: required_format_date(from),
+      to: required_format_date(to),
+      total_days: total_days,
+      is_replacement: are?.length > 0 ? "Yes" : "No",
     });
     leave.leave_grant = dateArray?.length;
     leave.leave_type = req?.body?.leave_type;
@@ -1050,14 +1057,13 @@ exports.postStaffLeave = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = noti_st?._id;
         user.activity_tab.push(notify._id);
-        // staff_ou.notification.push(notify._id);
         notify.notifyByStaffPhoto = req.params.sid;
         notify.notifyCategory = "LEAVE_REQUEST";
         notify.redirectIndex = 66;
         await Promise.all([notify.save(), user.save()]);
         if (user?.deviceToken) {
           invokeMemberTabNotification(
-            "Student Activity",
+            "Staff Activity",
             notify,
             `Leave request make by -  ${staff?.staffFirstName ?? ""} ${
               staff?.staffMiddleName ?? ""
@@ -1180,7 +1186,7 @@ exports.getStaffOneLeaveDelete = async (req, res) => {
   }
 };
 
-exports.getAllStaffLeaveInstitute = async (req, res) => {
+exports.getAllStaffIssueLeaveInstitute = async (req, res) => {
   try {
     const { id } = req?.params;
     if (!id) {
@@ -1195,8 +1201,7 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
 
     const { status_query } = req?.query;
 
-    const ins = await InstituteAdmin.findById({ _id: id });
-    const lms = await LMS.findById({ _id: `${ins?.lms_depart?.[0]}` });
+    const lms = await LMS.findOne({ institute: { $eq: `${id}` } });
 
     let all_leave = [];
     if (!["", undefined, ""]?.includes(req.query?.search)) {
@@ -1205,7 +1210,7 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
           {
             $or: [
               { lms: { $eq: `${lms?._id}` } },
-              { institute: { $eq: `${ins?._id}` } },
+              { institute: { $eq: `${id}` } },
             ],
           },
           { status: `${status_query}` },
@@ -1263,7 +1268,7 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
           {
             $or: [
               { lms: { $eq: `${lms?._id}` } },
-              { institute: { $eq: `${ins?._id}` } },
+              { institute: { $eq: `${id}` } },
             ],
           },
           { status: `${status_query}` },
@@ -1289,6 +1294,68 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
   }
 };
 
+exports.getAllStaffRequestLeaveInstitute = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    const { status_query } = req?.query;
+
+    const lms = await LMS.findOne({ institute: { $eq: `${id}` } });
+
+    let all_leave = [];
+    if (!["", undefined, ""]?.includes(req.query?.search)) {
+      all_leave = await Leave.find({
+        $and: [
+          {
+            _id: {
+              $in: lms.leave,
+            },
+          },
+          { status: `${status_query}` },
+        ],
+      }).populate({
+        path: "staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
+    } else {
+      all_leave = await Leave.find({
+        $and: [
+          {
+            _id: {
+              $in: lms.leave,
+            },
+          },
+          { status: `${status_query}` },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .skip(dropItem)
+        .limit(itemPerPage)
+        .populate({
+          path: "staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    }
+    res.status(200).send({
+      message: "All Issued Leave of staff",
+      all_leave: all_leave,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.oneStaffLeaveProcess = async (req, res) => {
   try {
     const { leave_from, staff_mod } = req?.body;
@@ -1306,11 +1373,17 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         select:
           "user casual_leave medical_leave sick_leave recommend_authority review_authority sanction_authority leave_taken commuted_leave maternity_leave paternity_leave study_leave half_pay_leave quarantine_leave sabbatical_leave special_disability_leave winter_vacation_leave summer_vacation_leave child_adoption_leave bereavement_leave",
       })
+      .populate({
+        path: "lms",
+        select: "active_staff",
+      })
       .select("staff institute status recommend review sanction leave_grant");
 
     // leave.leave_grant = leave?.date?.length
     let user = await User.findById(leave?.staff?.user?._id);
-    let notify = new StudentNotification({});
+    let notify = new StudentNotification({
+      leaveId: leave?._id,
+    });
     if (leave_from === "Recommend_Section") {
       const recommend_mods = await FinanceModerator.findById({
         _id: `${staff_mod}`,
@@ -1322,13 +1395,13 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         review_mods.review_request.push(leave?._id);
         await review_mods.save();
       }
-      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Recommended Authority - From ${leave?.institute?.insName}`;
-      notify.notifySender = leave?.institute?._id;
+      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Recommended Authority`;
+      notify.notifySender = leave?.staff?.recommend_authority;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Staff";
       notify.notifyPublisher = leave?.staff?._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByInsPhoto = leave?.institute?._id;
+      notify.notifyByStaffPhoto = leave?.staff?.recommend_authority;
       notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
       leave.recommend.recommend_by = recommend_mods?.access_staff;
@@ -1337,7 +1410,13 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       recommend_mods.recommend_request.pull(leave?._id);
       recommend_mods.recommend_history.push(leave?._id);
       //
-      if (user.deviceToken) {
+      await Promise.all([
+        notify.save(),
+        user.save(),
+        leave.save(),
+        recommend_mods.save(),
+      ]);
+      if (user?.deviceToken) {
         invokeMemberTabNotification(
           "Staff Activity",
           notify,
@@ -1348,13 +1427,9 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           notify
         );
       }
-
-      await Promise.all([
-        notify.save(),
-        user.save(),
-        leave.save(),
-        recommend_mods.save(),
-      ]);
+      res
+        .status(200)
+        .send({ message: `Leave ${req.body.status} by Institute` });
     } else if (leave_from === "Review_Section") {
       const review_mods = await FinanceModerator.findById({
         _id: `${staff_mod}`,
@@ -1369,13 +1444,13 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         sanction_mods.sanction_request.push(leave?._id);
         await sanction_mods.save();
       }
-      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority - From ${leave?.institute?.insName}`;
-      notify.notifySender = leave?.institute?._id;
-      notify.notifyReceiever = user._id;
+      notify.notifyContent = `Your Leave request has been ${req?.body?.status} by Review Authority`;
+      notify.notifySender = leave?.staff?.review_authority;
+      notify.notifyReceiever = user?._id;
       notify.notifyType = "Staff";
       notify.notifyPublisher = leave?.staff?._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByInsPhoto = leave?.institute?._id;
+      notify.notifyByStaffPhoto = leave?.staff?.review_authority;
       notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
       leave.review.review_by = review_mods?.access_staff;
@@ -1401,6 +1476,9 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         leave.save(),
         review_mods.save(),
       ]);
+      res
+        .status(200)
+        .send({ message: `Leave ${req.body.status} by Institute` });
     } else if (leave_from === "Sanction_Section") {
       const sanction_mods = await FinanceModerator.findById({
         _id: `${staff_mod}`,
@@ -1490,13 +1568,13 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         }
       }
       leave.staff.leave_taken += leave?.leave_grant;
-      notify.notifyContent = `Your Leave request has been ${req.body.status} by Sanction Authority - From ${leave.institute.insName}`;
-      notify.notifySender = leave.institute._id;
+      notify.notifyContent = `Your Leave request has been ${req.body.status} by Sanction Authority`;
+      notify.notifySender = leave?.staff?.sanction_authority;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Staff";
       notify.notifyPublisher = leave.staff._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByInsPhoto = leave.institute._id;
+      notify.notifyByInsPhoto = leave?.staff?.sanction_authority;
       notify.notifyCategory = "Leave Status";
       notify.redirectIndex = 10;
       leave.sanction.sanction_by = sanction_mods?.access_staff;
@@ -1524,6 +1602,11 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         leave.staff.save(),
         sanction_mods.save(),
       ]);
+      res
+        .status(200)
+        .send({ message: `Leave ${req.body.status} by Institute` });
+
+      await staffLeaveRequestReport(leave?._id, leave?.institute);
     } else {
       leave.status = req.body.status;
 
@@ -1611,15 +1694,21 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         }
       }
       leave.staff.leave_taken += leave?.leave_grant;
-      notify.notifyContent = `Your Leave request has been ${req.body.status} by Leave & Transfer Authority - From ${leave.institute.insName}`;
-      notify.notifySender = leave.institute._id;
-      notify.notifyReceiever = user._id;
+      notify.notifyContent = `Your Leave request has been ${req.body.status} by Leave Manager`;
+      notify.notifySender = leave?.lms?.active_staff;
+      notify.notifyReceiever = user?._id;
       notify.notifyType = "Staff";
-      notify.notifyPublisher = leave.staff._id;
+      notify.notifyPublisher = leave?.staff?._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByInsPhoto = leave.institute._id;
-      notify.notifyCategory = "Leave Status";
+      notify.notifyByStaffPhoto = leave?.lms?.active_staff;
+      notify.notifyCategory = "LEAVE_PROCESS";
       notify.redirectIndex = 10;
+      await Promise.all([
+        leave.save(),
+        user.save(),
+        notify.save(),
+        leave.staff.save(),
+      ]);
       //
       if (user?.deviceToken) {
         invokeMemberTabNotification(
@@ -1632,15 +1721,13 @@ exports.oneStaffLeaveProcess = async (req, res) => {
           notify
         );
       }
+      res
+        .status(200)
+        .send({ message: `Leave ${req.body.status} by Institute` });
+
+      await staffLeaveRequestReport(leave?._id, leave?.institute);
       //
-      await Promise.all([
-        leave.save(),
-        user.save(),
-        notify.save(),
-        leave.staff.save(),
-      ]);
     }
-    res.status(200).send({ message: `Leave ${req.body.status} by Institute` });
   } catch (e) {
     console.log(e);
   }

@@ -119,6 +119,11 @@ const leaveSchema = new mongoose.Schema({
     type: String,
     default: "Single",
   },
+  is_replacement: {
+    type: String,
+    default: "No",
+  },
+  generated_report: String,
 });
 
 const Leave = mongoose.model("Leave", leaveSchema);

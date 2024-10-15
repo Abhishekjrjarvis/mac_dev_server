@@ -198,7 +198,7 @@ const outwardCreateReport = async (outwardId, instituteId) => {
 
   // Handle stream close event
   stream.on("finish", async () => {
-    console.log("created");
+    // console.log("created");
     let file = {
       path: `uploads/${pdf_name}-Report.pdf`,
       filename: `${pdf_name}-Report.pdf`,

@@ -29,9 +29,11 @@ router
 
 router
   .route("/institute/:id")
-  .get(catchAsync(LMSV2.getAllStaffLeaveInstitute))
+  .get(catchAsync(LMSV2.getAllStaffIssueLeaveInstitute))
   .patch(catchAsync(LMSV2.oneStaffLeaveProcess));
-
+router
+  .route("/institute/request/:id")
+  .get(catchAsync(LMSV2.getAllStaffRequestLeaveInstitute));
 router.patch(
   "/:id/config/leave/assign/query",
   catchAsync(LMSV2.renderLeaveConfigQuery)

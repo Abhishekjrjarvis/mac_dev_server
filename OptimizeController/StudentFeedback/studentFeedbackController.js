@@ -49,7 +49,11 @@ exports.getStudentFeedbackQuery = async (req, res) => {
           created_at: -1,
         })
         .skip(dropItem)
-        .limit(itemPerPage);
+        .limit(itemPerPage)
+        .populate({
+          path: "department",
+          select: "dName",
+        });
 
       res.status(201).send({
         message: "Student Feedback list",
@@ -67,7 +71,11 @@ exports.getStudentFeedbackQuery = async (req, res) => {
           created_at: -1,
         })
         .skip(dropItem)
-        .limit(itemPerPage);
+        .limit(itemPerPage)
+        .populate({
+          path: "department",
+          select: "dName",
+        });
 
       res.status(201).send({
         message: "Student Feedback list",
@@ -86,7 +94,12 @@ exports.createStudentFeedbackQuery = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    const { feedback_name, feedback_type, how_many_question_option } = req.body;
+    const {
+      feedback_name,
+      feedback_type,
+      how_many_question_option,
+      department,
+    } = req.body;
     const feedback = new StudentFeedback({
       institute: id,
       feedback_name: feedback_name,
@@ -94,6 +107,7 @@ exports.createStudentFeedbackQuery = async (req, res) => {
       how_many_question_option: how_many_question_option
         ? +how_many_question_option
         : 5,
+      department: department,
     });
     const institute = await InstituteAdmin.findById(id);
     institute.student_feedback?.push(feedback?._id);
@@ -114,13 +128,20 @@ exports.updateStudentFeedbackQuery = async (req, res) => {
         message: "Url Segement parameter required is not fulfill.",
       });
     }
-    const { feedback_name, feedback_type, how_many_question_option } = req.body;
+    const {
+      feedback_name,
+      feedback_type,
+      how_many_question_option,
+      department,
+    } = req.body;
 
     const feedback = await StudentFeedback.findById(ifid);
     if (!feedback?.evaluation) {
       feedback.feedback_name = feedback_name;
       feedback.feedback_type = feedback_type;
       feedback.how_many_question_option = how_many_question_option;
+      feedback.department = department;
+
       await feedback.save();
       res.status(200).send({
         message: "student feedback updated successfully",
@@ -278,7 +299,254 @@ exports.removeQuestionStudentFeedbackQuery = async (req, res) => {
 };
 
 // here add batch wise condition
-exports.feedbackTakenByInstituteQuery = async (req, res) => {
+// exports.feedbackTakenByInstituteQuery = async (req, res) => {
+//   try {
+//     const { id, ifid } = req.params;
+//     const { feedback_close_at } = req.body;
+//     if (!id || !ifid) {
+//       return res.status(200).send({
+//         message: "Url Segement parameter required is not fulfill.",
+//       });
+//     }
+//     const institute = await InstituteAdmin.findById(id);
+//     const feedback = await StudentFeedback.findById(ifid);
+//     feedback.evaluation = true;
+//     feedback.send_notification = true;
+//     let dt = new Date();
+//     dt.setHours(dt.getHours() + 5);
+//     dt.setMinutes(dt.getMinutes() + 30);
+//     feedback.feedback_take_date = dt;
+//     feedback.feedback_close_at = new Date(feedback_close_at);
+//     await feedback.save();
+//     res.status(200).send({
+//       message: "student feedback taken by Institute Admin",
+//     });
+
+//     const department = await Department.find({
+//       institute: id,
+//     })
+//       .populate({
+//         path: "departmentSelectBatch",
+//       })
+//       .select("departmentSelectBatch");
+
+//     const all_batches = [];
+
+//     for (let dt of department) {
+//       if (dt?.departmentSelectBatch?.batchStatus === "UnLocked") {
+//         all_batches.push(dt?.departmentSelectBatch?._id);
+//       }
+//     }
+//     // res.status(200).send({
+//     //   message: "student feedback taken by Institute Admin",
+//     //   feedback,
+//     // });
+//     const cls = await Class.find({
+//       batch: { $in: all_batches },
+//     })
+//       .populate({
+//         path: "subject",
+//         populate: {
+//           path: "selected_batch_query",
+//           select: "class_student_query",
+//         },
+//         select: "subjectTeacherName subjectMasterName selected_batch_query",
+//       })
+//       .select("subject ApproveStudent");
+
+//     var cls_student = {};
+//     for (let ct of cls) {
+//       cls_student[ct?._id] = {
+//         staff: [],
+//         student: [],
+//       };
+//       let arr = [];
+//       for (let st of ct?.subject) {
+//         let flag = true;
+//         for (let it of arr) {
+//           if (
+//             `${it?.staffId}` === `${st?.subjectTeacherName}` &&
+//             `${it?.master}` === `${st?.subjectMasterName}`
+//           ) {
+//             flag = false;
+//             break;
+//           }
+//         }
+//         if (flag) {
+//           if (st?.subjectTeacherName)
+//             arr.push({
+//               staffId: st?.subjectTeacherName,
+//               master: st?.subjectMasterName,
+//               is_batch: st?.selected_batch_query ? true : false,
+//               student: st?.selected_batch_query?.class_student_query,
+//             });
+//         }
+//       }
+//       cls_student[ct?._id]["student"] = ct?.ApproveStudent;
+//       cls_student[ct?._id]["staff"] = arr;
+//     }
+
+//     // res.status(200).send({
+//     //   message: "student feedback taken by Institute Admin",
+//     //   cls_student: cls_student,
+//     // });
+
+//     // let sended_id = [
+//     //   "66a67ffcde6cdcd86d1acdcb",
+//     //   "66a68012de6cdcd86d1acf13",
+//     //   "66a68022de6cdcd86d1acff4",
+//     //   "66a6827bde6cdcd86d1adb1a",
+//     //   "66a68292de6cdcd86d1adc33",
+//     //   "66a682a4de6cdcd86d1add55",
+//     //   "66a682b2de6cdcd86d1ade46",
+//     //   "66a684e6de6cdcd86d1ae8fa",
+//     //   "66a684f2de6cdcd86d1ae9aa",
+//     //   "66a684fdde6cdcd86d1aea5b",
+//     //   "66a68674de6cdcd86d1af18f",
+//     //   "66a68682de6cdcd86d1af236",
+//     //   "66a6868bde6cdcd86d1af299",
+//     //   "66a68696de6cdcd86d1af312",
+//     //   "66a68697de6cdcd86d1af31e",
+//     //   "66a687e3de6cdcd86d1afcb6",
+//     //   "66a687f6de6cdcd86d1afda3",
+//     //   "66a6880fde6cdcd86d1aff28",
+//     //   "66a6881fde6cdcd86d1b0029",
+//     //   "66a6882ede6cdcd86d1b00fc",
+//     //   "66a6882fde6cdcd86d1b0107",
+//     //   "66a6883dde6cdcd86d1b01a1",
+//     //   "66a6883ede6cdcd86d1b01ac",
+//     //   "66a6883fde6cdcd86d1b01b7",
+//     //   "66a68840de6cdcd86d1b01c2",
+//     //   "66ab3f000a9333e4a5acd790",
+//     //   "66ab3f6155671c796a91ebd6",
+//     // ];
+
+//     for (let obj in cls_student) {
+//       let data = cls_student[obj];
+//       feedback.cls_student.push({
+//         class: obj,
+//         sent: false,
+//         staff: data["staff"],
+//         student: data["student"],
+//       });
+//       await feedback.save();
+
+//       // if (sended_id?.includes(obj)) {
+//       //   console.log(true);
+//       // } else {
+//       for (let st of data["staff"] ?? []) {
+//         const staff = await Staff.findById(st?.staffId);
+//         const master = await SubjectMaster.findById(st?.master);
+//         var staff_feedbaack = await StaffStudentFeedback.findOne({
+//           $and: [
+//             {
+//               staff: { $eq: `${staff?._id}` },
+//             },
+//             {
+//               feedbackId: { $eq: `${feedback?._id}` },
+//             },
+//           ],
+//         });
+//         if (staff_feedbaack) {
+//           staff_feedbaack.subject_master?.push(master?._id);
+//           staff_feedbaack.classes?.push(obj);
+//           await staff_feedbaack.save();
+//         } else {
+//           staff_feedbaack = new StaffStudentFeedback({
+//             institute: id,
+//             feedbackId: feedback?._id,
+//             staff: staff?._id,
+//             subject_master: [master?._id],
+//           });
+//           staff.student_feedback?.push(staff_feedbaack?._id);
+//           feedback.feedback_staff?.push(staff_feedbaack?._id);
+//           staff_feedbaack.classes?.push(obj);
+//           await staff_feedbaack.save();
+//         }
+//         // let all_student = st?.is_batch ? st?.student : data["student"];
+//         let all_student = data["student"];
+//         if (all_student?.length > 0) {
+//           for (let stu of all_student) {
+//             if (stu) {
+//               const student = await Student.findById(stu);
+//               if (student?.user) {
+//                 const user = await User.findById(student?.user);
+//                 const notify = new StudentNotification({});
+//                 notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
+//                   staff?.staffFirstName
+//                 } ${
+//                   staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""
+//                 }${staff?.staffLastName ?? ""} of - ${master?.subjectName}`;
+//                 notify.notifySender = institute?._id;
+//                 notify.notifyReceiever = user?._id;
+//                 notify.notifyType = "Student";
+//                 notify.notifyPublisher = student?._id;
+//                 notify.instituteId = institute?._id;
+//                 user.activity_tab.push(notify?._id);
+//                 notify.notifyByInsPhoto = institute?._id;
+//                 notify.notifyCategory = "Subject Teacher Feedback";
+//                 notify.redirectIndex = 89;
+//                 notify.student_feedback = feedback?._id;
+//                 notify.staffId = staff?._id;
+//                 notify.subjectMasterId = master?._id;
+//                 notify.staffFeedbackId = staff_feedbaack?._id;
+//                 notify.feedbackClassId = obj;
+//                 feedback.feedback_notify?.push(notify?._id);
+//                 feedback.feedback_notify_count += 1;
+//                 if (user?.deviceToken) {
+//                   invokeMemberTabNotification(
+//                     "Student Activity",
+//                     notify,
+//                     "Staff Feedback",
+//                     user._id,
+//                     user.deviceToken,
+//                     "Student",
+//                     notify
+//                   );
+//                 }
+//                 await Promise.all([notify.save(), user.save()]);
+//               }
+//             }
+//           }
+//         }
+//         await Promise.all([
+//           feedback.save(),
+//           // staff_feedbaack.save(),
+//           staff.save(),
+//         ]);
+//       }
+//       // }
+
+//       // if ("66ab3f6155671c796a91ebd6" === obj) {
+//       // } else {
+//       const fd_td = await StudentFeedback.findById(ifid);
+//       let f_index = null;
+//       if (fd_td?.cls_student?.length > 0) {
+//         for (let i = 0; i < fd_td?.cls_student?.length; i++) {
+//           let ct = fd_td?.cls_student[i];
+//           if (`${ct?.class}` === `${obj}`) {
+//             f_index = i;
+//             break;
+//           }
+//         }
+//       }
+//       if (fd_td?.cls_student[f_index]) {
+//         fd_td.cls_student[f_index]["sent"] = true;
+//         await fd_td.save();
+//       }
+//       // }
+//     }
+//     // res.status(200).send({
+//     //   message: "student feedback taken by Institute Admin",
+//     //   feedback: feedback?.cls_student,
+//     // });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// here add batch wise condition
+exports.feedbackTakenByInstituteQueryMod = async (req, res) => {
   try {
     const { id, ifid } = req.params;
     const { feedback_close_at } = req.body;
@@ -300,14 +568,24 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
     res.status(200).send({
       message: "student feedback taken by Institute Admin",
     });
-
-    const department = await Department.find({
-      institute: id,
-    })
-      .populate({
-        path: "departmentSelectBatch",
+    let department = [];
+    if (feedback?.department?.length > 0) {
+      department = await Department.find({
+        _id: { $in: feedback?.department },
       })
-      .select("departmentSelectBatch");
+        .populate({
+          path: "departmentSelectBatch",
+        })
+        .select("departmentSelectBatch");
+    } else {
+      department = await Department.find({
+        institute: id,
+      })
+        .populate({
+          path: "departmentSelectBatch",
+        })
+        .select("departmentSelectBatch");
+    }
 
     const all_batches = [];
 
@@ -316,10 +594,7 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
         all_batches.push(dt?.departmentSelectBatch?._id);
       }
     }
-    // res.status(200).send({
-    //   message: "student feedback taken by Institute Admin",
-    //   feedback,
-    // });
+
     const cls = await Class.find({
       batch: { $in: all_batches },
     })
@@ -327,78 +602,110 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
         path: "subject",
         populate: {
           path: "selected_batch_query",
-          select: "class_student_query",
+          select: "class_student_query batchName",
         },
-        select: "subjectTeacherName subjectMasterName selected_batch_query",
+        select:
+          "subjectTeacherName subjectMasterName optionalStudent selected_batch_query subject_category subjectName",
       })
       .select("subject ApproveStudent");
 
     var cls_student = {};
+
     for (let ct of cls) {
       cls_student[ct?._id] = {
         staff: [],
         student: [],
       };
       let arr = [];
+
+      // for subject wise not master wise
       for (let st of ct?.subject) {
-        let flag = true;
-        for (let it of arr) {
-          if (
-            `${it?.staffId}` === `${st?.subjectTeacherName}` &&
-            `${it?.master}` === `${st?.subjectMasterName}`
-          ) {
-            flag = false;
-            break;
+        if (st?.subjectTeacherName) {
+          let current_subject_name = "";
+          if (st?.selected_batch_query?.batchName) {
+            let dt = "";
+            if (st?.subject_category === "Practical") {
+              dt = "P:";
+            } else {
+              dt = "T:";
+            }
+            dt = `${dt}${st?.selected_batch_query?.batchName ?? ""} `;
+            current_subject_name += dt;
           }
-        }
-        if (flag) {
-          if (st?.subjectTeacherName)
-            arr.push({
-              staffId: st?.subjectTeacherName,
-              master: st?.subjectMasterName,
-              is_batch: st?.selected_batch_query ? true : false,
-              student: st?.selected_batch_query?.class_student_query,
-            });
+          current_subject_name += st?.subjectName ?? "";
+          arr.push({
+            staffId: st?.subjectTeacherName,
+            master: st?.subjectMasterName,
+            subjectName: current_subject_name,
+            is_batch: st?.selected_batch_query
+              ? "Yes"
+              : st?.optionalStudent?.length > 0
+              ? "Yes"
+              : "No",
+            student: st?.selected_batch_query
+              ? st?.selected_batch_query?.class_student_query
+              : st?.optionalStudent?.length > 0
+              ? st?.optionalStudent
+              : [],
+          });
         }
       }
+      // master wise with multiple batch
+      // for (let st of ct?.subject) {
+      //   let flag = true;
+      //   for (let it of arr) {
+      //     if (
+      //       `${it?.staffId}` === `${st?.subjectTeacherName}` &&
+      //       `${it?.master}` === `${st?.subjectMasterName}`
+      //     ) {
+      //       flag = false;
+      //       let ny = [];
+      //       if (st?.selected_batch_query) {
+      //         ny = st?.selected_batch_query?.class_student_query;
+      //       } else {
+      //         if (st?.optionalStudent?.length > 0) {
+      //           ny = st?.optionalStudent;
+      //         }
+      //       }
+      //       let jt = [];
+      //       if (it?.student?.length > 0 && ny?.length > 0) {
+      //         for (let ht of ny) {
+      //           for (let gy of it?.student) {
+      //             if (`${gy}` === `${ht}`) {
+      //             } else {
+      //               jt.push(ht);
+      //             }
+      //           }
+      //         }
+      //         it.student = [...it?.student, ...ny];
+      //       }
+      //     }
+      //   }
+      //   if (flag) {
+      //     if (st?.subjectTeacherName)
+      //       arr.push({
+      //         staffId: st?.subjectTeacherName,
+      //         master: st?.subjectMasterName,
+      //         is_batch: st?.selected_batch_query
+      //           ? "Yes"
+      //           : st?.optionalStudent?.length > 0
+      //           ? "Yes"
+      //           : "No",
+      //         student: st?.selected_batch_query
+      //           ? st?.selected_batch_query?.class_student_query
+      //           : st?.optionalStudent?.length > 0
+      //           ? st?.optionalStudent
+      //           : ct?.ApproveStudent,
+      //       });
+      //   }
+      // }
       cls_student[ct?._id]["student"] = ct?.ApproveStudent;
       cls_student[ct?._id]["staff"] = arr;
     }
-
     // res.status(200).send({
     //   message: "student feedback taken by Institute Admin",
-    //   cls_student: cls_student,
+    //   cls_student,
     // });
-
-    // let sended_id = [
-    //   "66a67ffcde6cdcd86d1acdcb",
-    //   "66a68012de6cdcd86d1acf13",
-    //   "66a68022de6cdcd86d1acff4",
-    //   "66a6827bde6cdcd86d1adb1a",
-    //   "66a68292de6cdcd86d1adc33",
-    //   "66a682a4de6cdcd86d1add55",
-    //   "66a682b2de6cdcd86d1ade46",
-    //   "66a684e6de6cdcd86d1ae8fa",
-    //   "66a684f2de6cdcd86d1ae9aa",
-    //   "66a684fdde6cdcd86d1aea5b",
-    //   "66a68674de6cdcd86d1af18f",
-    //   "66a68682de6cdcd86d1af236",
-    //   "66a6868bde6cdcd86d1af299",
-    //   "66a68696de6cdcd86d1af312",
-    //   "66a68697de6cdcd86d1af31e",
-    //   "66a687e3de6cdcd86d1afcb6",
-    //   "66a687f6de6cdcd86d1afda3",
-    //   "66a6880fde6cdcd86d1aff28",
-    //   "66a6881fde6cdcd86d1b0029",
-    //   "66a6882ede6cdcd86d1b00fc",
-    //   "66a6882fde6cdcd86d1b0107",
-    //   "66a6883dde6cdcd86d1b01a1",
-    //   "66a6883ede6cdcd86d1b01ac",
-    //   "66a6883fde6cdcd86d1b01b7",
-    //   "66a68840de6cdcd86d1b01c2",
-    //   "66ab3f000a9333e4a5acd790",
-    //   "66ab3f6155671c796a91ebd6",
-    // ];
 
     for (let obj in cls_student) {
       let data = cls_student[obj];
@@ -408,96 +715,118 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
         staff: data["staff"],
         student: data["student"],
       });
-      await feedback.save();
-
-      // if (sended_id?.includes(obj)) {
-      //   console.log(true);
-      // } else {
-      for (let st of data["staff"] ?? []) {
-        const staff = await Staff.findById(st?.staffId);
-        const master = await SubjectMaster.findById(st?.master);
-        var staff_feedbaack = await StaffStudentFeedback.findOne({
-          $and: [
-            {
-              staff: { $eq: `${staff?._id}` },
-            },
-            {
-              feedbackId: { $eq: `${feedback?._id}` },
-            },
-          ],
-        });
-        if (staff_feedbaack) {
-          staff_feedbaack.subject_master?.push(master?._id);
-          staff_feedbaack.classes?.push(obj);
-          await staff_feedbaack.save();
-        } else {
-          staff_feedbaack = new StaffStudentFeedback({
-            institute: id,
-            feedbackId: feedback?._id,
-            staff: staff?._id,
-            subject_master: [master?._id],
+      // await feedback.save();
+      if (data && data["staff"]?.length > 0) {
+        for (let st of data["staff"] ?? []) {
+          const staff = await Staff.findById(st?.staffId);
+          // const master = await SubjectMaster.findById(st?.master);
+          var staff_feedbaack = await StaffStudentFeedback.findOne({
+            $and: [
+              {
+                staff: { $eq: `${staff?._id}` },
+              },
+              {
+                feedbackId: { $eq: `${feedback?._id}` },
+              },
+            ],
           });
-          staff.student_feedback?.push(staff_feedbaack?._id);
-          feedback.feedback_staff?.push(staff_feedbaack?._id);
-          staff_feedbaack.classes?.push(obj);
-          await staff_feedbaack.save();
-        }
-        // let all_student = st?.is_batch ? st?.student : data["student"];
-        let all_student = data["student"];
-        if (all_student?.length > 0) {
-          for (let stu of all_student) {
-            if (stu) {
-              const student = await Student.findById(stu);
-              if (student?.user) {
-                const user = await User.findById(student?.user);
-                const notify = new StudentNotification({});
-                notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
-                  staff?.staffFirstName
-                } ${
-                  staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""
-                }${staff?.staffLastName ?? ""} of - ${master?.subjectName}`;
-                notify.notifySender = institute?._id;
-                notify.notifyReceiever = user?._id;
-                notify.notifyType = "Student";
-                notify.notifyPublisher = student?._id;
-                notify.instituteId = institute?._id;
-                user.activity_tab.push(notify?._id);
-                notify.notifyByInsPhoto = institute?._id;
-                notify.notifyCategory = "Subject Teacher Feedback";
-                notify.redirectIndex = 89;
-                notify.student_feedback = feedback?._id;
-                notify.staffId = staff?._id;
-                notify.subjectMasterId = master?._id;
-                notify.staffFeedbackId = staff_feedbaack?._id;
-                notify.feedbackClassId = obj;
-                feedback.feedback_notify?.push(notify?._id);
-                feedback.feedback_notify_count += 1;
-                if (user?.deviceToken) {
-                  invokeMemberTabNotification(
-                    "Student Activity",
-                    notify,
-                    "Staff Feedback",
-                    user._id,
-                    user.deviceToken,
-                    "Student",
-                    notify
-                  );
+          if (staff_feedbaack) {
+            if (staff_feedbaack.subject_master?.length > 0) {
+              let glag_t = true;
+              for (let ty of staff_feedbaack.subject_master) {
+                if (`${ty}` === `${st?.master}`) {
+                  glag_t = false;
+                  break;
                 }
-                await Promise.all([notify.save(), user.save()]);
+              }
+              if (glag_t) {
+                staff_feedbaack.subject_master?.push(st?.master);
+              }
+            }
+            if (staff_feedbaack.classes?.length > 0) {
+              let glag_t = true;
+              for (let ty of staff_feedbaack.classes) {
+                if (`${ty}` === `${obj}`) {
+                  glag_t = false;
+                  break;
+                }
+              }
+              if (glag_t) {
+                staff_feedbaack.classes?.push(obj);
+              }
+            }
+            await staff_feedbaack.save();
+          } else {
+            staff_feedbaack = new StaffStudentFeedback({
+              institute: id,
+              feedbackId: feedback?._id,
+              staff: staff?._id,
+              subject_master: [st?.master],
+            });
+            staff.student_feedback?.push(staff_feedbaack?._id);
+            feedback.feedback_staff?.push(staff_feedbaack?._id);
+            staff_feedbaack.classes?.push(obj);
+            await staff_feedbaack.save();
+          }
+          let all_student =
+            st?.is_batch === "Yes" ? st?.student : data["student"];
+          // let all_student = data["student"];
+          if (all_student?.length > 0) {
+            for (let stu of all_student) {
+              if (stu) {
+                const student = await Student.findById(stu);
+                if (student?.user) {
+                  const user = await User.findById(student?.user);
+                  if (user?._id) {
+                    const notify = new StudentNotification({});
+                    notify.notifyContent = `Give your valuable feedback to your beloved teacher - ${
+                      staff?.staffFirstName
+                    } ${
+                      staff?.staffMiddleName ? `${staff?.staffMiddleName} ` : ""
+                    }${staff?.staffLastName ?? ""} of - ${st?.subjectName}`;
+                    // console.log(notify.notifyContent);
+                    notify.notifySender = institute?._id;
+                    notify.notifyReceiever = user?._id;
+                    notify.notifyType = "Student";
+                    notify.notifyPublisher = student?._id;
+                    notify.instituteId = institute?._id;
+                    user.activity_tab.push(notify?._id);
+                    notify.notifyByInsPhoto = institute?._id;
+                    notify.notifyCategory = "Subject Teacher Feedback";
+                    notify.redirectIndex = 89;
+                    notify.student_feedback = feedback?._id;
+                    notify.staffId = staff?._id;
+                    notify.subjectMasterId = st?.master;
+                    notify.staffFeedbackId = staff_feedbaack?._id;
+                    notify.feedbackClassId = obj;
+                    feedback.feedback_notify?.push(notify?._id);
+                    feedback.feedback_notify_count += 1;
+                    await Promise.all([notify.save(), user.save()]);
+
+                    if (user?.deviceToken) {
+                      invokeMemberTabNotification(
+                        "Student Activity",
+                        notify,
+                        "Staff Feedback",
+                        user._id,
+                        user.deviceToken,
+                        "Student",
+                        notify
+                      );
+                    }
+                  }
+                }
               }
             }
           }
+          await Promise.all([
+            feedback.save(),
+            // staff_feedbaack.save(),
+            staff.save(),
+          ]);
         }
-        await Promise.all([
-          feedback.save(),
-          // staff_feedbaack.save(),
-          staff.save(),
-        ]);
       }
-      // }
 
-      // if ("66ab3f6155671c796a91ebd6" === obj) {
-      // } else {
       const fd_td = await StudentFeedback.findById(ifid);
       let f_index = null;
       if (fd_td?.cls_student?.length > 0) {
@@ -513,17 +842,11 @@ exports.feedbackTakenByInstituteQuery = async (req, res) => {
         fd_td.cls_student[f_index]["sent"] = true;
         await fd_td.save();
       }
-      // }
     }
-    // res.status(200).send({
-    //   message: "student feedback taken by Institute Admin",
-    //   feedback: feedback?.cls_student,
-    // });
   } catch (e) {
     console.log(e);
   }
 };
-
 exports.giveStudentFeedbackQuery = async (req, res) => {
   try {
     const { sid } = req.params;

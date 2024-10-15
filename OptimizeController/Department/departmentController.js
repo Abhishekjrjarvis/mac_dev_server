@@ -18,6 +18,8 @@ const User = require("../../models/User");
 
 const Subject = require("../../models/Subject");
 const Batch = require("../../models/Batch");
+const SubjectMaster = require("../../models/SubjectMaster");
+const Staff = require("../../models/Staff");
 
 exports.renderStudentFormQuery = async (req, res) => {
   try {
@@ -2426,6 +2428,61 @@ exports.custom_batch_data_correction = async (req, res) => {
     });
 
     // const all_batch = await Batch.find({ _id: { $in: ?.batches } })
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.custom_department_delete_subject_query = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const department = await Department.findById(did);
+
+    const cls = await Class.find({
+      batch: {
+        $in: department?.batches ?? [],
+      },
+    });
+
+    if (cls?.length > 0) {
+      for (let ct of cls) {
+        const classes = await Class.findById(ct?._id);
+        if (ct?.subject?.length > 0) {
+          for (let st of ct?.subject) {
+            const subject = await Subject.findById(st);
+            if (subject?.subjectMasterName) {
+              const subjectMaster = await SubjectMaster.findById(
+                subject.subjectMasterName
+              );
+              subjectMaster?.subjects.pull(subject._id);
+              subjectMaster.subjectCount -= 1;
+              // await subjectMaster.save();
+            }
+            if (subject?.subjectTeacherName) {
+              const subjectTeacherName = await Staff.findById(
+                subject?.subjectTeacherName
+              );
+              subjectTeacherName.staffSubject.pull(subject._id);
+              subjectTeacherName.staffDesignationCount -= 1;
+              // await subjectTeacherName.save();
+            }
+            classes?.subject.pull(subject._id);
+            classes.subjectCount -= 1;
+            // await Subject.findByIdAndDelete(st);
+          }
+        }
+        // await classes.save();
+      }
+    }
+    res.status(200).send({
+      message: "Outward published on feed",
+    });
   } catch (e) {
     console.log(e);
   }

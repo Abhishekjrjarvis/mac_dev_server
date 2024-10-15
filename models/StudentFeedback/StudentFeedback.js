@@ -113,6 +113,12 @@ const studentFeedbackSchema = new mongoose.Schema({
       student: [],
     },
   ],
+  department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
 });
 
 module.exports = mongoose.model("StudentFeedback", studentFeedbackSchema);

@@ -550,6 +550,46 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
           });
         }
       } else {
+        if (normal_classes?.ApproveStudent?.length > 0) {
+          for (let stu of normal_classes?.ApproveStudent) {
+            let subjectWise = {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+              todayStatus: "",
+            };
+            for (let att of subjectAttend?.attendance ?? []) {
+              for (let pre of att?.presentStudent) {
+                if (String(stu._id) === String(pre.student))
+                  subjectWise.presentCount += 1;
+              }
+              subjectWise.totalCount += 1;
+            }
+            subjectWise.totalPercentage = (
+              (subjectWise.presentCount * 100) /
+              subjectWise.totalCount
+            ).toFixed(2);
+            for (let att of subject?.attendance ?? []) {
+              for (let pre of att?.presentStudent) {
+                if (String(stu._id) === String(pre.student))
+                  subjectWise.todayStatus = "P";
+              }
+              for (let pre of att?.absentStudent) {
+                if (String(stu._id) === String(pre.student))
+                  subjectWise.todayStatus = "A";
+              }
+            }
+
+            all_students.push({
+              ...stu,
+              todayStatus: subjectWise.todayStatus,
+              totalPercentage: subjectWise.totalPercentage,
+            });
+          }
+        }
+      }
+    } else {
+      if (normal_classes?.ApproveStudent?.length > 0) {
         for (let stu of normal_classes?.ApproveStudent) {
           let subjectWise = {
             presentCount: 0,
@@ -585,42 +625,6 @@ exports.getAllStudentSubjectQuery = async (req, res) => {
             totalPercentage: subjectWise.totalPercentage,
           });
         }
-      }
-    } else {
-      for (let stu of normal_classes?.ApproveStudent) {
-        let subjectWise = {
-          presentCount: 0,
-          totalCount: 0,
-          totalPercentage: 0,
-          todayStatus: "",
-        };
-        for (let att of subjectAttend?.attendance ?? []) {
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student))
-              subjectWise.presentCount += 1;
-          }
-          subjectWise.totalCount += 1;
-        }
-        subjectWise.totalPercentage = (
-          (subjectWise.presentCount * 100) /
-          subjectWise.totalCount
-        ).toFixed(2);
-        for (let att of subject?.attendance ?? []) {
-          for (let pre of att?.presentStudent) {
-            if (String(stu._id) === String(pre.student))
-              subjectWise.todayStatus = "P";
-          }
-          for (let pre of att?.absentStudent) {
-            if (String(stu._id) === String(pre.student))
-              subjectWise.todayStatus = "A";
-          }
-        }
-
-        all_students.push({
-          ...stu,
-          todayStatus: subjectWise.todayStatus,
-          totalPercentage: subjectWise.totalPercentage,
-        });
       }
     }
 

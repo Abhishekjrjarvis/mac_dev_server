@@ -28,7 +28,7 @@ exports.getSubjectTabManageQuery = async (req, res) => {
         ).select("subject_tab_manage");
         res.status(200).send({
           message: "Subject Tab Manage toggle",
-          tab_manage: inst.subject_tab_manage,
+          tab_manage: inst?.subject_tab_manage,
         });
       } else {
         const inst = await InstituteAdmin.findById(
@@ -36,7 +36,7 @@ exports.getSubjectTabManageQuery = async (req, res) => {
         ).select("subject_tab_manage");
         res.status(200).send({
           message: "Subject Tab Manage toggle",
-          tab_manage: inst.subject_tab_manage,
+          tab_manage: inst?.subject_tab_manage,
         });
       }
     } else {
@@ -45,7 +45,7 @@ exports.getSubjectTabManageQuery = async (req, res) => {
       );
       res.status(200).send({
         message: "Subject Tab Manage toggle",
-        tab_manage: inst.subject_tab_manage,
+        tab_manage: inst?.subject_tab_manage,
       });
     }
   } catch (e) {

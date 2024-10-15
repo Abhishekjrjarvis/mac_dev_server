@@ -69,4 +69,9 @@ router.patch(
   "/:did/all/batch/data/correction/query",
   catchAsync(Depart.custom_batch_data_correction)
 );
+
+router.patch(
+  "/custom/:did/subject/delete/query",
+  catchAsync(Depart.custom_department_delete_subject_query)
+);
 module.exports = router;

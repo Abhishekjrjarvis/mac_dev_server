@@ -56,7 +56,7 @@ router
 
 router.route("/taken/:ifid/by/institute/:id/query").post(
   // isLoggedIn,
-  catchAsync(studentFeedbackController.feedbackTakenByInstituteQuery)
+  catchAsync(studentFeedbackController.feedbackTakenByInstituteQueryMod)
 );
 
 router.route("/analytic/process/:ifid/query").post(

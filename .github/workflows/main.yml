@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image and Depoly
 
 on:
   push:
@@ -47,3 +47,26 @@ jobs:
       # Step 7: Push Docker image to Docker Hub
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  
+
+    steps:
+      # Step 1: Configure AWS CLI
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'  # Replace with your desired AWS region
+
+      # Step 2: Deploy to Amazon ECS
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: qviple-api-taskdef  
+          service: qviple-service-prod              
+          cluster: Prod-qviple
+          image: ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest  
+          wait-for-service-stability: false

@@ -137,7 +137,9 @@ function getFileStream(fileKey) {
   return s3
     .getObject(downloadParams)
     .createReadStream()
-    .on("error", (err) => {});
+    .on("error", (err) => {
+      console.log("ON Error", err);
+    });
 }
 
 exports.getFileStream = getFileStream;

@@ -70,7 +70,7 @@ jobs:
       # Step 3: Update ECS Task definition using the Docker image built in the previous job
       - name: Update ECS Task definition
         id: task-def
-        uses: pooriaghaedi/amazon-ecs-deploy-task-definition@master
+        uses: pooriaghaedi/amazon-ecs-deploy-task-definition@main
         env:
           ECS_TASK_DEFINITION: "qviple-api-taskdef"  
           REGION: "ap-south-1"  

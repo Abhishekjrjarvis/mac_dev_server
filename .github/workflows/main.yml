@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Specify the Node.js version you're using
+          node-version: '18'
 
       # Step 3: Create 'Secret' folder and JSON file, and write secret content to the file
       - name: Create Secret folder and JSON file
@@ -73,7 +73,9 @@ jobs:
         run: |
           sudo apt-get install jq -y
           new_image="${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"
-          jq --arg newImage "$new_image" '.taskDefinition.containerDefinitions[0].image = $newImage' taskdef.json > new-taskdef.json
+          # Filter out metadata and update the container image
+          jq '.taskDefinition | {family, taskRoleArn, executionRoleArn, networkMode, containerDefinitions, volumes, placementConstraints, requiresCompatibilities, cpu, memory}' taskdef.json | \
+          jq --arg newImage "$new_image" '.containerDefinitions[0].image = $newImage' > new-taskdef.json
 
       # Step 4: Register the new task definition revision
       - name: Register new task definition revision
@@ -87,4 +89,4 @@ jobs:
           task-definition: qviple-api-taskdef  # Use the existing task definition name
           service: qviple-service-prod         # Your service name in ECS
           cluster: Prod-qviple                 # Your ECS cluster name
-          wait-for-service-stability: false     # Wait for the service to stabilize (Recommended)
+          wait-for-service-stability: false

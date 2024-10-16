@@ -1,4 +1,4 @@
-name: Build and Push Docker Image and Depoly
+name: Build and Push Docker Image and Deploy
 
 on:
   push:
@@ -17,17 +17,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment (optional, for building Node.js project)
+      # Step 2: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Specify the Node.js version you're using
+          node-version: '18'
 
-      # Step 3: Create 'Secret' folder and JSON file, and write secret content to the file
+      # Step 3: Create 'Secret' folder and JSON file
       - name: Create Secret folder and JSON file
         run: |
           mkdir Secret
           echo "${{ secrets.FIREBASE_JSON }}" > Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json
+          # Debugging: Verify JSON content
+          cat Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json
 
       # Step 4: Install dependencies and build the Node.js project
       - name: Install dependencies
@@ -47,7 +49,6 @@ jobs:
       # Step 7: Push Docker image to Docker Hub
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest
-
 
   deploy:
     runs-on: ubuntu-latest
@@ -69,10 +70,10 @@ jobs:
       # Step 3: Update ECS Task definition using the Docker image built in the previous job
       - name: Update ECS Task definition
         id: task-def
-        uses: pooriaghaedi/amazon-ecs-deploy-task-definition@main
+        uses: pooriaghaedi/amazon-ecs-deploy-task-definition@master
         env:
-          ECS_TASK_DEFINITION: "qviple-api-taskdef"  # Update this with your task definition name
-          REGION: "ap-south-1"  # Use the region from secrets
-          IMAGE_URI: "${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"  # Use the built Docker image
-          ECS_CLUSTER: "Prod-qviple"  # Update with your ECS cluster name
-          ECS_SERVICE: "qviple-service-prod"  # Update with your ECS service name
+          ECS_TASK_DEFINITION: "qviple-api-taskdef"  
+          REGION: "ap-south-1"  
+          IMAGE_URI: "${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"  
+          ECS_CLUSTER: "Prod-qviple"  
+          ECS_SERVICE: "qviple-service-prod"

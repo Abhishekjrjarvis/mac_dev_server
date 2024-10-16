@@ -138,7 +138,7 @@ function getFileStream(fileKey) {
     .getObject(downloadParams)
     .createReadStream()
     .on("error", (err) => {
-      console.log("ON Error", err);
+      // console.log("ON Error", err);
     });
 }
 

@@ -53,7 +53,7 @@ jobs:
     needs: build
 
     steps:
-      # Step 1: Configure AWS credentials
+      # Step 1: Configure AWS CLI credentials
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -61,11 +61,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'ap-south-1'
 
-      # Step 2: Deploy to ECS using the AWS ECS GitHub Action
-      - name: Deploy to Amazon ECS
+      # Step 2: Fetch the current task definition
+      - name: Fetch current task definition
+        id: task-def
+        run: |
+          aws ecs describe-task-definition --task-definition qviple-api-taskdef > taskdef.json
+
+      # Step 3: Update the task definition with the new image
+      - name: Update task definition with new image
+        run: |
+          new_image="${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"
+          jq --arg newImage "$new_image" '.taskDefinition.containerDefinitions[0].image = $newImage' taskdef.json > new-taskdef.json
+
+      # Step 4: Register the new task definition
+      - name: Register new task definition revision
+        id: register-task-def
+        run: |
+          aws ecs register-task-definition --cli-input-json file://new-taskdef.json
+
+      # Step 5: Deploy the new task definition to ECS
+      - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          service: qviple-service-prod      
-          cluster: Prod-qviple              
-          image: ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest
+          cluster: Prod-qviple
+          service: qviple-service-prod
+          task-definition: qviple-api-taskdef
           wait-for-service-stability: false

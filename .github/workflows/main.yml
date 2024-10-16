@@ -1,4 +1,4 @@
-name: Build and Push Docker Image and Depoly
+name: Build and Push Docker Image and Deploy
 
 on:
   push:
@@ -59,14 +59,32 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'us-east-1'  # Replace with your desired AWS region
+          aws-region: 'ap-south-1'  # Replace with your desired AWS region
 
-      # Step 2: Deploy to Amazon ECS
+      # Step 2: Fetch the existing task definition from AWS
+      - name: Fetch existing task definition
+        id: task-def
+        run: |
+          aws ecs describe-task-definition --task-definition qviple-api-taskdef > taskdef.json
+
+      # Step 3: Install jq (if needed) and update the task definition to use the new image
+      - name: Install jq and Update task definition
+        id: updated-task-def
+        run: |
+          sudo apt-get install jq -y
+          new_image="${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"
+          jq --arg newImage "$new_image" '.taskDefinition.containerDefinitions[0].image = $newImage' taskdef.json > new-taskdef.json
+
+      # Step 4: Register the new task definition revision
+      - name: Register new task definition revision
+        run: |
+          aws ecs register-task-definition --cli-input-json file://new-taskdef.json
+
+      # Step 5: Deploy to Amazon ECS
       - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: qviple-api-taskdef  
-          service: qviple-service-prod              
-          cluster: Prod-qviple
-          image: ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest  
-          wait-for-service-stability: false
+          task-definition: qviple-api-taskdef  # Use the existing task definition name
+          service: qviple-service-prod         # Your service name in ECS
+          cluster: Prod-qviple                 # Your ECS cluster name
+          wait-for-service-stability: false     # Wait for the service to stabilize (Recommended)

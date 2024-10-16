@@ -45,10 +45,10 @@ const {
 
 exports.getImage = async (req, res) => {
   try {
-    console.log("GET IMAGE", req.params.key);
+    // console.log("GET IMAGE", req.params.key);
     const key = req.params.key;
     const readStream = getFileStream(key);
-    console.log("GET IMAGE READ", readStream);
+    // console.log("GET IMAGE READ", readStream);
 
     readStream.pipe(res);
   } catch (err) {

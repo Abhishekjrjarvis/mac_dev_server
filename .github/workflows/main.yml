@@ -50,40 +50,40 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  
 
     steps:
-      # Step 1: Configure AWS CLI credentials
+      # Step 1: Configure AWS CLI
       - name: Configure AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: 'ap-south-1'
+          aws-region: 'ap-south-1'  # Replace with your desired AWS region
 
-      # Step 2: Fetch the current task definition
-      - name: Fetch current task definition
+      # Step 2: Fetch the existing task definition from AWS
+      - name: Fetch existing task definition
         id: task-def
         run: |
           aws ecs describe-task-definition --task-definition qviple-api-taskdef > taskdef.json
 
-      # Step 3: Update the task definition with the new image
-      - name: Update task definition with new image
+      # Step 3: Update the task definition to use the new image
+      - name: Update task definition
+        id: updated-task-def
         run: |
           new_image="${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"
-          jq --arg newImage "$new_image" '.taskDefinition.containerDefinitions[0].image = $newImage' taskdef.json > new-taskdef.json
+          jq --arg newImage "$new_image" '.taskDefinition.containerDefinitions[0].image = $newImage | del(.taskDefinition.taskDefinitionArn) | del(.taskDefinition.revision) | del(.taskDefinition.status) | del(.taskDefinition.requiresAttributes) | del(.taskDefinition.compatibilities)' taskdef.json > new-taskdef.json
 
-      # Step 4: Register the new task definition
+      # Step 4: Register the new task definition revision
       - name: Register new task definition revision
-        id: register-task-def
         run: |
           aws ecs register-task-definition --cli-input-json file://new-taskdef.json
 
-      # Step 5: Deploy the new task definition to ECS
-      - name: Deploy to ECS
+      # Step 5: Deploy to Amazon ECS
+      - name: Deploy to Amazon ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          cluster: Prod-qviple
-          service: qviple-service-prod
-          task-definition: qviple-api-taskdef
+          task-definition: qviple-api-taskdef  
+          service: qviple-service-prod       
+          cluster: Prod-qviple                
           wait-for-service-stability: false

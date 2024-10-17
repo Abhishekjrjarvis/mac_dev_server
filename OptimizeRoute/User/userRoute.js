@@ -366,4 +366,7 @@ router.get(
 
 router.get("/:id/chat/access/query", catchAsync(User.getChatDashDataQuery));
 
+router.get("/:id/is/mentor/query", catchAsync(User.is_mentor_query));
+
+
 module.exports = router;

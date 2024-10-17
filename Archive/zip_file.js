@@ -160,7 +160,7 @@ exports.download_zip_file = async (req, res) => {
     // console.log(uploadResult);
     if (uploadResult?.Key) {
       ins.export_collection.push({
-        excel_file: uploadResult?.key,
+        excel_file: uploadResult?.Key,
         excel_file_name: zipFileName,
       });
       ins.export_collection_count += 1;

@@ -477,9 +477,9 @@ exports.holiday_with_monthly_wise_query = async (req, res) => {
           if (dt?.includes(`/${month}/${year}`)) {
             holiday.push({
               dates: dt,
-              reason:
-                leave_conf.holiday_config.mark_sunday?.status ??
-                leave_conf.holiday_config.mark_saturday?.status,
+              reason: leave_conf.holiday_config.mark_sunday?.status
+                ? leave_conf.holiday_config.mark_sunday?.status
+                : leave_conf.holiday_config.mark_saturday?.status,
             });
           }
 
@@ -540,8 +540,8 @@ exports.office_time_institute_query = async (req, res) => {
 
     if (dept?.length > 0) {
       for (let dt of dept) {
-        dt.office_start_hr = req.body?.office_start_hr;
-        dt.office_end_hr = req.body?.office_end_hr;
+        // dt.office_start_hr = req.body?.office_start_hr;
+        // dt.office_end_hr = req.body?.office_end_hr;
         dt.late_mark = req.body?.late_mark;
         await dt.save();
       }
@@ -560,7 +560,7 @@ exports.office_time_department_query = async (req, res) => {
       });
     }
 
-    await Department.findByIdAndUpdate(id, req.body);
+    await Department.findByIdAndUpdate(did, req.body);
     res.status(200).send({
       message: "Department related offcie hour and other things is change",
     });

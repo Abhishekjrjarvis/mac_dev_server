@@ -34,7 +34,6 @@ jobs:
       - name: Build Docker image
         run: |
           docker build --build-arg FIREBASE_JSON="${{ secrets.FIREBASE_JSON }}" -t ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest .
-
       # Step 5: Push Docker image to Docker Hub
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest

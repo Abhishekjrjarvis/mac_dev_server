@@ -18,7 +18,7 @@ const combinedSummaryDetailBankDaybook = async (
 ) => {
   const doc = new PDFDocument({
     font: "Times-Roman",
-    size: "A4",
+    size: "A1",
     margins: { top: 20, bottom: 20, left: 20, right: 20 },
   });
   const result = await combinedSummaryDetailBankDaybookData(
@@ -30,7 +30,6 @@ const combinedSummaryDetailBankDaybook = async (
     staff
   );
 
-  // const ins_data = await instituteReportData(instituteId);
   const instituteData = result?.ft?.ins_info;
   const daybook = result?.ft?.combines;
   const account_other = result?.ft;
@@ -118,402 +117,175 @@ const combinedSummaryDetailBankDaybook = async (
     doc.moveDown(1);
   }
 
-  if (payment_type === "BOTH" || payment_type === "Total") {
-    let total = {
-      sr_number: "",
-      head_name: "Total",
-      head_amount: 0,
-      cash_head_amount: 0,
-      pg_head_amount: 0,
-      bank_head_amount: 0,
-      receipt_no: "",
-    };
+  let colunm_list = [];
 
-    let daybook_print_type = {
-      admission: daybook?.[0]?.date_wise?.length,
-      hostel: daybook?.[0]?.date_wise?.length + daybook?.[1]?.date_wise?.length,
-      miscellaneous:
-        daybook?.[0]?.date_wise?.length +
-        daybook?.[1]?.date_wise?.length +
-        daybook?.[2]?.date_wise?.length,
-    };
-
-    const modify_list = [];
-    let cti = 1;
-    for (let i = 0; i < daybook?.length; i++) {
-      let dbt = daybook[i];
-      for (let j = 0; j < dbt?.date_wise?.length; j++) {
-        let dfg = dbt?.date_wise[j];
-        modify_list.push({
-          sr_number: cti,
-          head_name: dfg?.indian_format,
-          head_amount: dfg?.head_amount,
-          cash_head_amount: dfg?.cash_head_amount,
-          pg_head_amount: dfg?.pg_head_amount,
-          bank_head_amount: dfg?.bank_head_amount,
-          receipt_no: dbt?.range ?? "",
-        });
-        total.head_amount += dfg?.head_amount;
-        total.cash_head_amount += dfg?.cash_head_amount;
-        total.bank_head_amount += dfg?.bank_head_amount;
-        total.pg_head_amount += dfg?.pg_head_amount;
-        ++cti;
+  let modify_list = [];
+  if (daybook?.length > 0) {
+    // let ct = 1;
+    for (let dt of daybook) {
+      modify_list.push({
+        // sr_number: ct,
+        ...dt,
+      });
+      // ++ct;
+      for (let jh in dt) {
+        if (["ReceiptNumber", "Name", "BankTxnValue"]?.includes(jh)) {
+        } else {
+          if (colunm_list?.includes(jh)) {
+          } else {
+            colunm_list.push(jh);
+          }
+        }
       }
     }
-
-    modify_list.push(total);
-    const table = {
-      headers: [
-        {
-          label: "SN",
-          property: "sr_number",
-          width: 40,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          align: "center",
-          padding: [10, 10, 10, 10],
-        },
-        {
-          label: "Date",
-          property: "head_name",
-          width: 140,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-        },
-        {
-          label: "Cash",
-          property: "cash_head_amount",
-          width: 70,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "PG",
-          property: "pg_head_amount",
-          width: 70,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Bank",
-          property: "bank_head_amount",
-          width: 70,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Total",
-          property: "head_amount",
-          width: 70,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Receipt No",
-          property: "receipt_no",
-          width: 100,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          align: "center",
-        },
-      ],
-      datas: modify_list,
-    };
-
-    // Draw the table on the current page
-    doc.table(table, {
-      prepareHeader: () => doc.font("Times-Bold").fontSize(10),
-      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-        if (row.head_name === "Total") {
-          doc.font("Times-Bold").fontSize(10);
-        } else {
-          doc.font("Times-Roman").fontSize(10);
-        }
-        if (indexRow < daybook_print_type.admission) {
-          doc.addBackground(rectCell, "#a1a1a1", 0.1);
-          // doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else if (
-          indexRow >= daybook_print_type.admission &&
-          indexRow < daybook_print_type.hostel
-        ) {
-          doc.addBackground(rectCell, "#21a086", 0.2);
-        } else if (
-          indexRow >= daybook_print_type.hostel &&
-          indexRow < daybook_print_type.miscellaneous
-        ) {
-          doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else {
-        }
-      },
-    });
-  } else if (payment_type === "CASH_BANK" || payment_type === "Cash / Bank") {
-    let total = {
-      sr_number: "",
-      head_name: "Total",
-      head_amount: 0,
-      cash_head_amount: 0,
-      bank_head_amount: 0,
-      receipt_no: "",
-    };
-
-    let daybook_print_type = {
-      admission: daybook?.[0]?.date_wise?.length,
-      hostel: daybook?.[0]?.date_wise?.length + daybook?.[1]?.date_wise?.length,
-      miscellaneous:
-        daybook?.[0]?.date_wise?.length +
-        daybook?.[1]?.date_wise?.length +
-        daybook?.[2]?.date_wise?.length,
-    };
-    const modify_list = [];
-
-    let cti = 1;
-    for (let i = 0; i < daybook?.length; i++) {
-      let dbt = daybook[i];
-      for (let j = 0; j < dbt?.date_wise?.length; j++) {
-        let dfg = dbt?.date_wise[j];
-        modify_list.push({
-          sr_number: i + 1,
-          head_name: dfg?.indian_format,
-          head_amount: dfg?.head_amount,
-          cash_head_amount: dfg?.cash_head_amount,
-          bank_head_amount: dfg?.bank_head_amount,
-          receipt_no: dbt?.range ?? "",
-        });
-        total.head_amount += dfg?.head_amount;
-        total.cash_head_amount += dfg?.cash_head_amount;
-        total.bank_head_amount += dfg?.bank_head_amount;
-        ++cti;
-      }
-    }
-
-    modify_list.push(total);
-    const table = {
-      headers: [
-        {
-          label: "SN",
-          property: "sr_number",
-          width: 40,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          align: "center",
-          padding: [10, 10, 10, 10],
-        },
-        {
-          label: "Date",
-          property: "head_name",
-          width: 180,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-        },
-        {
-          label: "Cash",
-          property: "cash_head_amount",
-          width: 80,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Bank",
-          property: "bank_head_amount",
-          width: 80,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Total",
-          property: "head_amount",
-          width: 80,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-          align: "right",
-        },
-        {
-          label: "Receipt No",
-          property: "receipt_no",
-          width: 100,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          align: "center",
-        },
-      ],
-      datas: modify_list,
-    };
-
-    // Draw the table on the current page
-    doc.table(table, {
-      prepareHeader: () => doc.font("Times-Bold").fontSize(10),
-      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-        if (row.head_name === "Total") {
-          doc.font("Times-Bold").fontSize(10);
-        } else {
-          doc.font("Times-Roman").fontSize(10);
-        }
-
-        if (indexRow < daybook_print_type.admission) {
-          doc.addBackground(rectCell, "#a1a1a1", 0.1);
-          // doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else if (
-          indexRow >= daybook_print_type.admission &&
-          indexRow < daybook_print_type.hostel
-        ) {
-          doc.addBackground(rectCell, "#21a086", 0.2);
-        } else if (
-          indexRow >= daybook_print_type.hostel &&
-          indexRow < daybook_print_type.miscellaneous
-        ) {
-          doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else {
-        }
-      },
-    });
-  } else {
-    let total = {
-      head_name: "Total",
-      head_amount: 0,
-    };
-
-    let daybook_print_type = {
-      admission: daybook?.[0]?.date_wise?.length,
-      hostel: daybook?.[0]?.date_wise?.length + daybook?.[1]?.date_wise?.length,
-      miscellaneous:
-        daybook?.[0]?.date_wise?.length +
-        daybook?.[1]?.date_wise?.length +
-        daybook?.[2]?.date_wise?.length,
-    };
-    const modify_list = [];
-
-    let cti = 1;
-    for (let i = 0; i < daybook?.length; i++) {
-      let dbt = daybook[i];
-      for (let j = 0; j < dbt?.date_wise?.length; j++) {
-        let dfg = dbt?.date_wise[j];
-        modify_list.push({
-          head_name: dfg?.indian_format,
-          head_amount: dfg?.head_amount,
-        });
-        total.head_amount += dfg?.head_amount;
-        ++cti;
-      }
-    }
-
-    const table = {
-      headers: [
-        {
-          label: "Date",
-          property: "head_name",
-          width: 405,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          padding: [10, 10, 10, 10],
-        },
-        {
-          label: "Amount",
-          property: "head_amount",
-          width: 150,
-          render: null,
-          headerColor: "#b4b4b4",
-          headerOpacity: 0.5,
-          align: "center",
-        },
-      ],
-      datas: [...modify_list, total, total],
-      // datas: [...paymentReceiptInfo?.feeheadList, total],
-    };
-
-    // Draw the table on the current page
-    doc.table(table, {
-      prepareHeader: () => doc.font("Times-Bold").fontSize(10),
-      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-        doc.font("Times-Roman").fontSize(10);
-
-        if (indexRow < daybook_print_type.admission) {
-          doc.addBackground(rectCell, "#a1a1a1", 0.1);
-          // doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else if (
-          indexRow >= daybook_print_type.admission &&
-          indexRow < daybook_print_type.hostel
-        ) {
-          doc.addBackground(rectCell, "#21a086", 0.2);
-        } else if (
-          indexRow >= daybook_print_type.hostel &&
-          indexRow < daybook_print_type.miscellaneous
-        ) {
-          doc.addBackground(rectCell, "#4a1e85", 0.1);
-        } else {
-        }
-      },
-    });
   }
 
+  // let tb_list = [];
+  let table = {
+    headers: [
+      {
+        label: "Receipt No",
+        property: "ReceiptNumber",
+        render: null,
+        headerColor: "#b4b4b4",
+        headerOpacity: 0.5,
+        padding: [2, 2],
+        align: "center",
+        valign: "center",
+        width: 120,
+      },
+      {
+        label: "Name",
+        property: "Name",
+        render: null,
+        headerColor: "#b4b4b4",
+        headerOpacity: 0.5,
+        padding: [2, 2],
+        width: 150,
+        align: "center",
+        valign: "center",
+      },
+      {
+        label: "Amount",
+        property: "BankTxnValue",
+        render: null,
+        headerColor: "#b4b4b4",
+        headerOpacity: 0.5,
+        padding: [2, 2],
+        align: "center",
+        valign: "center",
+        width: 50,
+      },
+    ],
+    datas: modify_list,
+  };
+  if (colunm_list?.length > 0) {
+    for (let i = 0; i < colunm_list?.length; i++) {
+      let ft = colunm_list[i];
+      table.headers.push({
+        label: ft,
+        property: ft,
+        render: null,
+        headerColor: "#b4b4b4",
+        headerOpacity: 0.5,
+        align: "center",
+        valign: "center",
+        padding: [2, 2],
+        width: 40,
+      });
+    }
+
+    // let range = 5;
+    // let range_itr = Math.ceil(colunm_list?.length / range);
+
+    // for (let j = 0; j < range_itr; j++) {
+    //   let table = {
+    //     headers: [
+    //       {
+    //         label: "SN",
+    //         property: "sr_number",
+    //         render: null,
+    //         headerColor: "#b4b4b4",
+    //         headerOpacity: 0.5,
+    //         align: "center",
+    //         padding: [2, 2],
+    //       },
+    //       {
+    //         label: "Name",
+    //         property: "Name",
+    //         render: null,
+    //         headerColor: "#b4b4b4",
+    //         headerOpacity: 0.5,
+    //         padding: [2, 2],
+    //       },
+    //       {
+    //         label: "Receipt No",
+    //         property: "ReceiptNumber",
+    //         render: null,
+    //         headerColor: "#b4b4b4",
+    //         headerOpacity: 0.5,
+    //         padding: [2, 2],
+    //         align: "right",
+    //       },
+    //       {
+    //         label: "Amount",
+    //         property: "BankTxnValue",
+    //         render: null,
+    //         headerColor: "#b4b4b4",
+    //         headerOpacity: 0.5,
+    //         padding: [2, 2],
+    //         align: "right",
+    //       },
+    //     ],
+    //     datas: modify_list,
+    //   };
+    //   for (let i = j * 2; i < j * 2 + range; i++) {
+    //     let ft = colunm_list[i];
+    //     table.headers.push({
+    //       label: ft,
+    //       property: ft,
+    //       render: null,
+    //       headerColor: "#b4b4b4",
+    //       headerOpacity: 0.5,
+    //       align: "center",
+    //       padding: [2, 2],
+    //     });
+    //   }
+    //   tb_list.push(table);
+    // }
+  }
+
+  // Draw the table on the current page
+  doc.table(table, {
+    prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+    prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+      if (row.head_name === "Total") {
+        doc.font("Times-Bold").fontSize(10);
+      } else {
+        doc.font("Times-Roman").fontSize(8);
+      }
+      doc.addBackground(rectCell, "#a1a1a1", 0.1);
+    },
+  });
+
+  // if (tb_list?.length > 0) {
+  //   for (let table of tb_list) {
+  //     // Draw the table on the current page
+  //     doc.table(table, {
+  //       prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+  //       prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+  //         if (row.head_name === "Total") {
+  //           doc.font("Times-Bold").fontSize(10);
+  //         } else {
+  //           doc.font("Times-Roman").fontSize(10);
+  //         }
+  //         doc.addBackground(rectCell, "#a1a1a1", 0.1);
+  //       },
+  //     });
+  //   }
+  // }
+
   doc.moveDown(7);
-
-  doc.strokeColor("#a1a1a1", 0.1).lineWidth(8);
-  doc.moveTo(20, doc.y).lineTo(60, doc.y).stroke();
-  doc.moveUp(0.4);
-
-  doc
-    .fontSize(11)
-    .font("Times-Roman")
-    .fillColor("#121212")
-    .text("Admission Fee Heads", {
-      indent: 50,
-    });
-  doc.moveDown(1);
-
-  doc.strokeColor("#21a086", 0.2).lineWidth(8);
-  doc.moveTo(20, doc.y).lineTo(60, doc.y).stroke();
-  doc.moveUp(0.4);
-
-  doc
-    .fontSize(11)
-    .font("Times-Roman")
-    .fillColor("#121212")
-    .text("Hostel Fee Heads", {
-      indent: 50,
-    });
-  doc.moveDown(1);
-
-  doc.strokeColor("#4a1e85", 0.1).lineWidth(8);
-  doc.moveTo(20, doc.y).lineTo(60, doc.y).stroke();
-  doc.moveUp(0.4);
-
-  doc
-    .fontSize(11)
-    .font("Times-Roman")
-    .fillColor("#121212")
-    .text("Miscellaneous Fee Heads", {
-      indent: 50,
-    });
-  doc.moveDown(1);
 
   doc.end();
 

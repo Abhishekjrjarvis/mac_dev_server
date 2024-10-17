@@ -148,4 +148,9 @@ router.get(
   "/staff/institute/:id/list/query",
   catchAsync(LMS.replacement_staff_list_query)
 );
+
+router.get(
+  "/office/:id/data/query",
+  catchAsync(LMS.office_hour_institute_department_data_query)
+);
 module.exports = router;

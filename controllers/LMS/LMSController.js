@@ -631,3 +631,31 @@ exports.replacement_staff_list_query = async (req, res) => {
     console.log(e);
   }
 };
+exports.office_hour_institute_department_data_query = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isFlow } = req.query;
+    if (!id || !isFlow) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    let office_hour = null;
+
+    if (isFlow === "DEPARTMENT") {
+      office_hour = await Department.findById(id).select(
+        "late_mark office_end_hr office_start_hr"
+      );
+    } else {
+      office_hour = await InstituteAdmin.findById(id).select(
+        "late_mark office_end_hr office_start_hr"
+      );
+    }
+    res.status(200).send({
+      office_hour: office_hour,
+      message: "Staff List with their timetable",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

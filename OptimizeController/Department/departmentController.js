@@ -2445,16 +2445,27 @@ exports.custom_department_delete_subject_query = async (req, res) => {
     const department = await Department.findById(did);
 
     const cls = await Class.find({
-      batch: {
-        $in: department?.batches ?? [],
+      _id: {
+        $in: [
+          "66ea4d713b0ef58e1c7bcfb6",
+          "66ea4de13b0ef58e1c7bd65f",
+          "66ea4db53b0ef58e1c7bd41f",
+        ],
       },
+      // batch: {
+      //   $in: [department?.departmentSelectBatch],
+      //   // $in: department?.batches ?? [],
+      // },
     });
 
     if (cls?.length > 0) {
       for (let ct of cls) {
+        console.log("Hi");
         const classes = await Class.findById(ct?._id);
         if (ct?.subject?.length > 0) {
           for (let st of ct?.subject) {
+            console.log("by");
+
             const subject = await Subject.findById(st);
             if (subject?.subjectMasterName) {
               const subjectMaster = await SubjectMaster.findById(
@@ -2462,7 +2473,7 @@ exports.custom_department_delete_subject_query = async (req, res) => {
               );
               subjectMaster?.subjects.pull(subject._id);
               subjectMaster.subjectCount -= 1;
-              // await subjectMaster.save();
+              await subjectMaster.save();
             }
             if (subject?.subjectTeacherName) {
               const subjectTeacherName = await Staff.findById(
@@ -2470,18 +2481,18 @@ exports.custom_department_delete_subject_query = async (req, res) => {
               );
               subjectTeacherName.staffSubject.pull(subject._id);
               subjectTeacherName.staffDesignationCount -= 1;
-              // await subjectTeacherName.save();
+              await subjectTeacherName.save();
             }
             classes?.subject.pull(subject._id);
             classes.subjectCount -= 1;
-            // await Subject.findByIdAndDelete(st);
+            await Subject.findByIdAndDelete(st);
           }
         }
-        // await classes.save();
+        await classes.save();
       }
     }
     res.status(200).send({
-      message: "Outward published on feed",
+      message: "Department subject delete",
     });
   } catch (e) {
     console.log(e);

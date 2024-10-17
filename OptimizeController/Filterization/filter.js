@@ -82,6 +82,7 @@ const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 const Staff = require("../../models/Staff");
 const combinedSummaryBankDaybookData = require("../../AjaxRequest/combinedSummaryBankDaybookData");
 const combinedSummaryBankDaybook = require("../../scripts/combinedSummaryBankDaybook");
+const combinedSummaryDetailBankDaybook = require("../../scripts/combinedSummaryDetailBankDaybook");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -24345,6 +24346,90 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
         excel_list: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_combined_detail_bank_daybook_heads_wise = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { from, to, bank, payment_type, hid, staff } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    let key = await combinedSummaryDetailBankDaybook(
+      fid,
+      from,
+      to,
+      bank,
+      payment_type,
+      staff
+    );
+    res.status(200).send({
+      message: "Explore New Combined Detail DayBook",
+      access: true,
+      key: key ?? "",
+    });
+
+    // const banks = await BankAccount.find({ finance: fid });
+    // let hbank;
+    // let hostel;
+    // for (let ele of banks) {
+    //   if (${ele?.hostel}) {
+    //     hbank = ele?._id;
+    //     hostel = ele?.hostel;
+    //   }
+    // }
+    // let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
+    // // let data_2 = await hostel_daybook(
+    // //   from,
+    // //   to,
+    // //   bank,
+    // //   payment_type,
+    // //   hostel,
+    // //   fid,
+    // //   staff
+    // // );
+    // // let data_3 = await miscellanous_daybook(
+    // //   from,
+    // //   to,
+    // //   bank,
+    // //   payment_type,
+    // //   fid,
+    // //   staff
+    // // );
+    // let combine = [data_1];
+    // let combines = [];
+    // for (let cls of combine) {
+    //   combines.push(...cls?.results);
+    // }
+    // const valid_bank = await BankAccount.findById({ _id: bank }).select(
+    //   "-day_book"
+    // );
+    // if (staff) {
+    //   var staff_obj = await Staff.findById({ _id: ${staff} }).select(
+    //     "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO staff_emp_code"
+    //   );
+    // }
+    // // const key = "Name";
+
+    // //   const arrayUniqueByKey = [
+    // //     ...new Map(head_list.map((item) => [item[key], item])).values(),
+    // //   ];
+    // res.status(200).send({
+    //   message: "Combined Daybook",
+    //   access: true,
+    //   combines,
+    //   day_range_from: from,
+    //   day_range_to: to,
+    //   ins_info: data_1?.ins_info,
+    //   account_info: valid_bank ?? "",
+    //   one_staff: staff ? staff_obj : "",
+    // });
   } catch (e) {
     console.log(e);
   }

@@ -145,8 +145,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -206,8 +211,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -270,8 +280,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -315,7 +330,14 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads application fee_payment_mode fee_transaction_date")
+          .select(
+            "fee_heads application fee_payment_mode fee_transaction_date fee_payment_amount society_invoice_count invoice_count"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+          })
           .populate({
             path: "application",
             select: "applicationDepartment",
@@ -359,8 +381,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -417,8 +444,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -478,8 +510,13 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           })
             .sort({ invoice_count: "1" })
             .select(
-              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date"
+              "fee_heads application fee_payment_mode invoice_count fee_payment_amount fee_transaction_date society_invoice_count"
             )
+            .populate({
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender remainingFeeList",
+            })
             .populate({
               path: "application",
               select: "applicationDepartment",
@@ -520,7 +557,14 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           ],
         })
           .sort({ invoice_count: "1" })
-          .select("fee_heads application fee_payment_mode")
+          .select(
+            "fee_heads application fee_payment_mode fee_payment_amount society_invoice_count invoice_count"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentPhoneNumber studentFatherName studentGRNO studentGender",
+          })
           .populate({
             path: "application",
             select: "applicationDepartment",
@@ -549,551 +593,83 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
           return val;
       });
     }
-    let heads_queue = [];
-    if (bank_acc?.bank_account_type === "Society") {
-      for (let ele of all_struct) {
-        for (let val of ele?.applicable_fees_heads) {
-          if (val?.is_society == true) {
-            if (heads_queue?.includes(`${val?.master}`)) {
-            } else {
-              heads_queue.push(val?.master);
-            }
-          }
-        }
+    var head_list = [];
+    const buildStructureObject = async (arr) => {
+      var obj = {};
+      for (let i = 0; i < arr.length; i++) {
+        const { HeadsName, PaidHeadFees } = arr[i];
+        obj[HeadsName] = PaidHeadFees;
       }
-    } else {
-      for (let ele of all_struct) {
-        for (let val of ele?.applicable_fees_heads) {
-          if (val?.is_society == false) {
-            if (heads_queue?.includes(`${val?.master}`)) {
-            } else {
-              heads_queue.push(val?.master);
-            }
-          }
-        }
-      }
-    }
-    const all_master = await FeeMaster.find({
-      _id: { $in: heads_queue },
-    }).select("master_name");
-    var obj = {};
-    var nest_obj = [];
-    for (let ele of all_master) {
-      obj["head_name"] = ele?.master_name;
-      obj["head_amount"] = 0;
-      obj["cash_head_amount"] = 0;
-      obj["pg_head_amount"] = 0;
-      obj["bank_head_amount"] = 0;
-      obj["_id"] = ele?._id;
-      nest_obj.push(obj);
-      obj = {};
-    }
-    // var t = 0
-    var t = [];
-    var l = [];
-    const daylist = getDaysArray(new Date(`${from}`), new Date(`${to}`));
-    daylist.map((v) => v.toISOString().slice(0, 10)).join("");
-    let date_wise = [];
-    for (let cls of daylist) {
-      cls = `${cls}`;
-      let obj = {
-        date: `${moment(`${cls}`)?.format("YYYY-MM-DD")}`,
-        cash_head_amount: 0,
-        bank_head_amount: 0,
-        pg_head_amount: 0,
-        head_amount: 0,
-        indian_format: `${moment(`${cls}`)?.format("DD/MM/YYYY")}`,
-      };
-      date_wise.push({
-        ...obj,
-      });
-    }
+      return obj;
+    };
+    let results = [];
     if (all_receipts?.length > 0) {
       for (let ele of all_receipts) {
-        for (let cls of date_wise) {
-          if (
-            `${cls?.date}` ===
-            `${moment(`${ele?.fee_transaction_date}`).format("YYYY-MM-DD")}`
-          ) {
-            if (payment_type == "Total") {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (ele?.fee_payment_mode == "By Cash") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
+        let normal = 0;
+        let society = 0;
+        var head_array = [];
 
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway / Online") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway - PG") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.pg_head_amount += val?.original_paid;
-                        cls.pg_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Net Banking") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "UPI Transfer") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Cheque") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Demand Draft") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-                    }
-                  }
-                }
-              }
-            } else if (payment_type == "Cash / Bank") {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (ele?.fee_payment_mode == "By Cash") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.cash_head_amount += val?.original_paid;
-                        cls.cash_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway / Online") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Payment Gateway - PG") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // if (val?.master == "6654be24e36490a31bccd1db") {
-                        //   t.push(`${val?.original_paid}`);
-                        // }
-                        // if (val?.master == "6654be3de36490a31bccd257") {
-                        //   l.push(`${val?.original_paid}`);
-                        // }
-                        // t+= val?.original_paid
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Net Banking") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "UPI Transfer") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "RTGS/NEFT/IMPS") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Cheque") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (ele?.fee_payment_mode == "Demand Draft") {
-                    if (bank_acc?.bank_account_type === "Society") {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == true
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-
-                        // t+= val?.original_paid
-                      }
-                    } else {
-                      if (
-                        `${ads?._id}` === `${val?.master}` &&
-                        val?.is_society == false
-                      ) {
-                        ads.bank_head_amount += val?.original_paid;
-                        cls.bank_head_amount += val?.original_paid;
-                      }
-                    }
-                  }
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-                    }
-                  }
-                }
-              }
-            } else {
-              for (let val of ele?.fee_heads) {
-                for (let ads of nest_obj) {
-                  if (bank_acc?.bank_account_type === "Society") {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == true
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // t+= val?.original_paid
-                    }
-                  } else {
-                    if (
-                      `${ads?._id}` === `${val?.master}` &&
-                      val?.is_society == false
-                    ) {
-                      ads.head_amount += val?.original_paid;
-                      cls.head_amount += val?.original_paid;
-
-                      // if (val?.master == "6654be24e36490a31bccd1db") {
-                      //   t.push(`${val?.original_paid}`);
-                      // }
-                      // if (val?.master == "6654be3de36490a31bccd257") {
-                      //   l.push(`${val?.original_paid}`);
-                      // }
-                      // t+= val?.original_paid
-                    }
-                  }
-                }
-              }
+        for (var val of ele?.fee_heads) {
+          if (bank_acc?.bank_account_type === "Society") {
+            if (val?.master && val?.is_society == true) {
+              const head = await FeeMaster.findById({ _id: val?.master });
+              head_array.push({
+                HeadsName: head?.master_name,
+                PaidHeadFees: val?.original_paid,
+              });
+              society += val?.original_paid;
+            }
+          } else {
+            if (val?.master && val?.is_society == false) {
+              const head = await FeeMaster.findById({ _id: val?.master });
+              head_array.push({
+                HeadsName: head?.master_name,
+                PaidHeadFees: val?.original_paid,
+              });
+              normal += val?.original_paid;
             }
           }
         }
+        if (ele?.fee_heads?.length > 0) {
+          var result = await buildStructureObject(head_array);
+        }
+        if (result) {
+          results.push({
+            ReceiptNumber:
+              bank_acc?.bank_account_type === "Society"
+                ? ele?.society_invoice_count
+                : ele?.invoice_count ?? "0",
+            // TransactionAmount: ele?.fee_payment_amount ?? "0",
+            Name:
+              `${ele?.student?.studentLastName} ${
+                ele?.student?.studentFirstName
+              } ${
+                ele?.student?.studentMiddleName
+                  ? ele?.student?.studentMiddleName
+                  : ""
+              }` ?? "#NA",
+            // FirstName: ele?.student?.studentFirstName ?? "#NA",
+            // MiddleName:
+            //   ele?.student?.studentMiddleName ??
+            //   ele?.student?.studentFatherName,
+            // LastName: ele?.student?.studentLastName ?? "#NA",
+            BankTxnValue:
+              bank_acc?.bank_account_type === "Society" ? society : normal,
+            ...result,
+          });
+        }
       }
-      // nest_obj.push({
-      //   head_name: "Total Fees",
-      //   head_amount: t
-      // })
-      all_receipts.sort(function (st1, st2) {
-        return (
-          parseInt(st1?.invoice_count?.substring(14)) -
-          parseInt(st2?.invoice_count?.substring(14))
-        );
-      });
 
       return {
         message: "Explore Day Book Heads Query",
         access: true,
         all_receipts: all_receipts?.length,
-        results: nest_obj,
-        range: `${all_receipts[0]?.invoice_count?.substring(
-          14
-        )} To ${all_receipts[
-          all_receipts?.length - 1
-        ]?.invoice_count?.substring(14)}`,
+        results: results,
         account_info: bank_acc,
         day_range_from: from,
         day_range_to: to,
         ins_info: institute,
         one_staff: staff ? one_staff : {},
-        date_wise: date_wise ?? [],
       };
     } else {
       return {
@@ -1107,7 +683,6 @@ const normal_daybook = async (from, to, bank, payment_type, fid, staff) => {
         ins_info: institute,
         range: "",
         one_staff: {},
-        date_wise: date_wise ?? [],
       };
     }
   } catch (e) {
@@ -3063,29 +2638,28 @@ const render_combined_daybook_heads_wise = async (
       }
     }
     let data_1 = await normal_daybook(from, to, bank, payment_type, fid, staff);
-    let data_2 = await hostel_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      hostel,
-      fid,
-      staff
-    );
-    let data_3 = await miscellanous_daybook(
-      from,
-      to,
-      bank,
-      payment_type,
-      fid,
-      staff
-    );
-    let combine = [data_1, data_2, data_3];
+    // let data_2 = await hostel_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   hostel,
+    //   fid,
+    //   staff
+    // );
+    // let data_3 = await miscellanous_daybook(
+    //   from,
+    //   to,
+    //   bank,
+    //   payment_type,
+    //   fid,
+    //   staff
+    // );
+    // let combine = [data_1, data_2, data_3];
+    let combine = [data_1];
     let combines = [];
     for (let cls of combine) {
-      combines.push({
-        date_wise: cls?.date_wise,
-      });
+      combines.push(...cls?.results);
     }
     const valid_bank = await BankAccount.findById({ _id: bank }).select(
       "-day_book"
@@ -3120,109 +2694,232 @@ let dataObj = {
   access: true,
   combines: [
     {
-      date_wise: [
-        {
-          date: "2024-09-10",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 1350,
-          indian_format: "10/09/2024",
-        },
-        {
-          date: "2024-09-11",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 4915,
-          indian_format: "11/09/2024",
-        },
-        {
-          date: "2024-09-12",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 5920,
-          indian_format: "12/09/2024",
-        },
-      ],
+      ReceiptNumber: "073664-10-2024-00-400",
+      Name: "SHIRSATH ANUPAM ANAND",
+      BankTxnValue: 24736,
+      "Student Activity Fee": 0,
+      "Library Deposit": 0,
+      "Insurance Fee": 0,
+      "Eligibility Fee": 0,
+      "Gymkhana Fee": 0,
+      "Student Welfare Fund": 0,
+      "Medical Examination": 0,
+      "Development Fee - University": 0,
+      "Prorata Contribution Ashwamegh": 0,
+      "Disaster Management": 0,
+      "Computerization Fees": 0,
+      "Registration Fee": 0,
+      "Student Safety Insurance": 0,
+      "Admission Fee": 0,
+      "Library Fee": 0,
+      "Student Aid Fund": 0,
+      "Sport Fund - Fit India": 0,
+      NSS: 0,
+      "Corpus Fund - Ashwamegh": 0,
+      "Tuition Fee": 16301,
+      "Development Fee": 8435,
     },
     {
-      date_wise: [],
+      ReceiptNumber: "073664-10-2024-00-401",
+      Name: "SAYYAD SAMI LIYAKAT",
+      BankTxnValue: 5906,
+      "Tuition Fee": 0,
+      "Development Fee": 1417,
+      "Student Activity Fee": 1000,
+      "Library Deposit": 1000,
+      "Insurance Fee": 454,
+      "Eligibility Fee": 650,
+      "Gymkhana Fee": 250,
+      "Student Welfare Fund": 120,
+      "Medical Examination": 40,
+      "Development Fee - University": 250,
+      "Prorata Contribution Ashwamegh": 26,
+      "Disaster Management": 20,
+      "Computerization Fees": 100,
+      "Registration Fee": 75,
+      "Student Safety Insurance": 20,
+      "Admission Fee": 50,
+      "Library Fee": 200,
+      "Student Aid Fund": 20,
+      "Sport Fund - Fit India": 200,
+      NSS: 10,
+      "Corpus Fund - Ashwamegh": 4,
     },
     {
-      date_wise: [
-        {
-          date: "2024-09-10",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 84300,
-          indian_format: "10/09/2024",
-        },
-        {
-          date: "2024-09-11",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 55310,
-          indian_format: "11/09/2024",
-        },
-        {
-          date: "2024-09-12",
-          cash_head_amount: 0,
-          bank_head_amount: 0,
-          pg_head_amount: 0,
-          head_amount: 42900,
-          indian_format: "12/09/2024",
-        },
-      ],
+      ReceiptNumber: "073664-10-2024-00-407",
+      Name: "SONAWANE SHRISHANT SANJAY",
+      BankTxnValue: 0,
+      "Development Fee": 0,
+      "Student Activity Fee": 0,
+      "Library Deposit": 0,
+      "Insurance Fee": 0,
+      "Eligibility Fee": 0,
+      "Gymkhana Fee": 0,
+      "Student Welfare Fund": 0,
+      "Medical Examination": 0,
+      "Development Fee - University": 0,
+      "Prorata Contribution Ashwamegh": 0,
+      "Disaster Management": 0,
+      "Computerization Fees": 0,
+      "Registration Fee": 0,
+      "Student Safety Insurance": 0,
+      "Admission Fee": 0,
+      "Library Fee": 0,
+      "Student Aid Fund": 0,
+      "Sport Fund - Fit India": 0,
+      NSS: 0,
+      "Corpus Fund - Ashwamegh": 0,
+      "Tuition Fee": 0,
+    },
+    {
+      ReceiptNumber: "073664-10-2024-00-425",
+      Name: "DHUMANE ANUSHREE SUNIL",
+      BankTxnValue: 24736,
+      "Student Activity Fee": 0,
+      "Library Deposit": 0,
+      "Insurance Fee": 0,
+      "Eligibility Fee": 0,
+      "Gymkhana Fee": 0,
+      "Student Welfare Fund": 0,
+      "Medical Examination": 0,
+      "Development Fee - University": 0,
+      "Prorata Contribution Ashwamegh": 0,
+      "Disaster Management": 0,
+      "Computerization Fees": 0,
+      "Registration Fee": 0,
+      "Student Safety Insurance": 0,
+      "Admission Fee": 0,
+      "Library Fee": 0,
+      "Student Aid Fund": 0,
+      "Sport Fund - Fit India": 0,
+      NSS: 0,
+      "Corpus Fund - Ashwamegh": 0,
+      "Tuition Fee": 16301,
+      "Development Fee": 8435,
+    },
+    {
+      ReceiptNumber: "073664-10-2024-00-440",
+      Name: "SHAIKH AMAAN YASIR",
+      BankTxnValue: 24736,
+      "Student Activity Fee": 0,
+      "Library Deposit": 0,
+      "Insurance Fee": 0,
+      "Eligibility Fee": 0,
+      "Gymkhana Fee": 0,
+      "Student Welfare Fund": 0,
+      "Medical Examination": 0,
+      "Development Fee - University": 0,
+      "Prorata Contribution Ashwamegh": 0,
+      "Disaster Management": 0,
+      "Computerization Fees": 0,
+      "Registration Fee": 0,
+      "Student Safety Insurance": 0,
+      "Admission Fee": 0,
+      "Library Fee": 0,
+      "Student Aid Fund": 0,
+      "Sport Fund - Fit India": 0,
+      NSS: 0,
+      "Corpus Fund - Ashwamegh": 0,
+      "Tuition Fee": 16301,
+      "Development Fee": 8435,
+    },
+    {
+      ReceiptNumber: "073664-10-2024-00-443",
+      Name: "AHIRE PRANAV BHASKAR",
+      BankTxnValue: 0,
+      "Student Activity Fee": 0,
+      "Library Deposit": 0,
+      "Insurance Fee": 0,
+      "Eligibility Fee": 0,
+      "Gymkhana Fee": 0,
+      "Student Welfare Fund": 0,
+      "Medical Examination": 0,
+      "Development Fee - University": 0,
+      "Prorata Contribution Ashwamegh": 0,
+      "Disaster Management": 0,
+      "Computerization Fees": 0,
+      "Registration Fee": 0,
+      "Student Safety Insurance": 0,
+      "Admission Fee": 0,
+      "Library Fee": 0,
+      "Student Aid Fund": 0,
+      "Sport Fund - Fit India": 0,
+      NSS: 0,
+      "Corpus Fund - Ashwamegh": 0,
+    },
+    {
+      ReceiptNumber: "073664-10-2024-00-452",
+      Name: "JAGTAP SUJIT SOMNATH",
+      BankTxnValue: 23232,
+      "Tuition Fee": 12648,
+      "Development Fee": 6205,
+      "Student Activity Fee": 1000,
+      "Library Deposit": 1000,
+      "Insurance Fee": 234,
+      "Eligibility Fee": 650,
+      "Gymkhana Fee": 250,
+      "Student Welfare Fund": 100,
+      "Medical Examination": 40,
+      "Development Fee - University": 250,
+      "Prorata Contribution Ashwamegh": 26,
+      "Disaster Management": 20,
+      "Computerization Fees": 100,
+      "Registration Fee": 75,
+      "Student Safety Insurance": 20,
+      "Admission Fee": 50,
+      "Library Fee": 300,
+      "Student Aid Fund": 50,
+      "Sport Fund - Fit India": 200,
+      NSS: 10,
+      "Corpus Fund - Ashwamegh": 4,
     },
   ],
-  day_range_from: "2024-09-10",
-  day_range_to: "2024-09-12",
+  day_range_from: "2024-10-01",
+  day_range_to: "2024-10-15",
   ins_info: {
-    _id: "660bd1c7d5016c9947aef713",
-    insName: "H.P.T. Arts and R.Y.K. Science College, Nashik-05",
-    name: "HPT_RYK",
+    _id: "667ac2be2b6329957435b217",
+    insName: "R.H. Sapat College Of Engineering",
+    name: "RH_Sapat",
     insPincode: null,
-    insAddress: "Prin. T.A. Kulkarni, Vidya Nagar, Nashik-422005",
+    insAddress:
+      "Prin. T. A. Kulkarni Vidyanagar, Krishi Nagar, Nashik, Maharashtra",
     photoId: "0",
-    insProfilePhoto: "2fa048badf75cd5a00b775c2307bcac1",
-    insAffiliated: "Gokhale Education Society's",
-    insState: "Maharashtra",
+    insProfilePhoto: "79457e8021ca786a1aa2843dc4df2154",
+    insAffiliated: "Gokahle Education Society's",
   },
   account_info: {
-    _id: "665caffa0e2f935f4eb4768d",
-    finance_bank_account_number: "20135700567",
-    finance_bank_name:
-      "Maharashtra Bank (Principal H.P.T. Arts R.Y.K. Sci College Nashik - 5",
-    finance_bank_account_name: "GRANT UNIT (UG & PG GRANT)",
+    _id: "6693b0bcfc5124119c0d632f",
+    finance_bank_account_number: "60024823351",
+    finance_bank_name: "Bank of Maharashtra",
+    finance_bank_account_name: "College Main Account",
     finance_bank_ifsc_code: "MAHB0000214",
-    finance_bank_branch_address: "NBT Law College Campus",
+    finance_bank_branch_address: "College Campus Bank, Nashik",
     finance_bank_upi_id: "",
     finance_bank_upi_qrcode: "",
     departments: [
-      "664092de0728cf14e8be2394",
-      "664092f00728cf14e8be2f5f",
-      "6670226b496dc1715381d871",
-      "66681d4d5f25de64033fa1eb",
-      "668d6982e473898a9093df4a",
+      "6681a385c1775c56bcd7139e",
+      "6681a397c1775c56bcd714c0",
+      "6681a3a9c1775c56bcd71661",
+      "6681a3d104076da2fc601d79",
+      "6681a3e5c1775c56bcd719ac",
+      "6681a3fac1775c56bcd71ae1",
+      "6681a424c1775c56bcd71d6f",
     ],
-    due_repay: 91245,
-    total_repay: 91245,
-    collect_online: 1086005,
+    due_repay: 2616598,
+    total_repay: 2616598,
+    collect_online: 15772307,
     collect_offline: 0,
-    created_at: "2024-06-02T17:46:34.850Z",
-    finance: "662e8ff2a73be706305ec252",
-    __v: 723,
-    invoice_count: 3687,
+    created_at: "2024-07-14T11:04:28.861Z",
+    finance: "668ecf51f762c228aa0848d7",
+    __v: 273,
+    invoice_count: 456,
     heads_list: [],
-    bank_account_code: 1,
+    bank_account_code: 0,
   },
   one_staff: "",
   level: "info",
 };
+
 const combinedSummaryDetailBankDaybookData = async (
   fid = "",
   from = "",
@@ -3231,15 +2928,15 @@ const combinedSummaryDetailBankDaybookData = async (
   payment_type = "",
   staff = ""
 ) => {
-  const ft = dataObj;
-  // const ft = await render_combined_daybook_heads_wise(
-  //   fid,
-  //   from,
-  //   to,
-  //   bank,
-  //   payment_type,
-  //   staff
-  // );
+  // const ft = dataObj;
+  const ft = await render_combined_daybook_heads_wise(
+    fid,
+    from,
+    to,
+    bank,
+    payment_type,
+    staff
+  );
   return { ft };
 };
 module.exports = combinedSummaryDetailBankDaybookData;

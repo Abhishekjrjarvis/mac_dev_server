@@ -23437,13 +23437,13 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
           path: "master",
         },
       });
-    var total_fees = 0;
-    var total_collect = 0;
-    var total_pending = 0;
-    var collect_by_student = 0;
-    var pending_by_student = 0;
-    var collect_by_government = 0;
-    var pending_from_government = 0;
+    var total_fees = 0.0;
+    var total_collect = 0.0;
+    var total_pending = 0.0;
+    var collect_by_student = 0.0;
+    var pending_by_student = 0.0;
+    var collect_by_government = 0.0;
+    var pending_from_government = 0.0;
     var total_fees_arr = [];
     var total_collect_arr = [];
     var total_pending_arr = [];
@@ -23451,29 +23451,26 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
     var pending_by_student_arr = [];
     var collect_by_government_arr = [];
     var pending_from_government_arr = [];
-    var excess_fee = 0;
-    var excess_fee_arr = [];
-    var exempted_fee = 0;
-    var exempted_fee_arr = [];
     var excel_list = [];
-    finance.admission_fees_statistics_filter.batch_level = [];
-    finance.admission_fees_statistics_filter.batch_all = "";
-    finance.admission_fees_statistics_filter.department_level = [];
-    finance.admission_fees_statistics_filter.department_all = "";
-    finance.admission_fees_statistics_filter.bank_level = [];
-    finance.admission_fees_statistics_filter.master_level = "";
-    await finance.save();
-    finance.loading_admission_fees = new Date();
-    finance.admission_fees_statistics_filter.loading = true;
-    await finance.save();
+    // finance.admission_fees_statistics_filter.batch_level = [];
+    // finance.admission_fees_statistics_filter.batch_all = "";
+    // finance.admission_fees_statistics_filter.department_level = [];
+    // finance.admission_fees_statistics_filter.department_all = "";
+    // finance.admission_fees_statistics_filter.bank_level = [];
+    // finance.admission_fees_statistics_filter.master_level = "";
+    // await finance.save();
+    // finance.loading_admission_fees = new Date();
+    // finance.admission_fees_statistics_filter.loading = true;
+    // await finance.save();
     var new_departs = [];
     // res.status(200).send({
     //   message: "Explore Admission View All Query",
     //   access: true,
     //   loading: true,
     // });
+    const u_batch = await Batch.findById({ _id: `${batch}` });
     var departs = await Department.find({
-      institute: finance?.institute,
+      departmentSelectBatch: { $in: u_batch?.merged_batches },
     }).select("dName batches departmentClassMasters");
     const buildStructureObject = async (departs) => {
       var obj = {};
@@ -23505,7 +23502,6 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
       }
       return obj;
     };
-    const u_batch = await Batch.findById({ _id: `${batch}` });
     var nest_classes = [];
     for (var i = 0; i < departs?.length; i++) {
       var batch_query = [];
@@ -23532,82 +23528,66 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
                 path: "fee_structure",
               })
               .populate({
+                path: "applicable_card government_card",
+              })
+              .populate({
                 path: "student",
                 select:
                   "studentFirstName studentMiddleName studentLastName studentGender studentProfilePhoto valid_full_name photoId studentGRNO studentROLLNO total_paid_fees total_os_fees applicable_os_fees government_os_fees",
               });
             for (var ele of all_remain) {
               total_fees +=
-                ele?.fee_structure?.total_admission_fees +
-                ref?.studentRemainingFeeCount;
+                ele?.applicable_card?.applicable_fee +
+                  ele?.government_card?.applicable_fee ?? 0.0;
               total_collect +=
-                ele?.paid_fee +
-                ref?.studentPaidFeeCount +
-                ele?.paid_by_government;
+                ele?.applicable_card?.paid_fee +
+                  ele?.government_card?.paid_fee ?? 0.0;
               total_pending +=
-                ele?.fee_structure?.total_admission_fees +
-                ref?.studentRemainingFeeCount -
-                ele?.paid_fee +
-                ref?.studentPaidFeeCount +
-                ele?.paid_by_government;
-              collect_by_student += ele?.fee_structure?.applicable_fees;
-              pending_by_student +=
-                ele?.paid_fee <= ele?.fee_structure?.applicable_fees
-                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                  : 0;
-              collect_by_government += ele?.paid_by_government;
+                ele?.applicable_card?.remaining_fee +
+                  ele?.government_card?.remaining_fee ?? 0.0;
+              collect_by_student += ele?.applicable_card?.paid_fee ?? 0.0;
+              pending_by_student += ele?.applicable_card?.remaining_fee ?? 0.0;
+              collect_by_government += ele?.government_card?.paid_fee ?? 0.0;
               pending_from_government +=
-                ele?.fee_structure?.total_admission_fees -
-                ele?.fee_structure?.applicable_fees;
-              ele.student.total_paid_fees += ele?.paid_fee;
-              ele.student.total_os_fees += ele?.remaining_fee;
+                ele?.government_card?.remaining_fee ?? 0.0;
+              ele.student.total_paid_fees +=
+                ele?.applicable_card?.paid_fee + ele?.government_card?.paid_fee;
+              ele.student.total_os_fees +=
+                ele?.applicable_card?.remaining_fee +
+                  ele?.government_card?.remaining_fee ?? 0.0;
               ele.student.applicable_os_fees +=
-                ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                  : 0;
+                ele?.applicable_card?.remaining_fee ?? 0.0;
               if (
-                ele?.fee_structure?.total_admission_fees +
-                  ref?.studentRemainingFeeCount >
+                ele?.applicable_card?.applicable_fee +
+                  ele?.government_card?.applicable_fee >
                 0
               ) {
                 total_fees_arr.push(ele?.student);
               }
               if (
-                ele?.paid_fee +
-                  ref?.studentPaidFeeCount +
-                  ele?.paid_by_government >
+                ele?.applicable_card?.paid_fee +
+                  ele?.government_card?.paid_fee >
                 0
               ) {
                 total_collect_arr.push(ele?.student);
               }
               if (
-                ele?.fee_structure?.total_admission_fees +
-                  ref?.studentRemainingFeeCount -
-                  ele?.paid_fee +
-                  ref?.studentPaidFeeCount +
-                  ele?.paid_by_government >
+                ele?.applicable_card?.remaining_fee +
+                  ele?.government_card?.remaining_fee >
                 0
               ) {
                 total_pending_arr.push(ele?.student);
               }
-              if (ele?.fee_structure?.applicable_fees > 0) {
+              if (ele?.applicable_card?.paid_fee > 0) {
                 collect_by_student_arr.push(ele?.student);
               }
-              if (
-                (ele?.paid_fee <= ele?.fee_structure?.applicable_fees
-                  ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                  : 0) > 0
-              ) {
+              if (ele?.applicable_card?.remaining_fee > 0) {
                 pending_by_student_arr.push(ele?.student);
               }
-              if (ele?.paid_by_government > 0) {
+              if (ele?.government_card?.paid_fee > 0) {
                 collect_by_government_arr.push(ele?.student);
               }
-              if (
-                ele?.fee_structure?.total_admission_fees -
-                  ele?.fee_structure?.applicable_fees >
-                0
-              ) {
+              if (ele?.government_card?.remaining_fee > 0) {
                 pending_from_government_arr.push(ele?.student);
               }
             }
@@ -23680,9 +23660,10 @@ exports.render_new_admission_fees_statistics_query = async (req, res) => {
       departs: new_dep_excel,
       ...result_1,
     });
+    console.log(excel_list?.length);
     finance.admission_fees_statistics_filter.department_all = "All";
     finance.admission_stats = excel_list;
-    await finance.save();
+    // await finance.save();
     res.status(200).send({
       message: "Explore Finance Admission Fees Statistics",
       access: true,
@@ -23702,6 +23683,7 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
     const batch_query = await Batch.findById({ _id: bid });
     const departs = await Department.find({
       active_academic_batch: batch_query?._id,
+      // _id: { $in: ["669507da2d76fa9e687ec686"] },
     });
     var excel_list = [];
     var excel_list_1 = [];
@@ -23737,6 +23719,7 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
           }
         }
       }
+      // $in: nums_class
       const m_classes = await ClassMaster.find({ _id: { $in: nums_class } });
       let dse = [];
       for (let m_class of m_classes) {
@@ -23756,6 +23739,7 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
             path: "class",
             select: "ApproveStudent",
           });
+        nums = []
         let ds = [];
         let dss = [];
         let dsss = [];
@@ -23798,16 +23782,15 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
           const uniques = [...new Set(numss.map((item) => item._id))];
           var all_student_value = await Student.find({
             _id: { $in: uniques },
-          }).select(
-            "studentGender studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO studentROLLNO"
-          );
+          }).select("studentGender ");
         }
         if (unique?.length > 0) {
           var all_student = await Student.find({ _id: { $in: unique } }).select(
-            "studentGender studentFirstName studentMiddleName studentLastName studentProfilePhoto studentGRNO studentROLLNO"
+            "studentGender "
           );
         }
-
+        ds = []
+        // console.log(all_student?.length);
         var boy_arr = [];
         var girl_arr = [];
         if (all_student?.length > 0) {
@@ -23821,6 +23804,7 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
           }
           excel_list.push({
             StandardName: `${m_class?.className}`,
+            _id: `${m_class?._id}`,
             // boy: boy_arr?.length,
             // boy_arr: boy_arr,
             // girl: girl_arr?.length,
@@ -23849,6 +23833,12 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
             count: boy_arr?.length + girl_arr?.length ?? 0,
             count_bind: [...boy_arr, ...girl_arr],
           });
+          // console.log(
+          //   boy_arr?.length,
+          //   girl_arr?.length,
+          //   "-->",
+          //   m_class?.className
+          // );
           boy_arr = [];
           girl_arr = [];
         }
@@ -23863,6 +23853,7 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
           }
           excel_list.push({
             StandardName: `${m_class?.className}`,
+            _id: `${m_class?._id}`,
             // boy: boy_arr?.length,
             // boy_arr: boy_arr,
             // girl: girl_arr?.length,
@@ -23896,11 +23887,14 @@ exports.renderStudentAcademicStatisticsUniversalQuery = async (req, res) => {
         }
       }
       var master = [];
+      var masters = [];
       for (let ele of excel_list) {
         master.push(ele?.StandardName);
+        masters.push(ele?._id);
       }
       excel_list_1.push({
-        master: [...master],
+        master: [...new Set(master.map((item) => item))],
+        masters: [...new Set(masters.map((item) => item))],
         regular: {
           male: [...males],
           female: [...girls],

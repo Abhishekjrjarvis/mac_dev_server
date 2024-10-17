@@ -134,6 +134,7 @@ exports.download_zip_file = async (req, res) => {
     });
     let fileKeys = [];
     for (let ele of all_student) {
+      console.log(ele?._id);
       if (ele?.studentProfilePhoto) {
         let value = await key_exists(ele?.studentProfilePhoto, bucketName);
         if (value) {
@@ -156,8 +157,8 @@ exports.download_zip_file = async (req, res) => {
       bucketName,
       uploadKey
     );
-
-    if (uploadResult?.key) {
+    // console.log(uploadResult);
+    if (uploadResult?.Key) {
       ins.export_collection.push({
         excel_file: uploadResult?.key,
         excel_file_name: zipFileName,

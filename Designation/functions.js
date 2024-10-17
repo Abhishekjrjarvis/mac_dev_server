@@ -51,6 +51,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         ) {
         } else {
           department.departmentChatGroup.push(staff._id);
+          staff.recommend_authority = department?.dHead;
         }
         notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
         notify.notifySender = id;
@@ -98,6 +99,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         ) {
         } else {
           depart.departmentChatGroup.push(staff._id);
+          staff.recommend_authority = department?.dHead;
           depart.staffCount += 1;
         }
         staff.staffClass.push(classRoom._id);
@@ -159,6 +161,7 @@ exports.all_new_designation_query = async (d_array, sid, id) => {
         ) {
         } else {
           depart.departmentChatGroup.push(staff._id);
+          staff.recommend_authority = department?.dHead;
           depart.staffCount += 1;
           await depart.save();
         }

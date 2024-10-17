@@ -498,156 +498,373 @@ exports.send_email_student_message_query = (
   const bodyhtml = `<!DOCTYPE html>
   <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
   
-  <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="x-apple-disable-message-reformatting">
-      <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
-      <meta name="color-scheme" content="light">
-      <meta name="supported-color-schemes" content="light">
+      <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="x-apple-disable-message-reformatting">
+          <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
   
-      <!--[if !mso]><!-->
-      <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+          <meta name="color-scheme" content="light">
+          <meta name="supported-color-schemes" content="light">
   
-      <style type="text/css">
-          @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-      </style>
-      <!--<![endif]-->
+          
+          <!--[if !mso]><!-->
+            
+            <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
   
-      <!--[if mso]>
-      <style>
-          * {
-              font-family: sans-serif !important;
-          }
-      </style>
-      <![endif]-->
+            <style type="text/css">
+            // TODO: fix me!
+              @import url(https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap);
+          </style>
+          
+          <!--<![endif]-->
   
-      <title></title>
+          <!--[if mso]>
+            <style>
+                // TODO: fix me!
+                * {
+                    font-family: sans-serif !important;
+                }
+            </style>
+          <![endif]-->
+      
+          
+          <!-- NOTE: the title is processed in the backend during the campaign dispatch -->
+          <title></title>
   
-      <!--[if gte mso 9]>
-      <xml>
-          <o:OfficeDocumentSettings>
-              <o:AllowPNG/>
-              <o:PixelsPerInch>96</o:PixelsPerInch>
-          </o:OfficeDocumentSettings>
-      </xml>
-      <![endif]-->
-  
+          <!--[if gte mso 9]>
+          <xml>
+              <o:OfficeDocumentSettings>
+                  <o:AllowPNG/>
+                  <o:PixelsPerInch>96</o:PixelsPerInch>
+              </o:OfficeDocumentSettings>
+          </xml>
+          <![endif]-->
+          
       <style>
           :root {
               color-scheme: light;
               supported-color-schemes: light;
           }
   
-          html, body {
+          html,
+          body {
               margin: 0 auto !important;
               padding: 0 !important;
               height: 100% !important;
               width: 100% !important;
+  
               overflow-wrap: break-word;
+              -ms-word-break: break-all;
+              -ms-word-break: break-word;
               word-break: break-all;
+              word-break: break-word;
           }
   
-          ul, ol {
-              padding: 0;
+  
+          
+    
+  
+  
+    center,
+    #body_table {
+      
+    }
+  
+    ul, ol {
+      padding: 0;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  
+    li {
+      margin-bottom: 0;
+    }
+  
+    
+  
+    .list-block-list-outside-left li {
+      margin-left: 20px !important;
+    }
+  
+    .list-block-list-outside-right li {
+      margin-right: 20px !important;
+    }
+  
+    
+       .paragraph {
+        font-size: 15px;
+        font-family: Open Sans, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        text-align: start;
+        line-height: 1;
+        text-decoration: none;
+        color: #5f5f5f;
+        
+      }
+    
+  
+       .heading1 {
+        font-size: 32px;
+        font-family: Open Sans, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        text-align: start;
+        line-height: 1;
+        text-decoration: none;
+        color: #000000;
+        
+      }
+    
+  
+       .heading2 {
+        font-size: 26px;
+        font-family: Open Sans, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        text-align: start;
+        line-height: 1;
+        text-decoration: none;
+        color: #000000;
+        
+      }
+    
+  
+       .heading3 {
+        font-size: 19px;
+        font-family: Open Sans, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        text-align: start;
+        line-height: 1;
+        text-decoration: none;
+        color: #000000;
+        
+      }
+    
+  
+       .list {
+        font-size: 15px;
+        font-family: Open Sans, sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        text-align: start;
+        line-height: 1;
+        text-decoration: none;
+        color: #5f5f5f;
+        
+      }
+    
+  
+    p a, 
+    li a {
+      
+    display: inline-block;  
+      color: #5457FF;
+      text-decoration: none;
+      font-style: normal;
+      font-weight: normal;
+  
+    }
+  
+    .button-table a {
+      text-decoration: none;
+      font-style: normal;
+      font-weight: normal;
+    }
+  
+    .paragraph > span {text-decoration: none;}.heading1 > span {text-decoration: none;}.heading2 > span {text-decoration: none;}.heading3 > span {text-decoration: none;}.list > span {text-decoration: none;}
+  
+  
+          * {
+              -ms-text-size-adjust: 100%;
+              -webkit-text-size-adjust: 100%;
+          }
+  
+          div[style*="margin: 16px 0"] {
+              margin: 0 !important;
+          }
+  
+          #MessageViewBody,
+          #MessageWebViewDiv {
+              width: 100% !important;
+          }
+  
+          table {
+              border-collapse: collapse;
+              border-spacing: 0;
+              mso-table-lspace: 0pt !important;
+              mso-table-rspace: 0pt !important;
+          }
+          table:not(.button-table) {
+              border-spacing: 0 !important;
+              border-collapse: collapse !important;
+              table-layout: fixed !important;
+              margin: 0 auto !important;
+          }
+  
+          th {
+              font-weight: normal;
+          }
+  
+          tr td p {
               margin: 0;
           }
   
-          li {
-              margin-bottom: 0;
+          img {
+              -ms-interpolation-mode: bicubic;
           }
   
-          .paragraph {
-              font-size: 15px;
-              font-family: 'Open Sans', sans-serif;
-              color: #5f5f5f;
+          a[x-apple-data-detectors],
+  
+          .unstyle-auto-detected-links a,
+          .aBn {
+              border-bottom: 0 !important;
+              cursor: default !important;
+              color: inherit !important;
+              text-decoration: none !important;
+              font-size: inherit !important;
+              font-family: inherit !important;
+              font-weight: inherit !important;
+              line-height: inherit !important;
           }
   
-          .heading1 {
-              font-size: 32px;
-              font-family: 'Open Sans', sans-serif;
-              color: #000000;
+          .im {
+              color: inherit !important;
           }
   
-          .heading2 {
-              font-size: 26px;
-              font-family: 'Open Sans', sans-serif;
-              color: #000000;
+          .a6S {
+              display: none !important;
+              opacity: 0.01 !important;
           }
   
-          .heading3 {
-              font-size: 19px;
-              font-family: 'Open Sans', sans-serif;
-              color: #000000;
+          img.g-img+div {
+              display: none !important;
           }
   
-          p a, li a {
-              color: #5457FF;
-              text-decoration: none;
+          @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+              u~div .contentMainTable {
+                  min-width: 320px !important;
+              }
           }
   
+          @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+              u~div .contentMainTable {
+                  min-width: 375px !important;
+              }
+          }
+  
+          @media only screen and (min-device-width: 414px) {
+              u~div .contentMainTable {
+                  min-width: 414px !important;
+              }
+          }
+      </style>
+  
+      <style>
+          @media only screen and (max-device-width: 900px) {
+              .contentMainTable {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .single-column {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .multi-column {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .imageBlockWrapper {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+          }
           @media only screen and (max-width: 900px) {
-              .contentMainTable, .single-column, .multi-column, .imageBlockWrapper {
+              .contentMainTable {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .single-column {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .multi-column {
+                  width: 100% !important;
+                  margin: auto !important;
+              }
+              .imageBlockWrapper {
                   width: 100% !important;
                   margin: auto !important;
               }
           }
       </style>
-  
       <!--[if mso | IE]>
+  <style>
+  .button-GayoDUm67tvxnB-vsbIA8 { padding: 16px 32px; };
+  .button-GayoDUm67tvxnB-vsbIA8 a { margin: -16px -32px; }; </style>
+  <![endif]-->
+      
+  <!--[if mso | IE]>
       <style>
-          .button-eDjHYThLl2LLTvxBdpbI1 { padding: 16px 32px; };
-          .button-eDjHYThLl2LLTvxBdpbI1 a { margin: -16px -32px; };
+          .list-block-outlook-outside-left {
+              margin-left: -18px;
+          }
+      
+          .list-block-outlook-outside-right {
+              margin-right: -18px;
+          }
+  
+          a:link, span.MsoHyperlink {
+              mso-style-priority:99;
+              
+    display: inline-block;  
+      color: #5457FF;
+      text-decoration: none;
+      font-style: normal;
+      font-weight: normal;
+  
+          }
       </style>
-      <![endif]-->
-  </head>
+  <![endif]-->
   
-  <body width="100%" style="margin: 0; padding: 0 !important; background-color: #F5F6F8;">
-      <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #F5F6F8;">
-          <!--[if mso | IE]>
-          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #F5F6F8;">
-          <tbody>
-              <tr>
-                  <td>
-                  <![endif]-->
-                      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="900" style="margin: auto;" class="contentMainTable">
-                          <!-- Image Block -->
-                          <tr>
-                              <td style="background-color:#ffffff; padding: 0;" align="center">
-                                  <table align="center" width="900" class="imageBlockWrapper" style="width:900px; border-spacing: 0; border-collapse: collapse;" role="presentation">
-                                      <tbody>
-                                          <tr>
-                                              <td style="padding:0">
-                                                  <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Your_paragraph_text_(1)2023-06-02T11_19_32.png" width="900" alt="" style="border-radius: 0; display: block; height: auto; width: 100%; max-width: 100%; border: 0;">
-                                              </td>
-                                          </tr>
-                                      </tbody>
-                                  </table>
-                              </td>
-                          </tr>
-                          <!-- Paragraph Block -->
-                          <tr>
-                              <td valign="top" style="padding: 32px; background-color: #ffffff;">
-                                  <p class="paragraph" style="font-family: 'Open Sans', sans-serif; font-size: 15px; line-height: 1.5; color: #5f5f5f;">
-                                      Hello <span style="font-weight: bold">${studentName}</span>,<br>
-                                      This is the ERP System of <span style="font-weight: bold">${instituteName}</span>.<br><br>
-                                      <span style="font-weight: bold">${message?.message_title}:-</span><br>
-                                      ${message?.message}
-                                  </p>
-                              </td>
-                          </tr>
-                      </table>
-                  <!--[if mso | IE]>
-                  </td>
-              </tr>
-          </tbody>
-          </table>
-          <![endif]-->
-      </center>
-  </body>
   
+      </head>
+  
+      <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #F5F6F8;">
+          <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #F5F6F8;">
+              <!--[if mso | IE]>
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" id="body_table" width="100%" style="background-color: #F5F6F8;">
+              <tbody>    
+                  <tr>
+                      <td>
+                      <![endif]-->
+                          <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="900" style="margin: auto;" class="contentMainTable">
+                              <tr class="wp-block-editor-imageblock-v1"><td style="background-color:#ffffff;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0" align="center"><table align="center" width="900" class="imageBlockWrapper" style="width:900px;border-spacing:0;border-collapse:collapse" role="presentation"><tbody><tr><td style="padding:0"><img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Your_paragraph_text_(1)2023-06-02T11_19_32.png" width="900" height="" alt="" style="border-radius:0px;display:block;height:auto;width:100%;max-width:100%;border:0" class="g-img"></td></tr></tbody></table>
+                              </td></tr><tr class="wp-block-editor-paragraphblock-v1"><td valign="top" style="padding:0px 32px 32px 32px;background-color:#ffffff"><p class="paragraph" style="font-family:Open Sans, sans-serif;text-align:left;line-height:30.00px;font-size:15px;margin:0;color:#5f5f5f;word-break:normal">Hello <span style="font-weight: bold" class="bold">${studentName}</span>,<br>This is ERP System of <span style="font-weight: bold" class="bold">${instituteName}</span><br><br><span style="font-weight: bold" class="bold">${
+    message?.message_title
+  }:-<br></span>${
+    message?.message
+  }</p></td></tr><tr class="wp-block-editor-buttonblock-v1" align="left"><td style="background-color:#ffffff;padding-top:20px;padding-right:20px;padding-bottom:20px;padding-left:20px;width:100%" valign="top">
+                              <table role="presentation" cellspacing="0" cellpadding="0" class="button-table"><tbody><tr>${
+                                message?.message_document
+                                  ? `<td valign="top" class="button-GayoDUm67tvxnB-vsbIA8 button-td button-td-primary" style="cursor:pointer;border:none;border-radius:4px;background-color:#5457ff;font-size:16px;font-family:Open Sans, sans-serif;width:fit-content;text-decoration:none;color:#ffffff;overflow:hidden"><a style="color:#ffffff;display:block;padding:16px 32px 16px 32px">Download Attachement</a></td>`
+                                  : ""
+                              }</tr></tbody></table></td></tr><tr class="wp-block-editor-socialiconsblock-v1" role="article" aria-roledescription="social-icons" style="display:table-row;background-color:#FFFFFF"><td style="width:100%"><table style="background-color:#FFFFFF;width:100%;padding-top:20px;padding-bottom:20px;padding-left:20px;padding-right:20px;border-collapse:separate !important" cellpadding="0" cellspacing="0" role="presentation"><tbody><tr><td align="center" valign="top"><div style="max-width:860px"><table role="presentation" style="width:100%" cellpadding="0" cellspacing="0" width="100%"><tbody><tr><td valign="top"><div style="margin-left:auto;margin-right:auto;margin-top:-5px;margin-bottom:-5px;width:100%;max-width:208px"><table role="presentation" style="padding-left:326" width="100%" cellpadding="0" cellspacing="0"><tbody><tr><td><table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://www.facebook.com/Qviple" target="_blank" rel="noreferrer"><img src="https://d2u6lzrmbvw8bs.cloudfront.net/assets/social-icons/facebook/facebook-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="Facebook"></a></td></tr></tbody></table>
+                              <table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://x.com/qviple1" target="_blank" rel="noreferrer"><img src="https://d2u6lzrmbvw8bs.cloudfront.net/assets/social-icons/x/x-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="X (formerly Twitter)"></a></td></tr></tbody></table><table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://www.youtube.com/@qviple3353" target="_blank" rel="noreferrer"><img src="https://d2u6lzrmbvw8bs.cloudfront.net/assets/social-icons/youtube/youtube-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="Youtube"></a></td></tr></tbody></table><table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://www.linkedin.com/company/qviple/?viewAsMember=true" target="_blank" rel="noreferrer"><img src="https://d2u6lzrmbvw8bs.cloudfront.net/assets/social-icons/linkedin/linkedin-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="LinkedIn"></a></td></tr></tbody></table>
+                              </td></tr></tbody></table></div></td></tr></tbody></table></div></td></tr></tbody></table></td></tr><tr><td valign="top" align="center" style="padding:8px 8px 8px 8px;background-color:#FFFFFF"><p aria-label="Unsubscribe" class="paragraph" style="font-family:Open Sans, sans-serif;text-align:center;line-height:22.00px;font-size:11px;margin:0;color:#5f5f5f;word-break:normal">If you no longer wish to receive mail from us, you can <a class="c0c4d759-1c22-48d4-a614-785d6acaf420-6V201gHRzhDxAzaNqZiJS" href="{unsubscribe}" data-type="mergefield" data-id="c0c4d759-1c22-48d4-a614-785d6acaf420-6V201gHRzhDxAzaNqZiJS" data-filename="" style="color: #5457FF; display: inline-block;" data-mergefield-value="unsubscribe" data-mergefield-input-value="">unsubscribe</a>.</p></td></tr><tr class="wp-block-editor-paragraphblock-v1"><td valign="top" style="padding:12px 12px 12px 12px;background-color:#FFFFFF"><p class="paragraph" style="font-family:Open Sans, sans-serif;text-align:center;line-height:11.50px;font-size:10px;margin:0;color:#5f5f5f;word-break:normal">Unable to view? Read it <a href="{view}" data-type="mergefield" data-id="62d10d6d-b252-49a7-af10-c771dbd58b15-Xzt0XJLlayJkgPI0XyMI5" data-filename="" class="62d10d6d-b252-49a7-af10-c771dbd58b15-Xzt0XJLlayJkgPI0XyMI5" data-mergefield-value="view" data-mergefield-input-value="" style="color: #5457FF; display: inline-block;">Online</a></p></td></tr><tr class="wp-block-editor-imageblock-v1"><td style="background-color:#ffffff;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0" align="center"><table align="center" width="900" class="imageBlockWrapper" style="width:900px;border-spacing:0;border-collapse:collapse" role="presentation"><tbody><tr><td style="padding:0"><img src="https://api.smtprelay.co/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/n_footer-default.png" width="900" height="" alt="" style="border-radius:0px;display:block;height:auto;width:100%;max-width:100%;border:0" class="g-img"></td></tr></tbody></table></td></tr>
+                          </table>
+                      <!--[if mso | IE]>
+                      </td>
+                  </tr>
+              </tbody>
+              </table>
+              <![endif]-->
+          </center>
+      </body>
   </html>`;
 
   const formData = {
@@ -687,10 +904,15 @@ exports.send_email_student_message_query = (
 };
 
 // console.log(
-//   send_email_student_message_query("deepu51196@gmail.com", "Dynamic")
+//   send_email_student_message_query(
+//     "skdabhishekjrjarvis10@gmail.com",
+//     { message: "Dynamic Content", message_title: "Hurry Up..." },
+//     "HPTRYK",
+//     "Ankush Kumar Singh"
+//   )
 // );
 
-exports.send_email_authentication_custom = async function (recipientEmail) {
+exports.send_email_authentication_custom = async (recipientEmail) => {
   // Create the bodyhtml part of the email
   let rand1 = Math.floor(Math.random() * 9) + 1;
   let rand2 = Math.floor(Math.random() * 9) + 1;
@@ -698,170 +920,377 @@ exports.send_email_authentication_custom = async function (recipientEmail) {
   let rand4 = Math.floor(Math.random() * 9) + 1;
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const bodyhtml = `
-  <html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-      <meta charset="UTF-8">
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-      <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/spectrum/1.8.0/spectrum.min.css">
-  </head>
-  <body style="padding:0; margin:0; background:#e4e6ec;">
-      <table style="height:100%; width:100%; background-color:rgb(228, 230, 236);" align="center">
-          <tbody>
-              <tr>
-                  <td valign="top" id="dbody" data-version="2.31" style="width:100%; height:100%; margin-top:50px; margin-bottom:50px; padding-top:0px; padding-bottom:0px; background-color:rgb(228, 230, 236);">
-                      <table class="layer_1" align="center" border="0" cellpadding="0" cellspacing="0" style="max-width:588px; box-sizing:border-box; width:100%; margin:0px auto;">
-                          <tbody>
-                              <tr>
-                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
-                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
-                                          <table border="0" cellspacing="0" cellpadding="0" class="edcontent" style="border-collapse:collapse;width:100%">
-                                              <tbody>
-                                                  <tr>
-                                                      <td valign="top" class="edimg" style="padding:0px; box-sizing:border-box; text-align:center;">
-                                                          <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Group_41_(3).png" alt="Image" style="border-width:0px; border-style:none; max-width:401px; width:100%;" width="401">
-                                                      </td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
-                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
-                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
-                                              <tbody>
-                                                  <tr>
-                                                      <td valign="top" class="edtext" style="padding:20px; text-align:left; color:rgb(95, 95, 95); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
-                                                          <p style="margin:0px; padding:0px;">
-                                                              <span style="color:#000000;">To Verify your email address, please use the following One Time Password (OTP):</span>
-                                                          </p>
-                                                          <p style="margin:0px; padding:0px;"><br></p>
-                                                          <p class="style3" style="margin:0px; padding:0px; color:rgb(68, 68, 68); font-size:16px; line-height:normal; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;">
-                                                              <strong>${OTP}</strong>
-                                                          </p>
-                                                      </td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
-                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
-                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
-                                              <tbody>
-                                                  <tr>
-                                                      <td valign="top" class="edtext" style="padding:20px; text-align:left; color:rgb(95, 95, 95); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
-                                                          <p style="margin:0px; padding:0px;">
-                                                              <span style="color:#000000;">Do not share this OTP with anyone. Qviple never calls to ask for OTP. Qviple takes your account security very seriously. Qviple Customer Service will never ask you to disclose or verify your Qviple password, OTP, credit card, or banking account number. If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to Qviple for investigation.</span>
-                                                          </p>
-                                                          <p style="margin:0px; padding:0px;"><br></p>
-                                                          <p style="margin:0px; padding:0px;">
-                                                              <span style="color:#000000;">Thank you!</span>
-                                                          </p>
-                                                          <p style="margin:0px; padding:0px;"><font color="#000000">Team Qviple</font></p>
-                                                          <p style="margin:0px; padding:0px;"><br></font></p>
-                                                          <p style="margin:0px; padding:0px;"><font color="#000000">Kindly do not share your OTP, as it is confidential.</font></p>
-                                                      </td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td class="drow" valign="top" align="center" style="background-color:rgb(255, 255, 255); box-sizing:border-box; font-size:0px; text-align:center;">
-                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
-                                          <table border="0" cellspacing="0" class="edcontent" style="border-collapse:collapse;width:100%">
-                                              <tbody>
-                                                  <tr>
-                                                      <td valign="top" class="edsocialfollow" style="padding:20px;">
-                                                          <table align="center" style="margin:0 auto" class="edsocialfollowcontainer" cellpadding="0" border="0" cellspacing="0">
-                                                              <tbody>
-                                                                  <tr>
-                                                                      <td>
-                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="facebook">
-                                                                              <tbody>
-                                                                                  <tr>
-                                                                                      <td align="center" valign="middle" style="padding:10px;">
-                                                                                          <a href="https://www.facebook.com/Qviple" target="_blank" style="color:;font-size:12px;font-family:">
-                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_facebook.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Facebook" width="32">
-                                                                                          </a>
-                                                                                      </td>
-                                                                                  </tr>
-                                                                              </tbody>
-                                                                          </table>
-                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="twitter">
-                                                                              <tbody>
-                                                                                  <tr>
-                                                                                      <td align="center" valign="middle" style="padding:10px;">
-                                                                                          <a href="https://twitter.com/Qviple1" target="_blank" style="color:;font-size:12px;font-family:">
-                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_twitter.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Twitter" width="32">
-                                                                                          </a>
-                                                                                      </td>
-                                                                                  </tr>
-                                                                              </tbody>
-                                                                          </table>
-                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="instagram">
-                                                                              <tbody>
-                                                                                  <tr>
-                                                                                      <td align="center" valign="middle" style="padding:10px;">
-                                                                                          <a href="https://www.instagram.com/qviple/" target="_blank" style="color:;font-size:12px;font-family:">
-                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_instagram.png" style="display:block; width:100%; max-width:32px; border:none;" alt="Instagram" width="32">
-                                                                                          </a>
-                                                                                      </td>
-                                                                                  </tr>
-                                                                              </tbody>
-                                                                          </table>
-                                                                          <table align="left" border="0" cellpadding="0" cellspacing="0" data-service="linkedin">
-                                                                              <tbody>
-                                                                                  <tr>
-                                                                                      <td align="center" valign="middle" style="padding:10px;">
-                                                                                          <a href="https://www.linkedin.com/company/qviple" target="_blank" style="color:;font-size:12px;font-family:">
-                                                                                              <img src="https://api.etrck.com/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/ro_sol_li_32_linkedin.png" style="display:block; width:100%; max-width:32px; border:none;" alt="LinkedIn" width="32">
-                                                                                          </a>
-                                                                                      </td>
-                                                                                  </tr>
-                                                                              </tbody>
-                                                                          </table>
-                                                                      </td>
-                                                                  </tr>
-                                                              </tbody>
-                                                          </table>
-                                                      </td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </td>
-                              </tr>
-                              <tr>
-                                  <td class="drow" valign="top" align="center" style="background-color:rgb(228, 230, 236); box-sizing:border-box; font-size:0px; text-align:center;">
-                                      <div class="layer_2" style="max-width:588px; display:inline-block; vertical-align:top; width:100%;">
-                                          <table border="0" cellspacing="0" cellpadding="0" class="edcontent" style="border-collapse:collapse;width:100%">
-                                              <tbody>
-                                                  <tr>
-                                                      <td valign="top" class="edtext" style="padding:10px; text-align:center; color:rgb(158, 158, 158); font-size:12px; font-family:'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; word-break:break-word; direction:ltr; box-sizing:border-box;">
-                                                          <p style="margin:0px; padding:0px;">
-                                                              <span style="color:#000000;">Copyright © 2023, Qviple, All rights reserved.</span>
-                                                          </p>
-                                                      </td>
-                                                  </tr>
-                                              </tbody>
-                                          </table>
-                                      </div>
-                                  </td>
-                              </tr>
-                          </tbody>
-                      </table>
-                  </td>
-              </tr>
-          </tbody>
-      </table>
-  </body>
-  </html>
+  <!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="x-apple-disable-message-reformatting">
+        <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+
+        <meta name="color-scheme" content="light">
+        <meta name="supported-color-schemes" content="light">
+
+        
+        <!--[if !mso]><!-->
+          
+          <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+
+          <style type="text/css">
+          // TODO: fix me!
+            @import url(https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap);
+        </style>
+        
+        <!--<![endif]-->
+
+        <!--[if mso]>
+          <style>
+              // TODO: fix me!
+              * {
+                  font-family: sans-serif !important;
+              }
+          </style>
+        <![endif]-->
+    
+        
+        <!-- NOTE: the title is processed in the backend during the campaign dispatch -->
+        <title></title>
+
+        <!--[if gte mso 9]>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:AllowPNG/>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+        <![endif]-->
+        
+    <style>
+        :root {
+            color-scheme: light;
+            supported-color-schemes: light;
+        }
+
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+
+            overflow-wrap: break-word;
+            -ms-word-break: break-all;
+            -ms-word-break: break-word;
+            word-break: break-all;
+            word-break: break-word;
+        }
+
+
+        
+  
+
+
+  center,
+  #body_table {
+    
+  }
+
+  ul, ol {
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  li {
+    margin-bottom: 0;
+  }
+
+  
+
+  .list-block-list-outside-left li {
+    margin-left: 20px !important;
+  }
+
+  .list-block-list-outside-right li {
+    margin-right: 20px !important;
+  }
+
+  
+     .paragraph {
+      font-size: 15px;
+      font-family: Open Sans, sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      text-align: start;
+      line-height: 1;
+      text-decoration: none;
+      color: #5f5f5f;
+      
+    }
+  
+
+     .heading1 {
+      font-size: 32px;
+      font-family: Open Sans, sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      text-align: start;
+      line-height: 1;
+      text-decoration: none;
+      color: #000000;
+      
+    }
+  
+
+     .heading2 {
+      font-size: 26px;
+      font-family: Open Sans, sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      text-align: start;
+      line-height: 1;
+      text-decoration: none;
+      color: #000000;
+      
+    }
+  
+
+     .heading3 {
+      font-size: 19px;
+      font-family: Open Sans, sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      text-align: start;
+      line-height: 1;
+      text-decoration: none;
+      color: #000000;
+      
+    }
+  
+
+     .list {
+      font-size: 15px;
+      font-family: Open Sans, sans-serif;
+      font-weight: normal;
+      font-style: normal;
+      text-align: start;
+      line-height: 1;
+      text-decoration: none;
+      color: #5f5f5f;
+      
+    }
+  
+
+  p a, 
+  li a {
+    
+  display: inline-block;  
+    color: #5457FF;
+    text-decoration: none;
+    font-style: normal;
+    font-weight: normal;
+
+  }
+
+  .button-table a {
+    text-decoration: none;
+    font-style: normal;
+    font-weight: normal;
+  }
+
+  .paragraph > span {text-decoration: none;}.heading1 > span {text-decoration: none;}.heading2 > span {text-decoration: none;}.heading3 > span {text-decoration: none;}.list > span {text-decoration: none;}
+
+
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        div[style*="margin: 16px 0"] {
+            margin: 0 !important;
+        }
+
+        #MessageViewBody,
+        #MessageWebViewDiv {
+            width: 100% !important;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+        table:not(.button-table) {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+
+        th {
+            font-weight: normal;
+        }
+
+        tr td p {
+            margin: 0;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        a[x-apple-data-detectors],
+
+        .unstyle-auto-detected-links a,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        .im {
+            color: inherit !important;
+        }
+
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+
+        img.g-img+div {
+            display: none !important;
+        }
+
+        @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+            u~div .contentMainTable {
+                min-width: 320px !important;
+            }
+        }
+
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+            u~div .contentMainTable {
+                min-width: 375px !important;
+            }
+        }
+
+        @media only screen and (min-device-width: 414px) {
+            u~div .contentMainTable {
+                min-width: 414px !important;
+            }
+        }
+    </style>
+
+    <style>
+        @media only screen and (max-device-width: 900px) {
+            .contentMainTable {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .single-column {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .multi-column {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .imageBlockWrapper {
+                width: 100% !important;
+                margin: auto !important;
+            }
+        }
+        @media only screen and (max-width: 900px) {
+            .contentMainTable {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .single-column {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .multi-column {
+                width: 100% !important;
+                margin: auto !important;
+            }
+            .imageBlockWrapper {
+                width: 100% !important;
+                margin: auto !important;
+            }
+        }
+    </style>
+    
+    
+<!--[if mso | IE]>
+    <style>
+        .list-block-outlook-outside-left {
+            margin-left: -18px;
+        }
+    
+        .list-block-outlook-outside-right {
+            margin-right: -18px;
+        }
+
+        a:link, span.MsoHyperlink {
+            mso-style-priority:99;
+            
+  display: inline-block;  
+    color: #5457FF;
+    text-decoration: none;
+    font-style: normal;
+    font-weight: normal;
+
+        }
+    </style>
+<![endif]-->
+
+
+    </head>
+
+    <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #F5F6F8;">
+        <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #F5F6F8;">
+            <!--[if mso | IE]>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" id="body_table" width="100%" style="background-color: #F5F6F8;">
+            <tbody>    
+                <tr>
+                    <td>
+                    <![endif]-->
+                        <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="900" style="margin: auto;" class="contentMainTable">
+                            <tr class="wp-block-editor-imageblock-v1">
+                            <td style="background-color:#ffffff;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0" align="center">
+                            <table align="center" width="900" class="imageBlockWrapper" style="width:900px;border-spacing:0;border-collapse:collapse" role="presentation">
+                            <tbody><tr><td style="padding:0">
+                            <img src="https://api.smtprelay.co/userfile/ab0e9f76-f4d1-4afb-b6af-f543b59ed4e0/Your_paragraph_text_(1)2023-06-02T11_19_32.png" width="900" height="" alt="" style="border-radius:0px;display:block;height:auto;width:100%;max-width:100%;border:0" class="g-img"></td></tr></tbody>
+                            </table></td></tr><tr class="wp-block-editor-paragraphblock-v1"><td valign="top" style="padding:0px 32px 32px 32px;background-color:#ffffff">
+                            <p class="paragraph" style="font-family:Helvetica, sans-serif;text-align:left;line-height:24.00px;font-size:16px;margin:0;color:#5f5f5f;word-break:normal">To Verify your email address, please use the following One Time Password (OTP):<br><br><span style="font-weight: bold" class="bold">${OTP}</span><br><br>
+                            Do not share this OTP with anyone. Qviple never calls to ask for OTP. Qviple takes your account security very seriously. Qviple Customer Service will never ask you to disclose or verify your Qviple password, OTP, credit card, or banking account number. If you receive a suspicious email with a link to update your account information, do not click on the link—instead, report the email to Qviple for investigation. <br> <br>Thank you! <br>Team Qviple <br><br>Kindly do not share your OTP, as it is confidential.<br></p></td></tr>
+                            <tr class="wp-block-editor-socialiconsblock-v1" role="article" aria-roledescription="social-icons" style="display:table-row;background-color:#ffffff"><td style="width:100%"><table style="background-color:#ffffff;width:100%;padding-top:42px;padding-bottom:32px;padding-left:32px;padding-right:32px;border-collapse:separate !important" cellpadding="0" cellspacing="0" role="presentation"><tbody><tr><td align="center" valign="top"><div style="max-width:836px"><table role="presentation" style="width:100%" cellpadding="0" cellspacing="0" width="100%"><tbody><tr>
+                            <td valign="top"><div style="margin-left:auto;margin-right:auto;margin-top:-5px;margin-bottom:-5px;width:100%;max-width:208px"><table role="presentation" style="padding-left:314" width="100%" cellpadding="0" cellspacing="0"><tbody><tr><td><table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0">
+                            <a class="social-icon--link" href="https://www.facebook.com/Qviple" target="_blank" rel="noreferrer"><img src="https://template-editor-assets.s3.eu-west-3.amazonaws.com/assets/social-icons/facebook/facebook-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="Facebook"></a></td></tr>
+                            </tbody></table><table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://x.com/qviple1" target="_blank" rel="noreferrer">
+                            <img src="https://template-editor-assets.s3.eu-west-3.amazonaws.com/assets/social-icons/x/x-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="X (formerly Twitter)"></a></td></tr></tbody></table>
+                            <table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0">
+                            <a class="social-icon--link" href="https://www.youtube.com/@qviple3353" target="_blank" rel="noreferrer"><img src="https://template-editor-assets.s3.eu-west-3.amazonaws.com/assets/social-icons/youtube/youtube-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="Youtube"></img></a></td></tr></tbody></table>
+                            <table role="presentation" align="left" style="float:left" class="single-social-icon" cellpadding="0" cellspacing="0"><tbody><tr><td valign="top" style="padding-top:5px;padding-bottom:5px;padding-left:10px;padding-right:10px;border-collapse:collapse !important;border-spacing:0;font-size:0"><a class="social-icon--link" href="https://www.linkedin.com/company/qviple/?viewAsMember=true" target="_blank" rel="noreferrer"><img src="https://template-editor-assets.s3.eu-west-3.amazonaws.com/assets/social-icons/linkedin/linkedin-square-outline-color.png" width="32" height="32" style="max-width:32px;display:block;border:0" alt="LinkedIn"></a></td></tr></tbody></table>
+                            </td></tr></tbody></table></div></td></tr></tbody></table></div></td></tr></tbody></table></td></tr><tr><td valign="top" align="center" style="padding:20px 20px 20px 20px;background-color:#FFFFFF"><p aria-label="Unsubscribe" class="paragraph" style="font-family:Open Sans, sans-serif;text-align:center;line-height:22.00px;font-size:11px;margin:0;color:#5f5f5f;word-break:normal">If you no longer wish to receive mail from us, you can <a class="c0c4d759-1c22-48d4-a614-785d6acaf420-6V201gHRzhDxAzaNqZiJS" href="{unsubscribe}" data-type="mergefield" data-id="c0c4d759-1c22-48d4-a614-785d6acaf420-6V201gHRzhDxAzaNqZiJS" data-filename="" style="color: #5457FF; display: inline-block;" data-mergefield-value="unsubscribe" data-mergefield-input-value="">unsubscribe</a></p></td></tr><tr class="wp-block-editor-paragraphblock-v1"><td valign="top" style="padding:12px 12px 12px 12px;background-color:#FFFFFF"><p class="paragraph" style="font-family:Open Sans, sans-serif;text-align:center;line-height:11.50px;font-size:10px;margin:0;color:#5f5f5f;word-break:normal">Unable to view? Read it <a href="{view}" data-type="mergefield" data-id="62d10d6d-b252-49a7-af10-c771dbd58b15-Xzt0XJLlayJkgPI0XyMI5" data-filename="" class="62d10d6d-b252-49a7-af10-c771dbd58b15-Xzt0XJLlayJkgPI0XyMI5" data-mergefield-value="view" data-mergefield-input-value="" style="color: #5457FF; display: inline-block;">Online</a></p></td></tr><tr class="wp-block-editor-imageblock-v1"><td style="background-color:#ffffff;padding-top:0;padding-bottom:0;padding-left:0;padding-right:0" align="center"><table align="center" width="900" class="imageBlockWrapper" style="width:900px;border-spacing:0;border-collapse:collapse" role="presentation"><tbody><tr><td style="padding:0"><img src="https://api.smtprelay.co/userfile/a18de9fc-4724-42f2-b203-4992ceddc1de/n_footer-default.png" width="900" height="" alt="" style="border-radius:0px;display:block;height:auto;width:100%;max-width:100%;border:0" class="g-img"></td></tr></tbody></table></td></tr>
+                        </table>
+                    <!--[if mso | IE]>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+            <![endif]-->
+        </center>
+    </body>
+</html>
   `;
 
   // Prepare the form data
@@ -899,8 +1328,10 @@ exports.send_email_authentication_custom = async function (recipientEmail) {
   }
 };
 
+// console.log(send_email_authentication_promotional("yelpcamp44@gmail.com"));
+
 // console.log(
-//   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
+//   send_email_authentication_custom("skdabhishekjrjarvis10@gmail.com")
 // );
 
 // console.log(await student_sms_trigger_query(ins, cid))

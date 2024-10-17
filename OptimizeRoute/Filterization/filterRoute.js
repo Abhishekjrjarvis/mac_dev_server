@@ -362,6 +362,11 @@ router.patch(
 );
 
 router.patch(
+  "/:fid/all/combined/detail/bank/daybook",
+  catchAsync(Filter.render_combined_detail_bank_daybook_heads_wise)
+);
+
+router.patch(
   "/by/new/admission/fees/statistics/:fid/query",
   catchAsync(Filter.render_new_admission_fees_statistics_query)
 );
@@ -371,8 +376,9 @@ router.patch(
   catchAsync(Filter.renderStudentAcademicStatisticsUniversalQuery)
 );
 
-router.patch(
-  "/:fid/all/combined/detail/bank/daybook",
-  catchAsync(Filter.render_combined_detail_bank_daybook_heads_wise)
+router.get(
+  "/show/academic/universal/student/statistics/:aid/query",
+  catchAsync(Filter.renderOverallStudentAdmissionFeesAcademicStatisticsQuery)
 );
+
 module.exports = router;

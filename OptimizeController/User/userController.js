@@ -4098,6 +4098,33 @@ exports.getChatDashDataQuery = async (req, res) => {
   }
 };
 
+exports.is_mentor_query = async (req, res) => {
+  try {
+    const { id } = req?.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const user = await User.findById({ _id: id })
+      .select("staff")
+      .populate({
+        path: "staff",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "admissionDepart",
+        },
+      });
+    res
+      .status(200)
+      .send({ message: "Explore All User Staff ", access: true, user: user });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.getAllThreeCount = async (req, res) => {
 //   try {
 //     const id = req.params.id;

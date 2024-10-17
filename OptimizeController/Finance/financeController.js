@@ -8988,8 +8988,17 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
         path: "bank_account",
         select: "finance_bank_account_name",
       });
-    let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    let list = [];
+    if (one_of?.paid_students?.length > 0) {
+      list = [...one_of?.paid_students];
+    }
+    if (one_of?.remaining_students?.length > 0) {
+      list.push(...one_of?.remaining_students);
+    }
+    // let list = [...one_of?.paid_students, ...one_of?.remaining_students];
+    // console.log(list);
     // one_of?.students
+    console.log(g_date, l_date);
     let type = [
       "Payment Gateway / Online",
       "By Cash",
@@ -8998,37 +9007,80 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
       "RTGS/NEFT/IMPS",
       "Net Banking",
     ];
-    if (payment_type == "Total") {
-      var all_fees = await FeeReceipt.find({
-        $and: [
-          {
-            fee_transaction_date: {
-              $gte: g_date,
-              $lt: l_date,
+    if (payment_type) {
+      if (payment_type == "Total") {
+        var all_fees = await FeeReceipt.find({
+          $and: [
+            {
+              finance: one_of?.finance?._id,
             },
-          },
-          { student: { $in: list } },
-          { other_fees: one_of?._id },
-          {
-            refund_status: "No Refund",
-          },
-          {
-            visible_status: "Not Hide",
-          },
-        ],
-      })
-        .select(
-          "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
-        )
-        .populate({
-          path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO",
-        });
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            { student: { $in: list } },
+            { other_fees: one_of?._id },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
+            },
+          ],
+        })
+          .select(
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO",
+          });
+        console.log(all_fees?.length);
+      } else {
+        var all_fees = await FeeReceipt.find({
+          $and: [
+            {
+              finance: one_of?.finance?._id,
+            },
+
+            {
+              fee_transaction_date: {
+                $gte: g_date,
+                $lt: l_date,
+              },
+            },
+            { student: { $in: list } },
+            { other_fees: one_of?._id },
+            {
+              refund_status: "No Refund",
+            },
+            {
+              visible_status: "Not Hide",
+            },
+            {
+              fee_payment_mode: { $in: type },
+            },
+          ],
+        })
+          .select(
+            "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
+          )
+          .populate({
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO student_abc_id",
+          });
+      }
     } else {
       var all_fees = await FeeReceipt.find({
         $and: [
           {
+            finance: one_of?.finance?._id,
+          },
+          {
             fee_transaction_date: {
               $gte: g_date,
               $lt: l_date,
@@ -9041,9 +9093,6 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
           },
           {
             visible_status: "Not Hide",
-          },
-          {
-            fee_payment_mode: { $in: type },
           },
         ],
       })
@@ -9056,35 +9105,6 @@ exports.renderOneDuplicateCombinedOtherFeesStudentListExportQuery = async (
             "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO student_abc_id",
         });
     }
-    var all_fees = await FeeReceipt.find({
-      $and: [
-        {
-          fee_transaction_date: {
-            $gte: g_date,
-            $lt: l_date,
-          },
-        },
-        { student: { $in: list } },
-        { other_fees: one_of?._id },
-        {
-          refund_status: "No Refund",
-        },
-        {
-          visible_status: "Not Hide",
-        },
-        {
-          fee_payment_mode: `${payment_type}`,
-        },
-      ],
-    })
-      .select(
-        "receipt_file fee_payment_amount fee_payment_mode invoice_count fee_transaction_date created_at payable_amount fee_heads fee_utr_reference active"
-      )
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName studentFatherName student_prn_enroll_number other_fees studentGRNO student_abc_id",
-      });
     let excel_list = [];
 
     for (let cls of all_fees) {

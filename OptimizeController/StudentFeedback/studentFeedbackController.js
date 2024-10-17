@@ -2669,3 +2669,29 @@ exports.feedback_not_send_subject_teacher_query = async (req, res) => {
     console.log(e);
   }
 };
+
+// check which subject teacher subject student not send
+exports.feedback_clone_question_query = async (req, res) => {
+  try {
+    const { ifid, nifid } = req.params;
+    if (!nifid || !ifid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+
+    const feedback = await StudentFeedback.findById(ifid);
+    const n_feedback = await StudentFeedback.findById(nifid);
+
+    n_feedback.questions = feedback.questions;
+    n_feedback.question_count = feedback.question_count;
+
+    // console.log(n_feedback.questions);
+    await n_feedback.save();
+    res.status(200).send({
+      message: "One subject Student feedback notify successfully.",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

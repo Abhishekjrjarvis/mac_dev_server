@@ -1164,6 +1164,17 @@ exports.staff_self_in_attendance_query = async (req, res) => {
         },
       ],
     });
+
+    const dt_staff = await Staff.findById(sid)
+      .populate({
+        path: "staff_department",
+        select: "office_start_hr late_mark",
+      })
+      .populate({
+        path: "institute",
+        select: "office_start_hr late_mark",
+      });
+
     if (attendance?._id) {
       attendance.presentTotal += 1;
       attendance.presentStaff.push({

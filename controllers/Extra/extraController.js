@@ -132,6 +132,7 @@ const OtherFees = require("../../models/Finance/Other/OtherFees");
 const combinedBankDaybook = require("../../scripts/combinedBankDaybook");
 const combinedSummaryBankDaybook = require("../../scripts/combinedSummaryBankDaybook");
 const staffLeaveRequestReport = require("../../scripts/leaveReport/staffLeaveRequestReport");
+const combinedSummaryDetailBankDaybook = require("../../scripts/combinedSummaryDetailBankDaybook");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -5082,10 +5083,11 @@ exports.generateDummyPdfQuery = async (req, res) => {
     // await staffLeaveRequest();
     // await combinedBankDaybook();
     // await combinedSummaryBankDaybook();
-    await staffLeaveRequestReport(
-      "670da804c26612d9989c7917",
-      "651ba22de39dbdf817dd520c"
-    );
+    await combinedSummaryDetailBankDaybook();
+    // await staffLeaveRequestReport(
+    //   "670da804c26612d9989c7917",
+    //   "651ba22de39dbdf817dd520c"
+    // );
 
     res.status(200).send({
       message: "Dummy pdf generate",

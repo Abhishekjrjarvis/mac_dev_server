@@ -1249,7 +1249,7 @@ exports.outward_reject_by_staff_query = async (req, res) => {
     if (outward?.prepare_by) {
       const staff_app = await Staff.findById(sid);
       const staff = await Staff.findById(outward?.prepare_by);
-      let which_one = out.model_type === "INWARD" ? "Inward" : "Outward";
+      let which_one = outward?.model_type === "INWARD" ? "Inward" : "Outward";
       let first_name = outward?.subject ?? outward?.name ?? "";
 
       if (staff?.user) {
@@ -1485,7 +1485,7 @@ exports.outward_feed_announcement_query = async (req, res) => {
     });
     announcements.announcementDocument.push(insDocument._id);
     outward.published_arr.push({
-      type: "ON_FEED",
+      which_type: "ON_FEED",
       announcement: announcements?._id,
     });
     await Promise.all([

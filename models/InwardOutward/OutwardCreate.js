@@ -81,7 +81,7 @@ const outwardCreateSchema = new mongoose.Schema({
   is_resent: String,
   published_arr: [
     {
-      type: String,
+      which_type: String,
       announcement: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "InsAnnouncement",

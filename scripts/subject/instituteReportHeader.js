@@ -24,6 +24,7 @@ const instituteReportHeader = async (
       .circle(doc.x + 24.6, dy + 30.3, 39.2)
       .stroke("white");
   }
+  // console.log("instituteData?.affliatedLogo", instituteData?.affliatedLogo);
   if (is_right_hide) {
   } else {
     if (instituteData?.affliatedLogo) {

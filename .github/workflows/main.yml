@@ -48,7 +48,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  
 
     steps:
       # Step 1: Checkout the repository code
@@ -67,9 +67,9 @@ jobs:
       - name: Update ECS Task definition
         id: task-def
         uses: pooriaghaedi/amazon-ecs-deploy-task-definition@main
-        with:
-          ecs-service: "qviple-service-prod"  # Update with your ECS service name
-          ecs-cluster: "Prod-qviple"  # Update with your ECS cluster name
-          region: "ap-south-1"  # Your AWS region
-          image-uri: "${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"  # Docker image built in the previous job
-          task-definition: "qviple-api-taskdef"  # Update with your ECS task definition name
+        env:
+          ECS_TASK_DEFINITION: "qviple-api-taskdef"  # Update this with your task definition name
+          REGION: "ap-south-1"  # Use the region from secrets
+          IMAGE_URI: "${{ secrets.DOCKER_USERNAME }}/qviple-prod:latest"  # Use the built Docker image
+          ECS_CLUSTER: "Prod-qviple"  # Update with your ECS cluster name
+          ECS_SERVICE: "qviple-service-prod"  # Update with your ECS service name

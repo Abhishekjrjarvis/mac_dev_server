@@ -14,12 +14,6 @@ RUN apt-get update && apt-get install -y python3 build-essential \
 # Install the application dependencies
 RUN npm install
 
-# Build argument to pass Firebase credentials
-ARG FIREBASE_JSON
-
-# Create a Secret directory and write the Firebase credentials into a file
-RUN mkdir Secret && echo "$FIREBASE_JSON" > Secret/qviple-user-firebase-adminsdk-4qvna-8582f91ae3.json
-
 # Copy the rest of your application files to the working directory
 COPY . .
 

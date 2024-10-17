@@ -564,4 +564,9 @@ router.patch(
   "/one/student/other/custom/:frid/institute/:id/query",
   catchAsync(Extra.customOneStudentOtherFeeReceiptQuery)
 );
+
+router.get(
+  "/login/institute/student/detail/user/as/staff/:uid/query",
+  catchAsync(Extra.institute_student_login_detail_query)
+);
 module.exports = router;

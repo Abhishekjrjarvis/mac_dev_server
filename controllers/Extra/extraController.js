@@ -5667,3 +5667,92 @@ exports.customOneStudentOtherFeeReceiptQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.institute_student_login_detail_query = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    if (!uid) {
+      return res.status(200).send({
+        message: "Url Segement parameter required is not fulfill.",
+      });
+    }
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+
+    let students = [];
+
+    const user = await User.findById(uid);
+    let staff_id = null;
+    staff_id = user?.staff?.[0];
+
+    if (staff_id) {
+      const staff = await Staff.findById(staff_id);
+
+      if (!["", undefined, ""]?.includes(req.query?.search)) {
+        students = await Student.find({
+          $and: [
+            {
+              institute: { $eq: `${staff?.institute}` },
+            },
+            {
+              $or: [
+                {
+                  studentFirstName: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  studentMiddleName: {
+                    $regex: req.query.search,
+                    $options: "i",
+                  },
+                },
+                {
+                  studentLastName: { $regex: req.query.search, $options: "i" },
+                },
+                {
+                  studentGRNO: { $regex: req.query.search, $options: "i" },
+                },
+              ],
+            },
+          ],
+        })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber userEmail",
+          })
+          .populate({
+            path: "parents_user",
+            select: "userPhoneNumber userEmail",
+          })
+          .select(
+            "studentFirstName studentLastName studentMiddleName studentGRNO studentProfilePhoto studentParentsPhoneNumber studentParentsEmail"
+          );
+      } else {
+        students = await Student.find({
+          institute: { $eq: `${staff?.institute}` },
+        })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber userEmail",
+          })
+          .populate({
+            path: "parents_user",
+            select: "userPhoneNumber userEmail",
+          })
+          .select(
+            "studentFirstName studentLastName studentMiddleName studentGRNO studentProfilePhoto studentParentsPhoneNumber studentParentsEmail"
+          )
+          .skip(dropItem)
+          .limit(itemPerPage);
+      }
+    }
+
+    res.status(200).send({
+      message: "One Institute student login details",
+      access: true,
+      students: students,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -4114,7 +4114,7 @@ exports.is_mentor_query = async (req, res) => {
         select: "institute",
         populate: {
           path: "institute",
-          select: "admissionDepart",
+          select: "admissionDepart financeDepart",
         },
       });
     res

@@ -57,6 +57,7 @@ exports.applicable_pending_calc = async (arr) => {
             r_args?.government_card?.remaining_fee;
         }
       }
+      s_args.applicable_fees_pending = s_args?.applicable_fees_pending == 0 ? 1 : s_args?.applicable_fees_pending
     }
     return arr;
   } catch (e) {

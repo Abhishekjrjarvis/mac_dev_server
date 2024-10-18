@@ -378,6 +378,29 @@ exports.render_leave_manage_query = async (req, res) => {
   }
 };
 
+const modify_leave_key = {
+  casual_leave: "Casual Leave",
+  medical_leave: "Medical Leave",
+  sick_leave: "Sick Leave",
+  off_duty_leave: "On Duty Leave",
+  lwp_leave: "Leave Without Pay",
+  leave_taken: "Leave Taken",
+  commuted_leave: "Commuted Leave",
+  maternity_leave: "Maternity Leave",
+  paternity_leave: "Paternity Leave",
+  study_leave: "Study Leave",
+  half_pay_leave: "Half Pay Leave",
+  quarantine_leave: "Quarantine Leave",
+  sabbatical_leave: "Sabbatical Leave",
+  special_disability_leave: "Special Disability Leave",
+  winter_vacation_leave: "Winter Vacation Leave",
+  summer_vacation_leave: "Summer Vacation Leave",
+  child_adoption_leave: "Child Adoption Leave",
+  bereavement_leave: "Bereavement Leave",
+  earned_leave: "Earned Leave",
+  c_off_leave: "Compensation Off Leave",
+  compensation_off_leave: "Compensation Off Leave",
+};
 exports.all_leave_export_with_staff_list_query = async (req, res) => {
   try {
     const { lmid } = req.params;
@@ -418,7 +441,9 @@ exports.all_leave_export_with_staff_list_query = async (req, res) => {
           for (let ty of active_leaves) {
             if (staff?._id) {
               if (staff[ty]) {
-                bj[ty] = staff[ty];
+                bj[modify_leave_key[ty]] = staff[ty];
+                bj[`Remaining ${modify_leave_key[ty]}`] =
+                  staff[ty] ?? 0 - staff?.taken_leave[ty] ?? 0;
               }
             }
           }
@@ -439,6 +464,7 @@ exports.all_leave_export_with_staff_list_query = async (req, res) => {
     }
     res.status(200).send({
       message: "One Lms staff excel export",
+      staff_list,
       excel_key: excel_key,
     });
   } catch (e) {

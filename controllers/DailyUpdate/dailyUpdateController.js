@@ -140,6 +140,7 @@ exports.createDailyUpdate = async (req, res) => {
             subject_date.topic_count_bifurgate.timely += 1;
           }
           valid_topic.topic_current_status = "Completed";
+          valid_topic.on_mark_complete = req.body?.date;
           await Promise.all([valid_topic.save(), subject_date.save()]);
         }
         if (`${rec_status}` === "Lecture") {

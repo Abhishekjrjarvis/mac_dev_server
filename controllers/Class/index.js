@@ -733,7 +733,7 @@ exports.cls_catalog_export_query = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender",
+          "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender studentEmail studentPhoneNumber studentAddress studentParentsPhoneNumber",
       })
       .lean()
       .exec();
@@ -747,6 +747,10 @@ exports.cls_catalog_export_query = async (req, res) => {
           RollNo: "",
           Name: "",
           Gender: "",
+          Email: "",
+          "Mobile No": "",
+          "Parent's Mobile No": "",
+          Address: "",
         };
         dObj.GRNO = stu?.studentGRNO ?? "N/A";
         dObj["Enrollment / PRN"] = stu?.student_prn_enroll_number
@@ -761,6 +765,10 @@ exports.cls_catalog_export_query = async (req, res) => {
           stu?.studentLastName
         }`;
         dObj.Gender = stu?.studentGender;
+        dObj.Email = stu?.studentEmail ?? "N/A";
+        dObj["Mobile No"] = stu?.studentPhoneNumber ?? "N/A";
+        dObj["Parent's Mobile No"] = stu?.studentParentsPhoneNumber ?? "N/A";
+        dObj.Address = stu?.studentAddress ?? "N/A";
         return dObj;
       });
     }

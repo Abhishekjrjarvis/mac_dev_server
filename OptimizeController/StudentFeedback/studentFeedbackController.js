@@ -715,7 +715,7 @@ exports.feedbackTakenByInstituteQueryMod = async (req, res) => {
         staff: data["staff"],
         student: data["student"],
       });
-      // await feedback.save();
+      await feedback.save();
       if (data && data["staff"]?.length > 0) {
         for (let st of data["staff"] ?? []) {
           const staff = await Staff.findById(st?.staffId);

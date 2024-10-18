@@ -693,9 +693,12 @@ exports.teaching_plan_export_report_query = async (req, res) => {
                   // schedule_date: moment(top?.topic_last_date)?.format(
                   //   "DD/MM/yyyy"
                   // ),
-                  execution_date: moment(top?.execution_date)?.format(
-                    "DD/MM/yyyy"
-                  ),
+                  // execution_date: moment(top?.execution_date)?.format(
+                  //   "DD/MM/yyyy"
+                  // ),
+                  execution_date: top?.on_mark_complete
+                    ? moment(top?.on_mark_complete)?.format("DD/MM/yyyy")
+                    : moment(top?.execution_date)?.format("DD/MM/yyyy"),
                   co: top?.course_outcome,
                   tech_method: top?.teaching_method ?? "",
                 });

@@ -105,7 +105,7 @@ exports.subject_catalog_export_query = async (req, res) => {
       for (let st of student_list) {
         const student = await Student.findById(st)
           .select(
-            "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender"
+            "studentFirstName studentLastName studentMiddleName studentGRNO studentROLLNO student_prn_enroll_number studentGender studentEmail studentPhoneNumber studentAddress studentParentsPhoneNumber"
           )
           .lean()
           .exec();
@@ -123,6 +123,10 @@ exports.subject_catalog_export_query = async (req, res) => {
             student?.studentLastName
           }`,
           Gender: student?.studentGender,
+          Email: student?.studentEmail ?? "N/A",
+          "Mobile No": student?.studentPhoneNumber ?? "N/A",
+          "Parent's Mobile No": student?.studentParentsPhoneNumber ?? "N/A",
+          Address: student?.studentAddress ?? "N/A",
         };
         students.push(dObj);
       }

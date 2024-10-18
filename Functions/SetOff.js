@@ -34,7 +34,7 @@ exports.applicable_pending_calc = async (arr) => {
       if (s_args?.remainingFeeList?.length > 0) {
         for (var r_args of s_args?.remainingFeeList) {
           s_args.applicable_fees_pending += r_args?.applicable_card?.remaining_fee == 0 ? 1 : r_args?.applicable_card?.remaining_fee
-          s_args.government_fees_pending += r_args?.government_card?.remaining_fee
+          s_args.government_fees_pending += r_args?.government_card?.remaining_fee ?? 1
         }
       }
     }
@@ -51,7 +51,7 @@ exports.applicable_pending_calc_singleton = async (s_args) => {
         s_args.applicable_fees_pending +=
           r_args?.fee_structure?.applicable_fees - r_args?.paid_fee > 0
             ? r_args?.fee_structure?.applicable_fees - r_args?.paid_fee
-            : 0;
+            : 1;
       }
     }
     return s_args;

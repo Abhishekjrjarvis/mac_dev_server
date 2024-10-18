@@ -3,20 +3,38 @@ exports.set_off_amount = async (r_args) => {
     var total = 0;
     var set_arr = [];
     for (var ref of r_args) {
-      if (ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee) {
-        total += ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee;
-        if ((ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee) > 0) {
+      if (
+        ref?.applicable_card?.paid_fee >= ref?.applicable_card?.applicable_fee
+      ) {
+        total +=
+          ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee;
+        if (
+          ref?.applicable_card?.paid_fee -
+            ref?.applicable_card?.applicable_fee >
+          0
+        ) {
           set_arr.push({
-            excess_fee: ref?.applicable_card?.paid_fee - ref?.applicable_card?.applicable_fee,
+            excess_fee:
+              ref?.applicable_card?.paid_fee -
+              ref?.applicable_card?.applicable_fee,
             remain: ref?._id,
           });
         }
       }
-      if (ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee) {
-        total += ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee;
-        if ((ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee) > 0) {
+      if (
+        ref?.government_card?.paid_fee >= ref?.government_card?.applicable_fee
+      ) {
+        total +=
+          ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee;
+        if (
+          ref?.government_card?.paid_fee -
+            ref?.government_card?.applicable_fee >
+          0
+        ) {
           set_arr.push({
-            excess_fee: ref?.government_card?.paid_fee - ref?.government_card?.applicable_fee,
+            excess_fee:
+              ref?.government_card?.paid_fee -
+              ref?.government_card?.applicable_fee,
             remain: ref?._id,
           });
         }
@@ -33,8 +51,10 @@ exports.applicable_pending_calc = async (arr) => {
     for (var s_args of arr) {
       if (s_args?.remainingFeeList?.length > 0) {
         for (var r_args of s_args?.remainingFeeList) {
-          s_args.applicable_fees_pending += r_args?.applicable_card?.remaining_fee == 0 ? 1 : r_args?.applicable_card?.remaining_fee
-          s_args.government_fees_pending += r_args?.government_card?.remaining_fee ?? 1
+          s_args.applicable_fees_pending +=
+            r_args?.applicable_card?.remaining_fee ?? 1;
+          s_args.government_fees_pending +=
+            r_args?.government_card?.remaining_fee;
         }
       }
     }

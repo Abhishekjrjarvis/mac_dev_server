@@ -68,6 +68,9 @@ const chapterTopicSchema = new mongoose.Schema({
   teaching_method: {
     type: String,
   },
+  on_mark_complete: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("ChapterTopic", chapterTopicSchema);

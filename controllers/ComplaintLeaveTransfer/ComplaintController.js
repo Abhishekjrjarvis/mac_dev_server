@@ -1487,6 +1487,56 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       if (req?.body?.status === "Issued") {
         leave.granted_on = new Date();
       }
+
+      if (leave?.leave_type === "Casual Leave") {
+        leave.staff.taken_leave.casual_leave += 1;
+      }
+      if (leave?.leave_type === "Medical Leave") {
+        leave.staff.taken_leave.medical_leave += 1;
+      }
+      if (leave?.leave_type === "Sick Leave") {
+        leave.staff.taken_leave.sick_leave += 1;
+      }
+      if (leave?.leave_type === "Commuted Leave") {
+        leave.staff.taken_leave.commuted_leave += 1;
+      }
+      if (leave?.leave_type === "Maternity Leave") {
+        leave.staff.taken_leave.maternity_leave += 1;
+      }
+      if (leave?.leave_type === "Paternity Leave") {
+        leave.staff.taken_leave.paternity_leave += 1;
+      }
+      if (leave?.leave_type === "Study Leave") {
+        leave.staff.taken_leave.study_leave += 1;
+      }
+      if (leave?.leave_type === "Half Pay Leave") {
+        leave.staff.taken_leave.half_pay_leave += 1;
+      }
+      if (leave?.leave_type === "Quarantine Leave") {
+        leave.staff.taken_leave.quarantine_leave += 1;
+      }
+      if (leave?.leave_type === "Sabbatical Leave") {
+        leave.staff.taken_leave.sabbatical_leave += 1;
+      }
+      if (leave?.leave_type === "Special Disability Leave") {
+        leave.staff.taken_leave.special_disability_leave += 1;
+      }
+      if (leave?.leave_type === "Winter Vacation Leave") {
+        leave.staff.taken_leave.winter_vacation_leave += 1;
+      }
+      if (leave?.leave_type === "Summer Vacation Leave") {
+        leave.staff.taken_leave.summer_vacation_leave += 1;
+      }
+      if (leave?.leave_type === "Child Adoption Leave") {
+        leave.staff.taken_leave.child_adoption_leave += 1;
+      }
+      if (leave?.leave_type === "Bereavement Leave") {
+        leave.staff.taken_leave.bereavement_leave += 1;
+      }
+      if (leave?.leave_type === "Compensation Off Leave") {
+        leave.staff.taken_leave.c_off_leave += 1;
+      }
+
       if (leave?.leave_type === "Casual Leave") {
         if (leave?.staff?.casual_leave > leave?.leave_grant) {
           leave.staff.casual_leave -= leave?.leave_grant;
@@ -1613,6 +1663,56 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       if (req?.body?.status === "Issued") {
         leave.granted_on = new Date();
       }
+
+      if (leave?.leave_type === "Casual Leave") {
+        leave.staff.taken_leave.casual_leave += 1;
+      }
+      if (leave?.leave_type === "Medical Leave") {
+        leave.staff.taken_leave.medical_leave += 1;
+      }
+      if (leave?.leave_type === "Sick Leave") {
+        leave.staff.taken_leave.sick_leave += 1;
+      }
+      if (leave?.leave_type === "Commuted Leave") {
+        leave.staff.taken_leave.commuted_leave += 1;
+      }
+      if (leave?.leave_type === "Maternity Leave") {
+        leave.staff.taken_leave.maternity_leave += 1;
+      }
+      if (leave?.leave_type === "Paternity Leave") {
+        leave.staff.taken_leave.paternity_leave += 1;
+      }
+      if (leave?.leave_type === "Study Leave") {
+        leave.staff.taken_leave.study_leave += 1;
+      }
+      if (leave?.leave_type === "Half Pay Leave") {
+        leave.staff.taken_leave.half_pay_leave += 1;
+      }
+      if (leave?.leave_type === "Quarantine Leave") {
+        leave.staff.taken_leave.quarantine_leave += 1;
+      }
+      if (leave?.leave_type === "Sabbatical Leave") {
+        leave.staff.taken_leave.sabbatical_leave += 1;
+      }
+      if (leave?.leave_type === "Special Disability Leave") {
+        leave.staff.taken_leave.special_disability_leave += 1;
+      }
+      if (leave?.leave_type === "Winter Vacation Leave") {
+        leave.staff.taken_leave.winter_vacation_leave += 1;
+      }
+      if (leave?.leave_type === "Summer Vacation Leave") {
+        leave.staff.taken_leave.summer_vacation_leave += 1;
+      }
+      if (leave?.leave_type === "Child Adoption Leave") {
+        leave.staff.taken_leave.child_adoption_leave += 1;
+      }
+      if (leave?.leave_type === "Bereavement Leave") {
+        leave.staff.taken_leave.bereavement_leave += 1;
+      }
+      if (leave?.leave_type === "Compensation Off Leave") {
+        leave.staff.taken_leave.c_off_leave += 1;
+      }
+
       if (leave?.leave_type === "Casual Leave") {
         if (leave?.staff?.casual_leave > leave?.leave_grant) {
           leave.staff.casual_leave -= leave?.leave_grant;

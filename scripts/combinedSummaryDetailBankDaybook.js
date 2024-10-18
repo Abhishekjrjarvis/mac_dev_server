@@ -119,154 +119,199 @@ const combinedSummaryDetailBankDaybook = async (
 
   let colunm_list = [];
 
-  let modify_list = [];
+  let modify_obj = {};
+  // let modify_list = [];
   if (daybook?.length > 0) {
     // let ct = 1;
     for (let dt of daybook) {
-      modify_list.push({
-        // sr_number: ct,
-        ...dt,
-      });
-      // ++ct;
-      for (let jh in dt) {
-        if (["ReceiptNumber", "Name", "BankTxnValue"]?.includes(jh)) {
-        } else {
-          if (colunm_list?.includes(jh)) {
-          } else {
-            colunm_list.push(jh);
+      let obj = {
+        indian_format: dt?.indian_format,
+        modify_list: [],
+      };
+      if (dt?.results?.length > 0) {
+        let obj_nest = {
+          ReceiptNumber: "",
+          Name: "Total",
+          BankTxnValue: 0,
+        };
+        for (let yt of dt?.results) {
+          obj.modify_list.push(yt);
+          for (let jh in yt) {
+            if (["ReceiptNumber", "Name", "BankTxnValue"]?.includes(jh)) {
+              if (jh === "BankTxnValue") {
+                if (obj_nest[jh]) {
+                  obj_nest[jh] += yt[jh] ?? 0;
+                } else {
+                  obj_nest[jh] = yt[jh] ?? 0;
+                }
+              }
+            } else {
+              if (colunm_list?.includes(jh)) {
+              } else {
+                colunm_list.push(jh);
+              }
+              if (obj_nest[jh]) {
+                obj_nest[jh] += yt[jh] ?? 0;
+              } else {
+                obj_nest[jh] = yt[jh] ?? 0;
+              }
+            }
           }
         }
+        obj.modify_list.push(obj_nest);
       }
+      modify_obj[dt?.indian_format] = obj;
+      // modify_list.push({
+      //   obj,
+      // });
     }
   }
 
   // let tb_list = [];
-  let table = {
-    headers: [
-      {
-        label: "Receipt No",
-        property: "ReceiptNumber",
-        render: null,
-        headerColor: "#b4b4b4",
-        headerOpacity: 0.5,
-        padding: [2, 2],
-        align: "center",
-        valign: "center",
-        width: 120,
-      },
-      {
-        label: "Name",
-        property: "Name",
-        render: null,
-        headerColor: "#b4b4b4",
-        headerOpacity: 0.5,
-        padding: [2, 2],
-        width: 150,
-        align: "center",
-        valign: "center",
-      },
-      {
-        label: "Amount",
-        property: "BankTxnValue",
-        render: null,
-        headerColor: "#b4b4b4",
-        headerOpacity: 0.5,
-        padding: [2, 2],
-        align: "center",
-        valign: "center",
-        width: 50,
-      },
-    ],
-    datas: modify_list,
-  };
-  if (colunm_list?.length > 0) {
-    for (let i = 0; i < colunm_list?.length; i++) {
-      let ft = colunm_list[i];
-      table.headers.push({
-        label: ft,
-        property: ft,
-        render: null,
-        headerColor: "#b4b4b4",
-        headerOpacity: 0.5,
-        align: "center",
-        valign: "center",
-        padding: [2, 2],
-        width: 40,
-      });
+  let uyt = 1;
+  for (let ht in modify_obj) {
+    if (uyt !== 1) {
+      doc.addPage();
+    }
+    let table = {
+      headers: [
+        {
+          label: "Receipt No",
+          property: "ReceiptNumber",
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [2, 2],
+          align: "center",
+          valign: "center",
+          width: 120,
+        },
+        {
+          label: "Name",
+          property: "Name",
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [2, 2],
+          width: 150,
+          align: "center",
+          valign: "center",
+        },
+        {
+          label: "Amount",
+          property: "BankTxnValue",
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          padding: [2, 2],
+          align: "center",
+          valign: "center",
+          width: 50,
+        },
+      ],
+      datas: modify_obj[ht]?.modify_list,
+    };
+    if (colunm_list?.length > 0) {
+      for (let i = 0; i < colunm_list?.length; i++) {
+        let ft = colunm_list[i];
+        table.headers.push({
+          label: ft,
+          property: ft,
+          render: null,
+          headerColor: "#b4b4b4",
+          headerOpacity: 0.5,
+          align: "center",
+          valign: "center",
+          padding: [2, 2],
+          width: 40,
+        });
+      }
+
+      // let range = 5;
+      // let range_itr = Math.ceil(colunm_list?.length / range);
+
+      // for (let j = 0; j < range_itr; j++) {
+      //   let table = {
+      //     headers: [
+      //       {
+      //         label: "SN",
+      //         property: "sr_number",
+      //         render: null,
+      //         headerColor: "#b4b4b4",
+      //         headerOpacity: 0.5,
+      //         align: "center",
+      //         padding: [2, 2],
+      //       },
+      //       {
+      //         label: "Name",
+      //         property: "Name",
+      //         render: null,
+      //         headerColor: "#b4b4b4",
+      //         headerOpacity: 0.5,
+      //         padding: [2, 2],
+      //       },
+      //       {
+      //         label: "Receipt No",
+      //         property: "ReceiptNumber",
+      //         render: null,
+      //         headerColor: "#b4b4b4",
+      //         headerOpacity: 0.5,
+      //         padding: [2, 2],
+      //         align: "right",
+      //       },
+      //       {
+      //         label: "Amount",
+      //         property: "BankTxnValue",
+      //         render: null,
+      //         headerColor: "#b4b4b4",
+      //         headerOpacity: 0.5,
+      //         padding: [2, 2],
+      //         align: "right",
+      //       },
+      //     ],
+      //     datas: modify_list,
+      //   };
+      //   for (let i = j * range; i < j * range + range; i++) {
+      //     let ft = colunm_list[i];
+      //     table.headers.push({
+      //       label: ft,
+      //       property: ft,
+      //       render: null,
+      //       headerColor: "#b4b4b4",
+      //       headerOpacity: 0.5,
+      //       align: "center",
+      //       padding: [2, 2],
+      //     });
+      //   }
+      //   tb_list.push(table);
+      // }
     }
 
-    // let range = 5;
-    // let range_itr = Math.ceil(colunm_list?.length / range);
+    if (modify_obj[ht]?.indian_format) {
+      doc
+        .fontSize(11)
+        .font("Times-Bold")
+        .fillColor("#121212")
+        .text(`Date : ${modify_obj[ht]?.indian_format}`, {
+          align: "left",
+        });
+      doc.moveDown(1);
+    }
 
-    // for (let j = 0; j < range_itr; j++) {
-    //   let table = {
-    //     headers: [
-    //       {
-    //         label: "SN",
-    //         property: "sr_number",
-    //         render: null,
-    //         headerColor: "#b4b4b4",
-    //         headerOpacity: 0.5,
-    //         align: "center",
-    //         padding: [2, 2],
-    //       },
-    //       {
-    //         label: "Name",
-    //         property: "Name",
-    //         render: null,
-    //         headerColor: "#b4b4b4",
-    //         headerOpacity: 0.5,
-    //         padding: [2, 2],
-    //       },
-    //       {
-    //         label: "Receipt No",
-    //         property: "ReceiptNumber",
-    //         render: null,
-    //         headerColor: "#b4b4b4",
-    //         headerOpacity: 0.5,
-    //         padding: [2, 2],
-    //         align: "right",
-    //       },
-    //       {
-    //         label: "Amount",
-    //         property: "BankTxnValue",
-    //         render: null,
-    //         headerColor: "#b4b4b4",
-    //         headerOpacity: 0.5,
-    //         padding: [2, 2],
-    //         align: "right",
-    //       },
-    //     ],
-    //     datas: modify_list,
-    //   };
-    //   for (let i = j * 2; i < j * 2 + range; i++) {
-    //     let ft = colunm_list[i];
-    //     table.headers.push({
-    //       label: ft,
-    //       property: ft,
-    //       render: null,
-    //       headerColor: "#b4b4b4",
-    //       headerOpacity: 0.5,
-    //       align: "center",
-    //       padding: [2, 2],
-    //     });
-    //   }
-    //   tb_list.push(table);
-    // }
+    // Draw the table on the current page
+    doc.table(table, {
+      prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+      prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+        if (row.head_name === "Total") {
+          doc.font("Times-Bold").fontSize(10);
+        } else {
+          doc.font("Times-Roman").fontSize(8);
+        }
+        doc.addBackground(rectCell, "#a1a1a1", 0.1);
+      },
+    });
+    ++uyt;
   }
-
-  // Draw the table on the current page
-  doc.table(table, {
-    prepareHeader: () => doc.font("Times-Bold").fontSize(10),
-    prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-      if (row.head_name === "Total") {
-        doc.font("Times-Bold").fontSize(10);
-      } else {
-        doc.font("Times-Roman").fontSize(8);
-      }
-      doc.addBackground(rectCell, "#a1a1a1", 0.1);
-    },
-  });
 
   // if (tb_list?.length > 0) {
   //   for (let table of tb_list) {

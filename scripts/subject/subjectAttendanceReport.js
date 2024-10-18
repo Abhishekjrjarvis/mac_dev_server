@@ -18,7 +18,7 @@ const subjectAttendanceReport = async (
   const doc = new PDFDocument({
     font: "Times-Roman",
     size: "A2",
-    margins: { top: 20, bottom: 20, left: 20, right: 20 },
+    margins: { top: 20, bottom: 0, left: 20, right: 20 },
   });
   const result = await subjectDataRequest(subjectId);
   const instituteData = result?.dt;
@@ -29,6 +29,7 @@ const subjectAttendanceReport = async (
     ? `${subject_data?.subject?.subjectName}-${type}`
     : `${subject_data?.subject?.subjectName}-Monthly`;
 
+  // let pdf_name = `${ot_name}`;
   let pdf_name = `${ot_name}-${date.getTime()}`;
 
   const stream = fs.createWriteStream(
@@ -174,69 +175,160 @@ const subjectAttendanceReport = async (
 
   doc.moveDown(0.3);
 
-  let header = [
-    {
-      label: "Roll No.",
-      property: "RollNo",
-      render: null,
-      align: "center",
-      valign: "center",
-      padding: [0, 5, 0, 0],
-    },
-    {
-      label: "Name",
-      property: "Name",
-      render: null,
-      align: "left",
-      valign: "center",
-      padding: [2, 2, 2, 2],
-    },
-  ];
+  let colunm_list = [];
+
   if (datalist?.length > 0) {
-    let dt = datalist[0];
-    for (let obj in dt) {
+    let dt = datalist?.[0];
+    for (let jh in dt) {
       if (
-        ["GRNO", "Enrollment / PRN", "Gender", "RollNo", "Name"]?.includes(obj)
+        ["GRNO", "Enrollment / PRN", "Gender", "RollNo", "Name"]?.includes(jh)
       ) {
       } else {
-        header.push({
-          label: `${obj}`,
-          property: `${obj}`,
-          render: null,
-          align: "center",
-          valign: "center",
-          padding: [0, 5, 0, 0],
-        });
+        if (colunm_list?.includes(jh)) {
+        } else {
+          colunm_list.push(jh);
+        }
       }
     }
   }
-  const table = {
-    headers: header,
-    datas: datalist,
-  };
 
-  // Draw the table on the current page
-  doc.table(table, {
-    prepareHeader: () => doc.font("Times-Bold").fontSize(10),
-    hideHeader: false,
-    prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-      if (indexColumn === 0) {
-        doc.font("Times-Bold").fontSize(10);
-      } else {
-        doc.font("Times-Roman").fontSize(10);
+  let tb_list = [];
+  if (colunm_list?.length > 0) {
+    let range = 17;
+    let range_itr = Math.ceil(colunm_list?.length / range);
+
+    for (let j = 0; j < range_itr; j++) {
+      let table = {
+        headers: [
+          {
+            label: "Roll No.",
+            property: "RollNo",
+            render: null,
+            align: "center",
+            valign: "center",
+            padding: [2, 2],
+            width: 55,
+          },
+          {
+            label: "Name",
+            property: "Name",
+            render: null,
+            align: "left",
+            valign: "center",
+            padding: [2, 2],
+            width: 160,
+          },
+        ],
+        datas: datalist,
+      };
+      for (let i = j * range; i < j * range + range; i++) {
+        let ft = colunm_list[i];
+        if (ft) {
+          table.headers.push({
+            label: ft,
+            property: ft,
+            render: null,
+            headerColor: "#b4b4b4",
+            headerOpacity: 0.5,
+            align: "center",
+            padding: [2, 2],
+            width: 55,
+          });
+        }
       }
-      doc
-        .rect(
-          rectCell?.x ?? 0,
-          rectCell?.y ?? 0,
-          rectCell?.width ?? 0,
-          rectCell?.height ?? 0
-        )
-        .fillOpacity(0)
-        .fillAndStroke("red", "gray")
-        .fillColor("black", 1);
-    },
-  });
+      tb_list.push(table);
+    }
+  }
+  if (tb_list?.length > 0) {
+    for (let table of tb_list) {
+      // Draw the table on the current page
+      doc.table(table, {
+        prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+        prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+          if (indexColumn === 0) {
+            doc.font("Times-Bold").fontSize(10);
+          } else {
+            doc.font("Times-Roman").fontSize(10);
+          }
+          doc
+            .rect(
+              rectCell?.x ?? 0,
+              rectCell?.y ?? 0,
+              rectCell?.width ?? 0,
+              rectCell?.height ?? 0
+            )
+            .fillOpacity(0)
+            .fillAndStroke("red", "gray")
+            .fillColor("black", 1);
+        },
+      });
+      doc.moveDown(1);
+    }
+  }
+
+  // let header = [
+  //   {
+  //     label: "Roll No.",
+  //     property: "RollNo",
+  //     render: null,
+  //     align: "center",
+  //     valign: "center",
+  //     padding: [0, 5, 0, 0],
+  //   },
+  //   {
+  //     label: "Name",
+  //     property: "Name",
+  //     render: null,
+  //     align: "left",
+  //     valign: "center",
+  //     padding: [2, 2, 2, 2],
+  //   },
+  // ];
+  // if (datalist?.length > 0) {
+  //   let dt = datalist[0];
+  //   for (let obj in dt) {
+  //     if (
+  //       ["GRNO", "Enrollment / PRN", "Gender", "RollNo", "Name"]?.includes(obj)
+  //     ) {
+  //     } else {
+  //       header.push({
+  //         label: `${obj}`,
+  //         property: `${obj}`,
+  //         render: null,
+  //         align: "center",
+  //         valign: "center",
+  //         padding: [0, 5, 0, 0],
+  //       });
+  //     }
+  //   }
+  // }
+  // const table = {
+  //   headers: header,
+  //   datas: datalist,
+  // };
+
+  // // Draw the table on the current page
+  // doc.table(table, {
+  //   prepareHeader: () => doc.font("Times-Bold").fontSize(10),
+  //   hideHeader: false,
+  //   prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+  //     if (indexColumn === 0) {
+  //       doc.font("Times-Bold").fontSize(10);
+  //     } else {
+  //       doc.font("Times-Roman").fontSize(10);
+  //     }
+  //     doc
+  //       .rect(
+  //         rectCell?.x ?? 0,
+  //         rectCell?.y ?? 0,
+  //         rectCell?.width ?? 0,
+  //         rectCell?.height ?? 0
+  //       )
+  //       .fillOpacity(0)
+  //       .fillAndStroke("red", "gray")
+  //       .fillColor("black", 1);
+  //   },
+  // });
 
   doc.end();
 
@@ -247,7 +339,7 @@ const subjectAttendanceReport = async (
 
   // Handle stream close event
   stream.on("finish", async () => {
-    console.log("created");
+    // console.log("created");
     let file = {
       path: `uploads/${pdf_name}-Attendance-Report.pdf`,
       filename: `${pdf_name}-Attendance-Report.pdf`,

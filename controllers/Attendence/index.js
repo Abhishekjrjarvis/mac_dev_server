@@ -3147,10 +3147,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             obj.classWise.totalCount += 1;
             obj.availablity.push(statusObj);
           }
-          obj.classWise.totalPercentage = (
-            (obj.classWise.presentCount * 100) /
-            obj.classWise.totalCount
-          ).toFixed(2);
+          if (obj.classWise.presentCount > 0 && obj.classWise.totalCount > 0) {
+            obj.classWise.totalPercentage = (
+              (obj.classWise.presentCount * 100) /
+              obj.classWise.totalCount
+            ).toFixed(2);
+          }
+
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.classWise?.totalPercentage;
             total_per = Math.ceil(total_per);
@@ -3265,10 +3268,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             }
             obj.classWise.totalCount += 1;
           }
-          obj.classWise.totalPercentage = (
-            (obj.classWise.presentCount * 100) /
-            obj.classWise.totalCount
-          ).toFixed(2);
+          if (obj.classWise.presentCount > 0 && obj.classWise.totalCount > 0) {
+            obj.classWise.totalPercentage = (
+              (obj.classWise.presentCount * 100) /
+              obj.classWise.totalCount
+            ).toFixed(2);
+          }
 
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.classWise?.totalPercentage;
@@ -3321,10 +3326,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
+
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3357,10 +3365,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3389,10 +3399,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   }
                   sobj.totalCount += 1;
                 }
-                sobj.totalPercentage = (
-                  (sobj.presentCount * 100) /
-                  sobj.totalCount
-                ).toFixed(2);
+                if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                  sobj.totalPercentage = (
+                    (sobj.presentCount * 100) /
+                    sobj.totalCount
+                  ).toFixed(2);
+                }
                 if (which_type_list === "DEFAULTER") {
                   let total_per = +sobj?.totalPercentage;
                   total_per = Math.ceil(total_per);
@@ -3544,10 +3556,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
+
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3580,10 +3595,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3612,10 +3629,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   }
                   sobj.totalCount += 1;
                 }
-                sobj.totalPercentage = (
-                  (sobj.presentCount * 100) /
-                  sobj.totalCount
-                ).toFixed(2);
+                if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                  sobj.totalPercentage = (
+                    (sobj.presentCount * 100) /
+                    sobj.totalCount
+                  ).toFixed(2);
+                }
                 if (which_type_list === "DEFAULTER") {
                   let total_per = +sobj?.totalPercentage;
                   total_per = Math.ceil(total_per);
@@ -3759,10 +3778,13 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
+
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3795,10 +3817,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -3827,10 +3851,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   }
                   sobj.totalCount += 1;
                 }
-                sobj.totalPercentage = (
-                  (sobj.presentCount * 100) /
-                  sobj.totalCount
-                ).toFixed(2);
+                if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                  sobj.totalPercentage = (
+                    (sobj.presentCount * 100) /
+                    sobj.totalCount
+                  ).toFixed(2);
+                }
                 if (which_type_list === "DEFAULTER") {
                   let total_per = +sobj?.totalPercentage;
                   total_per = Math.ceil(total_per);
@@ -3981,10 +4007,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -4017,10 +4045,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                       }
                       sobj.totalCount += 1;
                     }
-                    sobj.totalPercentage = (
-                      (sobj.presentCount * 100) /
-                      sobj.totalCount
-                    ).toFixed(2);
+                    if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                      sobj.totalPercentage = (
+                        (sobj.presentCount * 100) /
+                        sobj.totalCount
+                      ).toFixed(2);
+                    }
                     if (which_type_list === "DEFAULTER") {
                       let total_per = +sobj?.totalPercentage;
                       total_per = Math.ceil(total_per);
@@ -4049,10 +4079,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
                   }
                   sobj.totalCount += 1;
                 }
-                sobj.totalPercentage = (
-                  (sobj.presentCount * 100) /
-                  sobj.totalCount
-                ).toFixed(2);
+                if (sobj.presentCount > 0 && sobj.totalCount > 0) {
+                  sobj.totalPercentage = (
+                    (sobj.presentCount * 100) /
+                    sobj.totalCount
+                  ).toFixed(2);
+                }
                 if (which_type_list === "DEFAULTER") {
                   let total_per = +sobj?.totalPercentage;
                   total_per = Math.ceil(total_per);
@@ -4190,10 +4222,12 @@ exports.getAllClassExportAttendanceModify = async (req, res) => {
             obj.classWise.totalCount += 1;
             obj.availablity.push(statusObj);
           }
-          obj.classWise.totalPercentage = (
-            (obj.classWise.presentCount * 100) /
-            obj.classWise.totalCount
-          ).toFixed(2);
+          if (obj.classWise.presentCount > 0 && obj.classWise.totalCount > 0) {
+            obj.classWise.totalPercentage = (
+              (obj.classWise.presentCount * 100) /
+              obj.classWise.totalCount
+            ).toFixed(2);
+          }
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.classWise?.totalPercentage;
             total_per = Math.ceil(total_per);
@@ -4786,11 +4820,15 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             obj.subjectWise.totalCount += 1;
             obj.availablity.push(statusObj);
           }
-          obj.subjectWise.totalPercentage = (
-            (obj.subjectWise.presentCount * 100) /
-            obj.subjectWise.totalCount
-          ).toFixed(2);
-
+          if (
+            obj.subjectWise.presentCount > 0 &&
+            obj.subjectWise.totalCount > 0
+          ) {
+            obj.subjectWise.totalPercentage = (
+              (obj.subjectWise.presentCount * 100) /
+              obj.subjectWise.totalCount
+            ).toFixed(2);
+          }
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.subjectWise?.totalPercentage;
             total_per = Math.ceil(total_per);
@@ -4952,10 +4990,15 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
           }
           obj.subjectWise.totalCount += 1;
         }
-        obj.subjectWise.totalPercentage = (
-          (obj.subjectWise.presentCount * 100) /
-          obj.subjectWise.totalCount
-        ).toFixed(2);
+        if (
+          obj.subjectWise.presentCount > 0 &&
+          obj.subjectWise.totalCount > 0
+        ) {
+          obj.subjectWise.totalPercentage = (
+            (obj.subjectWise.presentCount * 100) /
+            obj.subjectWise.totalCount
+          ).toFixed(2);
+        }
 
         if (which_type_list === "DEFAULTER") {
           let total_per = +obj?.subjectWise?.totalPercentage;
@@ -5030,6 +5073,187 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             "Student Attendance",
             "SUBJECT_SEMESTER_ATTENDANCE",
             `semester-of-${subjects?.class?.className ?? ""}`
+          );
+        }
+      }
+      res.status(200).send({
+        message: "All student zip attendance wtih all subject wise",
+        excel_key: excel_key,
+      });
+    } else if (is_type === "ALL_DETAIL") {
+      //       createdAt
+
+      // "01/10/2024"
+      var subjects = await Subject.findById(sid)
+        .populate({
+          path: "attendance",
+        })
+        .populate({
+          path: "selected_batch_query",
+        })
+        .populate({
+          path: "class",
+          select: "className",
+        });
+      // .select("attendance selected_batch_query class optionalStudent");
+      let custom_date_list = [];
+      custom_date_list = await generate_custom_date_list(
+        moment(subjects?.createdAt)?.format("DD/MM/yyyy"),
+        moment()?.format("DD/MM/yyyy")
+      );
+
+      let student_list = [];
+      var classes = null;
+      if (subjects?.selected_batch_query?._id) {
+        student_list = await Student.find({
+          _id: { $in: subjects?.selected_batch_query?.class_student_query },
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+          )
+          .lean()
+          .exec();
+      } else {
+        if (subjects?.optionalStudent?.length > 0) {
+          student_list = await Student.find({
+            _id: { $in: subjects?.optionalStudent },
+          })
+            .select(
+              "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave studentGRNO student_prn_enroll_number"
+            )
+            .lean()
+            .exec();
+        } else {
+          classes = await Class.findById(subjects?.class)
+            .populate({
+              path: "ApproveStudent",
+              select:
+                "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender studentGRNO student_prn_enroll_number",
+            })
+            .lean()
+            .exec();
+          student_list = classes?.ApproveStudent;
+        }
+      }
+
+      let students = [];
+      for (let att of subjects?.attendance) {
+        attendaceMappingDate.push(att?.attendDate);
+      }
+      if (student_list?.length > 0) {
+        for (let stu of student_list) {
+          let obj = {
+            ...stu,
+            availablity: [],
+            subjectWise: {
+              presentCount: 0,
+              totalCount: 0,
+              totalPercentage: 0,
+            },
+          };
+          for (let att of subjects?.attendance) {
+            let statusObj = {
+              date: att.attendDate,
+              status: "",
+              which_lecture: att?.which_lecture,
+            };
+            for (let pre of att?.presentStudent) {
+              if (String(stu._id) === String(pre.student)) {
+                statusObj.status = "P";
+                obj.subjectWise.presentCount += 1;
+              }
+            }
+            for (let abs of att?.absentStudent) {
+              if (String(stu._id) === String(abs.student)) {
+                statusObj.status = "A";
+              }
+            }
+            obj.subjectWise.totalCount += 1;
+            obj.availablity.push(statusObj);
+          }
+          if (
+            obj.subjectWise.presentCount > 0 &&
+            obj.subjectWise.totalCount > 0
+          ) {
+            obj.subjectWise.totalPercentage = (
+              (obj.subjectWise.presentCount * 100) /
+              obj.subjectWise.totalCount
+            ).toFixed(2);
+          }
+
+          if (which_type_list === "DEFAULTER") {
+            let total_per = +obj?.subjectWise?.totalPercentage;
+            total_per = Math.ceil(total_per);
+            if (total_per < +criteria) {
+              students.push(obj);
+            }
+          } else {
+            students.push(obj);
+          }
+        }
+      }
+
+      attendance_zip = {
+        students: students,
+        attendaceMappingDate: attendaceMappingDate,
+      };
+
+      const student = attendance_zip?.students?.map((stu) => {
+        let dObj = {};
+        for (let i = 0; i < custom_date_list?.length; i++) {
+          let db = custom_date_list[i];
+          if (attendance_zip?.attendaceMappingDate?.includes(db)) {
+            dObj[db] = "";
+          }
+        }
+        for (let avail of stu?.availablity) {
+          if (avail?.which_lecture === "1") {
+            dObj[`${avail?.date}`] = avail?.status;
+          } else {
+            dObj[`${avail?.date} - ${avail?.which_lecture}`] = avail?.status;
+          }
+        }
+
+        let obj = {
+          GRNO: stu?.studentGRNO ?? "N/A",
+          "Enrollment / PRN": stu?.student_prn_enroll_number
+            ? stu?.student_prn_enroll_number
+            : "N/A",
+          RollNo: stu?.studentROLLNO,
+          Name:
+            stu?.studentFirstName +
+            " " +
+            stu?.studentMiddleName +
+            " " +
+            stu?.studentLastName,
+          Gender: stu?.studentGender,
+          ...dObj,
+          "Total Count":
+            is_pdf === "YES"
+              ? `${stu?.subjectWise?.presentCount} / ${stu?.subjectWise?.totalCount}`
+              : `${stu?.subjectWise?.presentCount} out of ${stu?.subjectWise?.totalCount}`,
+          "Overall Percentage": stu?.subjectWise?.totalPercentage,
+        };
+        return obj;
+      });
+
+      if (student?.length > 0) {
+        if (is_pdf === "YES") {
+          excel_key = await subjectAttendanceReport(
+            student,
+            sid,
+            moment(subjects?.createdAt)?.format("DD/MM/yyyy"),
+            moment()?.format("DD/MM/yyyy"),
+            "SUBJECT_SEMESTER_DETAIL_ATTENDANCE",
+            "Semester-Detail"
+          );
+        } else {
+          excel_key = await subject_attendance_json_to_excel(
+            sid,
+            student,
+            "Student Attendance",
+            "SUBJECT_SEMESTER_DETAIL_ATTENDANCE",
+            `semester-detail-of-${subjects?.class?.className ?? ""}`
           );
         }
       }
@@ -5132,11 +5356,15 @@ exports.getAllSubjectExportAttendance = async (req, res) => {
             obj.subjectWise.totalCount += 1;
             obj.availablity.push(statusObj);
           }
-          obj.subjectWise.totalPercentage = (
-            (obj.subjectWise.presentCount * 100) /
-            obj.subjectWise.totalCount
-          ).toFixed(2);
-
+          if (
+            obj.subjectWise.presentCount > 0 &&
+            obj.subjectWise.totalCount > 0
+          ) {
+            obj.subjectWise.totalPercentage = (
+              (obj.subjectWise.presentCount * 100) /
+              obj.subjectWise.totalCount
+            ).toFixed(2);
+          }
           if (which_type_list === "DEFAULTER") {
             let total_per = +obj?.subjectWise?.totalPercentage;
             total_per = Math.ceil(total_per);
@@ -6148,12 +6376,14 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
               // let d_avg =
               //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
               //   100;
-              let d_avg =
-                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
-              d_avg = d_avg?.toFixed(2);
-              d_avg = +d_avg;
+              if (att?.presentTotal > 0 || att?.absentTotal > 0) {
+                let d_avg =
+                  att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+                d_avg = d_avg?.toFixed(2);
+                d_avg = +d_avg;
 
-              daily_avg.push(d_avg);
+                daily_avg.push(d_avg);
+              }
             }
           }
           if (daily_avg?.length > 0) {
@@ -6196,9 +6426,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                           }
                         }
                       }
-                      let d_avg = (obj?.present / obj.total) * 100;
-                      d_avg = d_avg?.toFixed(2);
-                      obj.dt_avg = +d_avg;
+                      if (obj?.present > 0 && obj.total > 0) {
+                        let d_avg = (obj?.present / obj.total) * 100;
+                        d_avg = d_avg?.toFixed(2);
+                        obj.dt_avg = +d_avg;
+                      }
                       stu.theory.push(obj.dt_avg);
                     }
                   }
@@ -6219,9 +6451,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                     }
                   }
                 }
-                let d_avg = (obj?.present / obj.total) * 100;
-                d_avg = d_avg?.toFixed(2);
-                obj.dt_avg = +d_avg;
+                if (obj?.present > 0 && obj.total > 0) {
+                  let d_avg = (obj?.present / obj.total) * 100;
+                  d_avg = d_avg?.toFixed(2);
+                  obj.dt_avg = +d_avg;
+                }
                 stu.theory.push(obj.dt_avg);
               }
             }
@@ -6251,12 +6485,13 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
               // let d_avg =
               //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
               //   100;
-              let d_avg =
-                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
-              d_avg = d_avg?.toFixed(2);
-              d_avg = +d_avg;
-
-              daily_avg.push(d_avg);
+              if (att?.presentTotal > 0 || att?.absentTotal > 0) {
+                let d_avg =
+                  att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+                d_avg = d_avg?.toFixed(2);
+                d_avg = +d_avg;
+                daily_avg.push(d_avg);
+              }
             }
           }
           if (daily_avg?.length > 0) {
@@ -6299,9 +6534,12 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                           }
                         }
                       }
-                      let d_avg = (obj?.present / obj.total) * 100;
-                      d_avg = d_avg?.toFixed(2);
-                      obj.dt_avg = +d_avg;
+                      if (obj?.present > 0 && obj.total > 0) {
+                        let d_avg = (obj?.present / obj.total) * 100;
+                        d_avg = d_avg?.toFixed(2);
+                        obj.dt_avg = +d_avg;
+                      }
+
                       stu.practical_tutorial.push(obj.dt_avg);
                     }
                   }
@@ -6322,9 +6560,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                     }
                   }
                 }
-                let d_avg = (obj?.present / obj.total) * 100;
-                d_avg = d_avg?.toFixed(2);
-                obj.dt_avg = +d_avg;
+                if (obj?.present > 0 && obj.total > 0) {
+                  let d_avg = (obj?.present / obj.total) * 100;
+                  d_avg = d_avg?.toFixed(2);
+                  obj.dt_avg = +d_avg;
+                }
                 stu.practical_tutorial.push(obj.dt_avg);
               }
             }
@@ -6500,10 +6740,13 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
               // let d_avg =
               //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
               //   100;
-              let d_avg =
-                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
-              d_avg = d_avg?.toFixed(2);
-              d_avg = +d_avg;
+              let d_avg = 0;
+              if (att?.presentTotal > 0 || att?.absentTotal > 0) {
+                let d_avg =
+                  att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+                d_avg = d_avg?.toFixed(2);
+                d_avg = +d_avg;
+              }
 
               daily_avg.push(d_avg);
             }
@@ -6548,9 +6791,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                           }
                         }
                       }
-                      let d_avg = (obj?.present / obj.total) * 100;
-                      d_avg = d_avg?.toFixed(2);
-                      obj.dt_avg = +d_avg;
+                      if (obj?.present > 0 && obj.total > 0) {
+                        let d_avg = (obj?.present / obj.total) * 100;
+                        d_avg = d_avg?.toFixed(2);
+                        obj.dt_avg = +d_avg;
+                      }
                       stu.theory.push(obj.dt_avg);
                     }
                   }
@@ -6571,9 +6816,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                     }
                   }
                 }
-                let d_avg = (obj?.present / obj.total) * 100;
-                d_avg = d_avg?.toFixed(2);
-                obj.dt_avg = +d_avg;
+                if (obj?.present > 0 && obj.total > 0) {
+                  let d_avg = (obj?.present / obj.total) * 100;
+                  d_avg = d_avg?.toFixed(2);
+                  obj.dt_avg = +d_avg;
+                }
                 stu.theory.push(obj.dt_avg);
               }
             }
@@ -6598,11 +6845,13 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
               // let d_avg =
               //   (att?.presentTotal / (att?.presentTotal + att?.absentTotal)) *
               //   100;
-              let d_avg =
-                att?.presentTotal / (att?.presentTotal + att?.absentTotal);
-              d_avg = d_avg?.toFixed(2);
-              d_avg = +d_avg;
-
+              let d_avg = 0;
+              if (att?.presentTotal > 0 || att?.absentTotal > 0) {
+                let d_avg =
+                  att?.presentTotal / (att?.presentTotal + att?.absentTotal);
+                d_avg = d_avg?.toFixed(2);
+                d_avg = +d_avg;
+              }
               daily_avg.push(d_avg);
             }
           }
@@ -6646,9 +6895,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                           }
                         }
                       }
-                      let d_avg = (obj?.present / obj.total) * 100;
-                      d_avg = d_avg?.toFixed(2);
-                      obj.dt_avg = +d_avg;
+                      if (obj?.present > 0 && obj.total > 0) {
+                        let d_avg = (obj?.present / obj.total) * 100;
+                        d_avg = d_avg?.toFixed(2);
+                        obj.dt_avg = +d_avg;
+                      }
                       stu.practical_tutorial.push(obj.dt_avg);
                     }
                   }
@@ -6669,9 +6920,11 @@ exports.cls_attendance_theory_practical_wise_export_quer = async (req, res) => {
                     }
                   }
                 }
-                let d_avg = (obj?.present / obj.total) * 100;
-                d_avg = d_avg?.toFixed(2);
-                obj.dt_avg = +d_avg;
+                if (obj?.present > 0 && obj.total > 0) {
+                  let d_avg = (obj?.present / obj.total) * 100;
+                  d_avg = d_avg?.toFixed(2);
+                  obj.dt_avg = +d_avg;
+                }
                 stu.practical_tutorial.push(obj.dt_avg);
               }
             }

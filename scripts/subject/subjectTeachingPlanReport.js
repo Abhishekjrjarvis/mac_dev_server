@@ -348,10 +348,10 @@ const subjectTeachingPlanReport = async (
     for (let i = 0; i < teaching_list?.length; i++) {
       let tech = teaching_list[i];
       if (i === 0) {
-        // let dbt = pageHeight - 60;
-        // if (doc.y >= dbt) {
-        //   doc.addPage();
-        // }
+        let dbt = pageHeight - 60;
+        if (doc.y >= dbt) {
+          doc.addPage();
+        }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -361,10 +361,10 @@ const subjectTeachingPlanReport = async (
             align: "center",
           });
         doc.moveDown(0.5);
-        // dbt = pageHeight - 60;
-        // if (doc.y >= dbt) {
-        //   doc.addPage();
-        // }
+        dbt = pageHeight - 60;
+        if (doc.y >= dbt) {
+          doc.addPage();
+        }
         let header = [
           {
             label: "Lecture No.",
@@ -450,10 +450,10 @@ const subjectTeachingPlanReport = async (
           // addPage: true,
         });
       } else {
-        // let dbt = pageHeight - 60;
-        // if (doc.y >= dbt) {
-        //   doc.addPage();
-        // }
+        let dbt = pageHeight - 60;
+        if (doc.y >= dbt) {
+          doc.addPage();
+        }
         doc
           .fontSize(11)
           .font("Times-Bold")
@@ -473,10 +473,10 @@ const subjectTeachingPlanReport = async (
         //   "tech ->",
         //   tech?.name
         // );
-        // dbt = pageHeight - 60;
-        // if (doc.y >= dbt) {
-        //   doc.addPage();
-        // }
+        dbt = pageHeight - 60;
+        if (doc.y >= dbt) {
+          doc.addPage();
+        }
         let header = [
           {
             label: "Lecture No.",

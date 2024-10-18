@@ -785,6 +785,89 @@ const staffSchema = new mongoose.Schema({
   inward_outward_signature: {
     type: String,
   },
+
+  taken_leave: {
+    casual_leave: {
+      type: Number,
+      default: 0,
+    },
+    medical_leave: {
+      type: Number,
+      default: 0,
+    },
+    sick_leave: {
+      type: Number,
+      default: 0,
+    },
+    off_duty_leave: {
+      type: Number,
+      default: 0,
+    },
+    c_off_leave: {
+      type: Number,
+      default: 0,
+    },
+    lwp_leave: {
+      type: Number,
+      default: 0,
+    },
+    leave_taken: {
+      type: Number,
+      default: 0,
+    },
+    commuted_leave: {
+      type: Number,
+      default: 0,
+    },
+    maternity_leave: {
+      type: Number,
+      default: 0,
+    },
+    paternity_leave: {
+      type: Number,
+      default: 0,
+    },
+    study_leave: {
+      type: Number,
+      default: 0,
+    },
+    half_pay_leave: {
+      type: Number,
+      default: 0,
+    },
+    quarantine_leave: {
+      type: Number,
+      default: 0,
+    },
+    sabbatical_leave: {
+      type: Number,
+      default: 0,
+    },
+    special_disability_leave: {
+      type: Number,
+      default: 0,
+    },
+    winter_vacation_leave: {
+      type: Number,
+      default: 0,
+    },
+    summer_vacation_leave: {
+      type: Number,
+      default: 0,
+    },
+    child_adoption_leave: {
+      type: Number,
+      default: 0,
+    },
+    bereavement_leave: {
+      type: Number,
+      default: 0,
+    },
+    earned_leave: {
+      type: Number,
+      default: 0,
+    },
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);
